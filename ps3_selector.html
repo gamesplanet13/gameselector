@@ -1,0 +1,2851 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>PS3 GAME SELECTOR</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js">
+
+function filterGames() {
+  const searchValue = document.getElementById('searchBox').value.toLowerCase();
+  const categoryValue = document.getElementById('categoryFilter').value;
+  const sizeValue = document.getElementById('sizeFilter').value;
+  const items = document.querySelectorAll('.game-item');
+
+  items.forEach(item => {
+    const name = item.dataset.name.toLowerCase();
+    const category = item.dataset.category;
+    const sizeGroup = item.dataset.sizegroup;
+    const matchesSearch = name.includes(searchValue);
+    const matchesCategory = !categoryValue || category === categoryValue;
+    const matchesSize = !sizeValue || sizeGroup === sizeValue;
+    item.style.display = (matchesSearch && matchesCategory && matchesSize) ? '' : 'none';
+  });
+}
+</script>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&amp;display=swap" rel="stylesheet"/>
+<style>
+    body { font-family: Arial, sans-serif; padding: 1em; margin: 0; background: #f4f4f4; }
+    h1 { text-align: center; }
+    .game-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 70px; }
+    .game-item { background: white; padding: 10px; border-radius: 10px; border: 2px solid #ccc; cursor: pointer; transition: all 0.2s; }
+    .game-item.selected { background: #d1e7dd; border-color: #0f5132; }
+    .footer { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; padding: 10px; box-shadow: 0 -2px 6px rgba(0,0,0,0.1); }
+    .footer .info-line { font-size: 12px; text-align: center; margin-bottom: 5px; }
+    .footer .buttons { display: flex; justify-content: center; gap: 10px; flex-wrap: nowrap; overflow-x: auto; }
+    
+.footer button {
+  padding: 5px 8px;
+  font-size: 12px;
+  border: none;
+  border-radius: 4px;
+  background: #007bff;
+  color: white;
+  cursor: pointer;
+}
+.footer button:hover {
+  background: #0056b3;
+}
+    .footer button:hover { background: #0056b3; }
+    @keyframes flashTitle {
+      0% { opacity: 1; }
+      50% { opacity: 0.2; }
+      100% { opacity: 1; }
+    }
+    .flash { animation: flashTitle 1s infinite; }
+  </style>
+</head>
+<body>
+<audio autoplay="" id="bgMusic" loop="" muted="">
+<source src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_19b5747b58.mp3?filename=future-tech-ambient-11150.mp3" type="audio/mpeg"/>
+</audio>
+<div style="background:black; padding:10px; text-align:center;">
+<h1 class="flash" style="font-family: 'Orbitron', sans-serif; color: white; font-size: 32px; margin: 0;">PS3 GAME SELECTOR</h1>
+</div>
+<div style="text-align:center; margin-top:10px; font-size:18px; font-weight:bold; white-space:nowrap;">PS3 Game List - Select your favourite PS3 games</div>
+<div style="text-align: center; margin-bottom: 1em;">
+<input id="customerName" placeholder="Customer Name" style="padding: 5px; width: 200px; margin-right: 10px;" type="text"/>
+<input id="customerMobile" placeholder="Mobile Number" style="padding: 5px; width: 150px; margin-right: 10px;" type="text"/>
+<input id="storageSize" placeholder="Storage Size (GB)" style="padding: 5px; width: 150px;" type="text" value="114"/>
+</div>
+
+<div style="text-align:center; margin: 10px;">
+<input id="searchBox" oninput="filterGames()" placeholder="Search games..." style="padding:5px; width:200px;" type="text"/>
+<select id="categoryFilter" onchange="filterGames()" style="padding:5px;">
+<option value="">All Categories</option>
+<option value="Action">Action</option>
+<option value="Adventure">Adventure</option>
+<option value="Racing">Racing</option>
+<option value="Shooter">Shooter</option>
+<option value="Sports">Sports</option>
+<option value="Unknown">Other</option>
+</select>
+<select id="sizeFilter" onchange="filterGames()" style="padding:5px;">
+<option value="">All Sizes</option>
+<option value="&lt;1GB">&lt;1GB</option>
+<option value="1-2GB">1–2GB</option>
+<option value="2-3GB">2–3GB</option>
+<option value="3-4GB">3–4GB</option>
+<option value="4GB+">4GB+</option>
+</select>
+</div>
+<div class="game-list" id="gameList"></div>
+<div class="footer">
+<div class="info-line" id="summaryInfo"></div>
+<div class="info-line" id="storageBarInfo" style="font-size: 10px; color: #666;"></div>
+<div class="buttons">
+<button onclick="printPlainText()">Print</button>
+<button onclick="saveAsPDF()">PDF</button>
+<button onclick="sendEmail()">Email</button>
+<button onclick="sendSMS()">SMS</button>
+<button onclick="sendWhatsApp()">WhatsApp</button>
+</div>
+</div>
+<script>
+  const games = [
+  {
+    "name": "007 James Bond",
+    "size": 10.7
+  },
+  {
+    "name": "007 James Bond Blood Stone",
+    "size": 6.2
+  },
+  {
+    "name": "007 James Bond LEGEND",
+    "size": 8.2
+  },
+  {
+    "name": "ACE COMBAT ASSAULT HORIZON",
+    "size": 7.1
+  },
+  {
+    "name": "Alien Isolation",
+    "size": 2.2
+  },
+  {
+    "name": "Aliens Colonial Marines",
+    "size": 6.4
+  },
+  {
+    "name": "Aliens vs Predator",
+    "size": 6.4
+  },
+  {
+    "name": "Angry Birds Trilogy",
+    "size": 1.8
+  },
+  {
+    "name": "Arcania The Complete Tale",
+    "size": 7.9
+  },
+  {
+    "name": "Army Of Two 2008",
+    "size": 4.6
+  },
+  {
+    "name": "Army of Two The 40th Day",
+    "size": 4.4
+  },
+  {
+    "name": "Army of Two The Devils Cartel]",
+    "size": 7.2
+  },
+  {
+    "name": "Assassins Creed",
+    "size": 7.6
+  },
+  {
+    "name": "Assassin's Creed - Connor Saga [BLJM61174]",
+    "size": 11.9
+  },
+  {
+    "name": "Assassins Creed II",
+    "size": 6.6
+  },
+  {
+    "name": "Assassin's Creed Revelations - BLUS30905 - USA",
+    "size": 15.7
+  },
+  {
+    "name": "Assassins Creed Rogue [PS3]",
+    "size": 6.0
+  },
+  {
+    "name": "Assassins_Creed_IV_Black_Flag-PS3-RiOT",
+    "size": 10.0
+  },
+  {
+    "name": "Asura's Wrath",
+    "size": 6.8
+  },
+  {
+    "name": "Avatar",
+    "size": 3.0
+  },
+  {
+    "name": "BACKBREAKER",
+    "size": 1.9
+  },
+  {
+    "name": "Batman Arkham City GOTY Edition",
+    "size": 8.9
+  },
+  {
+    "name": "Batman Arkham Origins",
+    "size": 12.1
+  },
+  {
+    "name": "Battlefield",
+    "size": 6.1
+  },
+  {
+    "name": "battlefield 3",
+    "size": 12.1
+  },
+  {
+    "name": "Battlefield 4",
+    "size": 10.2
+  },
+  {
+    "name": "Battlefield Hardline",
+    "size": 13.3
+  },
+  {
+    "name": "Battleship",
+    "size": 3.1
+  },
+  {
+    "name": "Ben 10 Omniverse",
+    "size": 2.7
+  },
+  {
+    "name": "BEN 10 OMNIVERSE 2",
+    "size": 2.3
+  },
+  {
+    "name": "Ben 10 Ultimate Alien Cosmic Destruction",
+    "size": 5.0
+  },
+  {
+    "name": "Beyond Two Souls",
+    "size": 25.1
+  },
+  {
+    "name": "BINARY DOMAIN]",
+    "size": 11.4
+  },
+  {
+    "name": "BioShock 1",
+    "size": 11.5
+  },
+  {
+    "name": "BioShock 2",
+    "size": 9.1
+  },
+  {
+    "name": "BioShock Infinite",
+    "size": 18.0
+  },
+  {
+    "name": "Blades Of Time",
+    "size": 1.9
+  },
+  {
+    "name": "Bladestorm The Hundred Years ’ War & Nightmare",
+    "size": 5.7
+  },
+  {
+    "name": "Blood Driver",
+    "size": 1.7
+  },
+  {
+    "name": "Blur",
+    "size": 6.3
+  },
+  {
+    "name": "Borderlands 2",
+    "size": 4.0
+  },
+  {
+    "name": "Borderlands 2 GOTY Content Install Disc",
+    "size": 5.7
+  },
+  {
+    "name": "Bound by Flame",
+    "size": 2.9
+  },
+  {
+    "name": "Brave - The Video Game",
+    "size": 2.9
+  },
+  {
+    "name": "Burnout Paradise [COURSE][FR]",
+    "size": 3.6
+  },
+  {
+    "name": "Burnout.Paradise.The.Ultimate.Box",
+    "size": 1.3
+  },
+  {
+    "name": "Cabela's Adventure Camp",
+    "size": 2.4
+  },
+  {
+    "name": "Cabela's Big Game Hunter 2012",
+    "size": 3.3
+  },
+  {
+    "name": "Cabela's Big Game Hunter Pro Hunts",
+    "size": 3.0
+  },
+  {
+    "name": "Cabela's Dangerous Adventures 2009",
+    "size": 2.2
+  },
+  {
+    "name": "Cabela's Outdoor Adventures",
+    "size": 3.6
+  },
+  {
+    "name": "Cabelas Survival Shadows of Katmai [BLES01412]",
+    "size": 6.7
+  },
+  {
+    "name": "Call of Duty Advanced Warfare",
+    "size": 15.2
+  },
+  {
+    "name": "CALL OF DUTY Black ops",
+    "size": 13.7
+  },
+  {
+    "name": "Call of Duty Black Ops II",
+    "size": 15.9
+  },
+  {
+    "name": "Call of Duty Ghosts",
+    "size": 10.0
+  },
+  {
+    "name": "Call of Duty Modern Warfare 2 - [BLUS30377]",
+    "size": 7.5
+  },
+  {
+    "name": "Call of Duty Modern Warfare 3",
+    "size": 10.6
+  },
+  {
+    "name": "Call of Juarez Bound in Blood",
+    "size": 3.2
+  },
+  {
+    "name": "Call of Juarez The Cartel",
+    "size": 4.8
+  },
+  {
+    "name": "Captain America ™ Super Soldier",
+    "size": 6.2
+  },
+  {
+    "name": "Castlevania Lords of Shadow 2",
+    "size": 4.2
+  },
+  {
+    "name": "CLASH OF THE TITANS",
+    "size": 6.0
+  },
+  {
+    "name": "CONFLICT DENIED OPS",
+    "size": 7.9
+  },
+  {
+    "name": "Counter-Strike Global Offensive PS3",
+    "size": 2.3
+  },
+  {
+    "name": "Crysis 3",
+    "size": 8.6
+  },
+  {
+    "name": "D00M 3 BFG Editi0n",
+    "size": 7.4
+  },
+  {
+    "name": "Damnation",
+    "size": 5.7
+  },
+  {
+    "name": "Dante's_Inferno_PAL",
+    "size": 5.8
+  },
+  {
+    "name": "Dark Sector",
+    "size": 1.2
+  },
+  {
+    "name": "DARK SOULS",
+    "size": 7.3
+  },
+  {
+    "name": "DARK SOULS II Scholar of the First Sin",
+    "size": 7.8
+  },
+  {
+    "name": "Darksiders 2",
+    "size": 7.5
+  },
+  {
+    "name": "Dead Island Riptide",
+    "size": 2.7
+  },
+  {
+    "name": "DEAD RISING 2",
+    "size": 5.7
+  },
+  {
+    "name": "Dead Space 3",
+    "size": 11.2
+  },
+  {
+    "name": "Dead Space ™",
+    "size": 9.8
+  },
+  {
+    "name": "DEAD TO RIGHTS 3",
+    "size": 6.3
+  },
+  {
+    "name": "Deadliest warrior",
+    "size": 3.0
+  },
+  {
+    "name": "Deadly PremonitionThe Director",
+    "size": 11.9
+  },
+  {
+    "name": "Deadpool",
+    "size": 5.6
+  },
+  {
+    "name": "Destiny",
+    "size": 20.7
+  },
+  {
+    "name": "Destroy All Humans!® Path of the Furon ™",
+    "size": 7.7
+  },
+  {
+    "name": "Deus Ex Human Revolution - Director's Cut",
+    "size": 16.9
+  },
+  {
+    "name": "Devil May Cry 4",
+    "size": 7.9
+  },
+  {
+    "name": "Diablo III",
+    "size": 8.8
+  },
+  {
+    "name": "Diablo III Reaper of Souls",
+    "size": 15.1
+  },
+  {
+    "name": "Dirt 3",
+    "size": 6.3
+  },
+  {
+    "name": "Dishonored",
+    "size": 11.8
+  },
+  {
+    "name": "Disney Epic Mickey 2 The Power of Two",
+    "size": 4.8
+  },
+  {
+    "name": "Disney Infinity",
+    "size": 8.4
+  },
+  {
+    "name": "Disney Infinity 2",
+    "size": 10.1
+  },
+  {
+    "name": "Disney Universe",
+    "size": 10.7
+  },
+  {
+    "name": "DmC Devil May Cry",
+    "size": 6.8
+  },
+  {
+    "name": "Don Bradman Cricket 14",
+    "size": 2.2
+  },
+  {
+    "name": "Dragon Age Inquisition",
+    "size": 16.9
+  },
+  {
+    "name": "Dragon Ball Z Ultimate Tenkaichi",
+    "size": 7.0
+  },
+  {
+    "name": "Dragon_Ball_Xenoverse",
+    "size": 6.7
+  },
+  {
+    "name": "DRIVER San Francisco]",
+    "size": 8.8
+  },
+  {
+    "name": "Duke.Nukem.Forever",
+    "size": 4.6
+  },
+  {
+    "name": "Earth Defense Force 2025",
+    "size": 2.8
+  },
+  {
+    "name": "El Chavo Kart",
+    "size": 1.9
+  },
+  {
+    "name": "Enemy Front",
+    "size": 4.7
+  },
+  {
+    "name": "Escape Dead Island",
+    "size": 4.4
+  },
+  {
+    "name": "Evil Within",
+    "size": 7.2
+  },
+  {
+    "name": "F.E.A.R. 2 Project Origin",
+    "size": 4.1
+  },
+  {
+    "name": "F.E.A.R.3",
+    "size": 12.9
+  },
+  {
+    "name": "F1 2010",
+    "size": 4.8
+  },
+  {
+    "name": "Falling Skies The Game",
+    "size": 2.3
+  },
+  {
+    "name": "Fallout.New.Vegas.Ultimate.Edition",
+    "size": 12.9
+  },
+  {
+    "name": "FANTASTIC FOUR",
+    "size": 5.2
+  },
+  {
+    "name": "Far Cry 3",
+    "size": 11.1
+  },
+  {
+    "name": "Far Cry 4",
+    "size": 9.1
+  },
+  {
+    "name": "Fast & Furious Showdown",
+    "size": 1.8
+  },
+  {
+    "name": "FIFA 18",
+    "size": 6.5
+  },
+  {
+    "name": "FIFA 19",
+    "size": 9.5
+  },
+  {
+    "name": "Final Fantasy XIV A Realm Reborn",
+    "size": 6.6
+  },
+  {
+    "name": "Fist of the North Star Ken's Rage 2",
+    "size": 9.3
+  },
+  {
+    "name": "FULL AUTO 2 BATTLELINES",
+    "size": 3.3
+  },
+  {
+    "name": "Fuse",
+    "size": 10.7
+  },
+  {
+    "name": "Game of Thrones",
+    "size": 2.9
+  },
+  {
+    "name": "God of War - Origins Collection",
+    "size": 22.2
+  },
+  {
+    "name": "God of War 3",
+    "size": 40.2
+  },
+  {
+    "name": "God of War Ascension",
+    "size": 38.5
+  },
+  {
+    "name": "God of War Collection",
+    "size": 15.2
+  },
+  {
+    "name": "GODZILLA",
+    "size": 4.2
+  },
+  {
+    "name": "Golden Axe Beast Rider ™",
+    "size": 6.7
+  },
+  {
+    "name": "Gran Turismo 6",
+    "size": 14.4
+  },
+  {
+    "name": "Grand Theft Auto 4",
+    "size": 10.5
+  },
+  {
+    "name": "Grand Theft Auto 4 - Complete Edition",
+    "size": 18.1
+  },
+  {
+    "name": "Grand Theft Auto 5",
+    "size": 19.5
+  },
+  {
+    "name": "Grand Theft Auto Episodes from Liberty City",
+    "size": 8.1
+  },
+  {
+    "name": "Grand Theft Auto San Andreas",
+    "size": 2.3
+  },
+  {
+    "name": "Green_Lantern_Rise_Of_The_Manhunters",
+    "size": 4.2
+  },
+  {
+    "name": "Grid 2",
+    "size": 5.8
+  },
+  {
+    "name": "Guilty Gear Xrd -Revelator",
+    "size": 6.0
+  },
+  {
+    "name": "Guilty Gear Xrd Sign",
+    "size": 4.3
+  },
+  {
+    "name": "Gundam Breaker 2",
+    "size": 5.4
+  },
+  {
+    "name": "Harry Potter and the Deathly Hallows 2",
+    "size": 7.0
+  },
+  {
+    "name": "HAVENLY",
+    "size": 16.7
+  },
+  {
+    "name": "Heavenly Sword",
+    "size": 18.4
+  },
+  {
+    "name": "Heavy Fire Afghanistan",
+    "size": 3.8
+  },
+  {
+    "name": "HEAVY FIRE SHATTERED SPEAR",
+    "size": 2.9
+  },
+  {
+    "name": "HEAVY RAIN",
+    "size": 18.0
+  },
+  {
+    "name": "Hitman Absolution",
+    "size": 16.5
+  },
+  {
+    "name": "Hitman HD Trilogy",
+    "size": 8.3
+  },
+  {
+    "name": "Homefront",
+    "size": 2.7
+  },
+  {
+    "name": "Hot Wheels Worlds Best Driver",
+    "size": 3.3
+  },
+  {
+    "name": "Ice Age Continental Drift",
+    "size": 2.8
+  },
+  {
+    "name": "ICO and Shadow of the Colossus ( 2011 ) [PS 3][EUR][MULTi 5][3.41 & 3.55][WwW.ZoNaTorrent.CoM]",
+    "size": 2.3
+  },
+  {
+    "name": "Infamous",
+    "size": 7.1
+  },
+  {
+    "name": "infamous 2",
+    "size": 14.3
+  },
+  {
+    "name": "Injustice Gods Among Us",
+    "size": 9.9
+  },
+  {
+    "name": "International Cricket 2010",
+    "size": 3.1
+  },
+  {
+    "name": "Inversion",
+    "size": 3.4
+  },
+  {
+    "name": "Jak.and.Daxter.Collection",
+    "size": 7.9
+  },
+  {
+    "name": "Jane's Advanced Strike Fighters",
+    "size": 1.3
+  },
+  {
+    "name": "JUST CAUSE 2",
+    "size": 7.6
+  },
+  {
+    "name": "Kamen Rider Battride War Sousei Memorial TV Sound Edition",
+    "size": 3.6
+  },
+  {
+    "name": "KILLER IS DEAD",
+    "size": 3.6
+  },
+  {
+    "name": "Killzone 2 RUSSOUND",
+    "size": 10.2
+  },
+  {
+    "name": "Killzone 3",
+    "size": 41.4
+  },
+  {
+    "name": "Kung Fu Panda 2",
+    "size": 1.9
+  },
+  {
+    "name": "Kung Fu Panda Showdown of Legendary Legends",
+    "size": 1.5
+  },
+  {
+    "name": "L.A Noire Complete Edition",
+    "size": 6.2
+  },
+  {
+    "name": "LEGO Jurassic World",
+    "size": 5.8
+  },
+  {
+    "name": "Lego MARVEL Super Heroes",
+    "size": 7.8
+  },
+  {
+    "name": "LEGO Marvel's Avengers",
+    "size": 7.8
+  },
+  {
+    "name": "LEGO® Indiana Jones ™",
+    "size": 4.9
+  },
+  {
+    "name": "LEGO® Pirates of the Caribbean The Video Game",
+    "size": 7.6
+  },
+  {
+    "name": "Little Big Planet 3",
+    "size": 2.5
+  },
+  {
+    "name": "LittleBigPlanet Karting]",
+    "size": 6.9
+  },
+  {
+    "name": "London 2012",
+    "size": 6.5
+  },
+  {
+    "name": "Lost Planet 3",
+    "size": 15.8
+  },
+  {
+    "name": "Lost Planet Extreme Condition",
+    "size": 8.1
+  },
+  {
+    "name": "Mafia 2",
+    "size": 7.5
+  },
+  {
+    "name": "MAG",
+    "size": 13.9
+  },
+  {
+    "name": "MARVEL VS CAPCOM 3",
+    "size": 3.2
+  },
+  {
+    "name": "Mass Effect",
+    "size": 10.9
+  },
+  {
+    "name": "Mass Effect 2",
+    "size": 12.0
+  },
+  {
+    "name": "Mass Effect 3 [BLUS30853]",
+    "size": 4.1
+  },
+  {
+    "name": "Max Payne 3",
+    "size": 14.2
+  },
+  {
+    "name": "Medal of Honor Airborne]",
+    "size": 4.5
+  },
+  {
+    "name": "Medal of honor limited edition",
+    "size": 9.0
+  },
+  {
+    "name": "Medal of Honor Warfighter",
+    "size": 11.6
+  },
+  {
+    "name": "METAL GEAR SOLID 4 GUNS OF THE PATRIOTS",
+    "size": 30.1
+  },
+  {
+    "name": "Metal Gear Solid HD Collection",
+    "size": 22.1
+  },
+  {
+    "name": "METAL GEAR SOLID V GROUND ZEROES",
+    "size": 2.1
+  },
+  {
+    "name": "METAL GEAR SOLID V THE PHANTOM PAIN",
+    "size": 11.8
+  },
+  {
+    "name": "Metro Last Light",
+    "size": 6.0
+  },
+  {
+    "name": "MIB Alien Crisis",
+    "size": 5.9
+  },
+  {
+    "name": "MiddleEarth Shadow of Mordor",
+    "size": 7.3
+  },
+  {
+    "name": "MIDNIGHT CLUB",
+    "size": 4.7
+  },
+  {
+    "name": "MMA",
+    "size": 6.0
+  },
+  {
+    "name": "MORTAL KOMBAT",
+    "size": 9.7
+  },
+  {
+    "name": "Mortal Kombat 9 KE",
+    "size": 9.5
+  },
+  {
+    "name": "Mortal Kombat vs DC Universe]",
+    "size": 5.8
+  },
+  {
+    "name": "Motionsports ™ Adrenaline",
+    "size": 2.8
+  },
+  {
+    "name": "Moto GP 14",
+    "size": 10.0
+  },
+  {
+    "name": "Motorcycle Club",
+    "size": 1.5
+  },
+  {
+    "name": "Motorstorm Apocalypse",
+    "size": 18.8
+  },
+  {
+    "name": "MUD",
+    "size": 2.3
+  },
+  {
+    "name": "Murdered Soul Suspect",
+    "size": 10.2
+  },
+  {
+    "name": "MX vs ATV Supercross",
+    "size": 2.4
+  },
+  {
+    "name": "MXGP - The Official Motocross Videogame",
+    "size": 3.0
+  },
+  {
+    "name": "NARUTO SHIPPUDEN Ultimate Ninja STORM 3",
+    "size": 6.9
+  },
+  {
+    "name": "NBA 2K17",
+    "size": 8.2
+  },
+  {
+    "name": "NBA 2K18",
+    "size": 8.1
+  },
+  {
+    "name": "Need For Speed",
+    "size": 6.8
+  },
+  {
+    "name": "Need for Speed Most Wanted",
+    "size": 2.9
+  },
+  {
+    "name": "Need For Speed Pro Street",
+    "size": 7.7
+  },
+  {
+    "name": "Need for Speed Rivals",
+    "size": 7.2
+  },
+  {
+    "name": "Need For Speed Shift",
+    "size": 1.7
+  },
+  {
+    "name": "Need for Speed The Run",
+    "size": 9.8
+  },
+  {
+    "name": "Need For Speed Undercover",
+    "size": 5.2
+  },
+  {
+    "name": "NINJA GAIDEN 2",
+    "size": 3.7
+  },
+  {
+    "name": "NINJA GAIDEN 3",
+    "size": 3.2
+  },
+  {
+    "name": "ONE PIECE Unlimited World Red]",
+    "size": 4.8
+  },
+  {
+    "name": "Painkiller Hell & Damnation",
+    "size": 2.2
+  },
+  {
+    "name": "Payday 2",
+    "size": 4.2
+  },
+  {
+    "name": "PERSONA 4 ARENA",
+    "size": 6.2
+  },
+  {
+    "name": "Persona 5 [BLUS31604]",
+    "size": 25.3
+  },
+  {
+    "name": "PES 2018",
+    "size": 7.3
+  },
+  {
+    "name": "Phantom Breaker Extra [BLJM61098]",
+    "size": 3.2
+  },
+  {
+    "name": "PlayStation All-Stars Battle Royale",
+    "size": 6.2
+  },
+  {
+    "name": "PORTAL 2",
+    "size": 5.5
+  },
+  {
+    "name": "PRINCE OF PERSIA 3D (9.1)",
+    "size": 9.0
+  },
+  {
+    "name": "PRINCE OF PERSIA 4",
+    "size": 4.8
+  },
+  {
+    "name": "Prince of Persia The Forgotten Sands",
+    "size": 4.7
+  },
+  {
+    "name": "PROTOTYPE",
+    "size": 6.6
+  },
+  {
+    "name": "PROTOTYPE 2",
+    "size": 11.4
+  },
+  {
+    "name": "Race Driver GRID",
+    "size": 15.6
+  },
+  {
+    "name": "Racket Sports",
+    "size": 2.6
+  },
+  {
+    "name": "Rage",
+    "size": 20.2
+  },
+  {
+    "name": "Rainbow Six Vegas",
+    "size": 9.6
+  },
+  {
+    "name": "Ratchet & Clank ™ A Crack In Time",
+    "size": 22.8
+  },
+  {
+    "name": "Ratchet & Clank ™ Full Frontal Assault ™",
+    "size": 5.0
+  },
+  {
+    "name": "Ratchet & Clank ™ Nexus",
+    "size": 8.9
+  },
+  {
+    "name": "Ratchet & Clank ™ QForce",
+    "size": 5.3
+  },
+  {
+    "name": "Ratchet & Clank ™ Quest For Booty",
+    "size": 4.6
+  },
+  {
+    "name": "Ratchet & Clank ™ Trilogy",
+    "size": 10.3
+  },
+  {
+    "name": "Rayman Origins[BLES01386]-TeamGamerBross",
+    "size": 4.1
+  },
+  {
+    "name": "Red Dead Redemption GOTY",
+    "size": 9.3
+  },
+  {
+    "name": "Resident evil 4",
+    "size": 3.3
+  },
+  {
+    "name": "RESIDENT EVIL 5 GOLD EDITION]",
+    "size": 13.4
+  },
+  {
+    "name": "RESIDENT EVIL 6",
+    "size": 10.4
+  },
+  {
+    "name": "RESIDENT EVIL Operation Raccoon City",
+    "size": 4.7
+  },
+  {
+    "name": "Resistance 1",
+    "size": 17.3
+  },
+  {
+    "name": "Resistance 2",
+    "size": 22.0
+  },
+  {
+    "name": "Resistance 3",
+    "size": 32.6
+  },
+  {
+    "name": "Resistance Fall of Man (2007) [Ps3][EUR][MULTi5][WwW.ZoNaTorrent.CoM]",
+    "size": 11.4
+  },
+  {
+    "name": "Risen 3",
+    "size": 4.4
+  },
+  {
+    "name": "Saints Row IV]",
+    "size": 7.1
+  },
+  {
+    "name": "Silent Hill Downpour",
+    "size": 4.5
+  },
+  {
+    "name": "Silent Hill Homecoming (PS3)",
+    "size": 7.2
+  },
+  {
+    "name": "SILLENT HILL DOWNPOUR",
+    "size": 4.5
+  },
+  {
+    "name": "Skate 3",
+    "size": 8.9
+  },
+  {
+    "name": "Sleeping Dogs",
+    "size": 7.2
+  },
+  {
+    "name": "Sly Cooper Thieves in Time]",
+    "size": 6.8
+  },
+  {
+    "name": "Sniper Elite 2",
+    "size": 3.6
+  },
+  {
+    "name": "Sniper Elite 3",
+    "size": 5.0
+  },
+  {
+    "name": "Sniper Ghost Warrior 2",
+    "size": 3.7
+  },
+  {
+    "name": "SONIC THE HEADGEHOG",
+    "size": 7.7
+  },
+  {
+    "name": "Sonic Unleashed",
+    "size": 11.0
+  },
+  {
+    "name": "Sonic.All-Stars.Racing.Transformed",
+    "size": 5.6
+  },
+  {
+    "name": "Soul Calibur V",
+    "size": 7.1
+  },
+  {
+    "name": "Space.Hulk.Warhammer.PS3-DUPLEX",
+    "size": 1.2
+  },
+  {
+    "name": "Spec Ops The Line",
+    "size": 6.0
+  },
+  {
+    "name": "spiderman 3",
+    "size": 6.0
+  },
+  {
+    "name": "Spider-Man Edge Of Time",
+    "size": 5.2
+  },
+  {
+    "name": "Splinter Cell Blacklist [BLES01766]",
+    "size": 11.8
+  },
+  {
+    "name": "SSX",
+    "size": 4.1
+  },
+  {
+    "name": "Street.Fighter.x.Tekken",
+    "size": 12.7
+  },
+  {
+    "name": "SUPER STEER FIGHTER 4",
+    "size": 13.8
+  },
+  {
+    "name": "TAKKEN 6",
+    "size": 11.5
+  },
+  {
+    "name": "TEKKEN HYBRID",
+    "size": 2.4
+  },
+  {
+    "name": "TEKKEN TAG TOURNAMENT 2",
+    "size": 17.2
+  },
+  {
+    "name": "The Adventures of Tintin The Secret of the Unicorn",
+    "size": 7.0
+  },
+  {
+    "name": "The Amazing Spider Man 2 [+ All DLC] BLES01989",
+    "size": 7.9
+  },
+  {
+    "name": "The Amazing Spider Man 2 [+ All DLC] BLUS41044",
+    "size": 6.5
+  },
+  {
+    "name": "The Amazing Spider Man BLES01547",
+    "size": 8.8
+  },
+  {
+    "name": "The Elder Scrolls V Skyrim Legendary Edition",
+    "size": 12.9
+  },
+  {
+    "name": "The King Of Fighters XII]-TeamGamerBross",
+    "size": 1.0
+  },
+  {
+    "name": "The Last of Us",
+    "size": 26.1
+  },
+  {
+    "name": "The Legend of Spyro ™ Dawn of the Dragon",
+    "size": 8.8
+  },
+  {
+    "name": "The Walking Dead Game of the Year Edition",
+    "size": 4.3
+  },
+  {
+    "name": "Thor God of Thunder",
+    "size": 4.6
+  },
+  {
+    "name": "Tom Clancys End War BLUS30180",
+    "size": 8.6
+  },
+  {
+    "name": "Tom Clancys Ghost Recon 2 Advanced Warfighter BLES00067",
+    "size": 10.0
+  },
+  {
+    "name": "Tom Clancys Ghost Recon 2 Advanced Warfighter BLUS30034",
+    "size": 10.3
+  },
+  {
+    "name": "Tom Clancys Ghost Recon Future Soldier BLES00924",
+    "size": 10.4
+  },
+  {
+    "name": "Tom Clancys Hawx 2 (2010)",
+    "size": 6.2
+  },
+  {
+    "name": "Tom Clancys Rainbow Six Vegas 2 BLUS30125",
+    "size": 7.7
+  },
+  {
+    "name": "Tom Clancys Rainbow Six Vegas BLUS30018",
+    "size": 9.6
+  },
+  {
+    "name": "Tom Clancys Splinter Cell Blacklist BLES01766",
+    "size": 11.5
+  },
+  {
+    "name": "Tom Clancys Splinter Cell Classic Trilogy HD BLES01146",
+    "size": 5.7
+  },
+  {
+    "name": "Tom Clancys Splinter Cell Double Agent BLES00024",
+    "size": 6.2
+  },
+  {
+    "name": "Tomb Raider [+ All DLC] BLES01780",
+    "size": 13.9
+  },
+  {
+    "name": "Tomb Raider Trilogy BLES01195",
+    "size": 22.7
+  },
+  {
+    "name": "Tomb Raider Underworld BLUS30224",
+    "size": 6.3
+  },
+  {
+    "name": "Tony Hawks Pro Skater 5 BLUS31568",
+    "size": 2.2
+  },
+  {
+    "name": "Tony Hawks Project 8 BLUS30011",
+    "size": 5.2
+  },
+  {
+    "name": "Tony Hawk's Proving Ground",
+    "size": 7.0
+  },
+  {
+    "name": "Toy Story 3]-TeamGamerBross",
+    "size": 7.2
+  },
+  {
+    "name": "Toy Story Mania [BLES01730]",
+    "size": 3.1
+  },
+  {
+    "name": "Transformers The Game]",
+    "size": 2.6
+  },
+  {
+    "name": "Trinity Souls of Zill Oll BLES01184",
+    "size": 21.0
+  },
+  {
+    "name": "Turbo Super Stunt Squad",
+    "size": 1.6
+  },
+  {
+    "name": "UFC Undisputed 3 [EUR][ENG]",
+    "size": 23.2
+  },
+  {
+    "name": "ULTRA STREET FIGHTER IV]",
+    "size": 18.1
+  },
+  {
+    "name": "Uncharted 1",
+    "size": 21.1
+  },
+  {
+    "name": "UNCHARTED 2",
+    "size": 21.9
+  },
+  {
+    "name": "Uncharted 3 Drakes DeceptionGame of the Year]",
+    "size": 45.5
+  },
+  {
+    "name": "Virtua Tennis 4]",
+    "size": 3.1
+  },
+  {
+    "name": "Walking Dead Season 2",
+    "size": 2.6
+  },
+  {
+    "name": "Watch.Dogs.PS3-DUPLEX",
+    "size": 15.3
+  },
+  {
+    "name": "Wipeout + Fury",
+    "size": 2.1
+  },
+  {
+    "name": "Wolfenstein The New Order PS3-COLLATERAL",
+    "size": 18.3
+  },
+  {
+    "name": "WRC 5 FIA World Rally Championship]",
+    "size": 4.6
+  },
+  {
+    "name": "WSC Real 11 World Snooker Championship",
+    "size": 3.4
+  },
+  {
+    "name": "WWE 12 BLES01439",
+    "size": 6.7
+  },
+  {
+    "name": "WWE 13 BLES01699",
+    "size": 12.9
+  },
+  {
+    "name": "WWE 2K14 [+ DLC] BLES01937",
+    "size": 13.4
+  },
+  {
+    "name": "WWE 2K15 BLUS31464",
+    "size": 13.2
+  },
+  {
+    "name": "WWE 2K16 [+ All DLC] BLUS31565",
+    "size": 18.5
+  },
+  {
+    "name": "WWE 2K17 [Fix + All DLC] BLUS31599",
+    "size": 9.0
+  },
+  {
+    "name": "WWE Legends of Wrestle Mania BLES00492",
+    "size": 14.1
+  },
+  {
+    "name": "WWE Smack Down Vs Raw 2011 BLES01045",
+    "size": 5.3
+  },
+  {
+    "name": "XCOM Enemy Unknown]",
+    "size": 7.8
+  },
+  {
+    "name": "XCOM Enemy Within]",
+    "size": 7.8
+  },
+  {
+    "name": "X-Men Origins Wolverine",
+    "size": 6.3
+  },
+  {
+    "name": "Yakuza",
+    "size": 21.5
+  },
+  {
+    "name": "YAKUZA 4",
+    "size": 21.5
+  },
+  {
+    "name": "YAKUZA Dead Souls",
+    "size": 20.3
+  }
+];
+
+  let selectedGames = [];
+
+  function renderGames() {
+    const list = document.getElementById("gameList");
+    list.innerHTML = "";
+    games.forEach((game, index) => {
+      const item = document.createElement("div");
+      item.className = "game-item";
+      const displayName = game.name.replace(/\.iso$/i, "").replace(/\.ISO$/i, "");
+    item.innerText = `${displayName} - ${game.size} GB`;
+      item.onclick = () => toggleGame(index, item);
+      list.appendChild(item);
+    });
+  }
+
+  function toggleGame(index, element) {
+    const isSelected = selectedGames.includes(index);
+    if (isSelected) {
+      selectedGames = selectedGames.filter(i => i !== index);
+      element.classList.remove("selected");
+    } else {
+      selectedGames.push(index);
+      element.classList.add("selected");
+    }
+    updateSummary();
+  updateStorageBar();
+  }
+
+  function updateSummary() {
+    const totalGames = games.length;
+    const totalGameSize = games.reduce((sum, g) => sum + g.size, 0).toFixed(2);
+    const selectedCount = selectedGames.length;
+    const selectedSize = selectedGames.reduce((sum, i) => sum + games[i].size, 0).toFixed(2);
+    document.getElementById("summaryInfo").innerText =
+      `Total Games: ${totalGames} (${totalGameSize} GB) | Selected: ${selectedCount} (${selectedSize} GB)`;
+  }
+
+  function printPlainText() {
+    const name = document.getElementById("customerName").value;
+    const mobile = document.getElementById("customerMobile").value;
+    const totalGames = selectedGames.length;
+    const totalSize = selectedGames.reduce((sum, i) => sum + games[i].size, 0).toFixed(2);
+    let list = selectedGames.map((i, idx) => `${idx + 1}. ${games[i].name} (${games[i].size} GB)`).join("\n");
+
+    let content = `Name: ${name}\nMobile: ${mobile}\nTotal Games: ${totalGames} | Total Size: ${totalSize} GB\n\n${list}\n\nSend this list to Games Planet for installation.`;
+
+    const win = window.open('', '', 'width=800,height=600');
+    win.document.write(`<pre style="font-size: 14px; font-family: monospace;">${content}</pre>`);
+    win.print();
+  }
+
+  function saveAsPDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+    const name = document.getElementById("customerName").value;
+    const mobile = document.getElementById("customerMobile").value;
+    const totalGames = selectedGames.length;
+    const totalSize = selectedGames.reduce((sum, i) => sum + games[i].size, 0).toFixed(2);
+    let y = 10;
+
+    doc.setFontSize(12);
+    doc.text(`Name: ${name}`, 10, y); y += 7;
+    doc.text(`Mobile: ${mobile}`, 10, y); y += 7;
+    doc.text(`Total Games: ${totalGames} | Total Size: ${totalSize} GB`, 10, y); y += 10;
+
+    selectedGames.forEach((i, idx) => {
+      const gameLine = `${idx + 1}. ${games[i].name} (${games[i].size} GB)`;
+      doc.text(gameLine, 10, y);
+      y += 7;
+      if (y > 280) { doc.addPage(); y = 10; }
+    });
+
+    y += 10;
+    doc.text("Send this list to Games Planet for installation.", 10, y);
+    doc.save("PC_Game_Selection.pdf");
+  }
+
+  function sendEmail() {
+    const name = document.getElementById("customerName").value;
+    const mobile = document.getElementById("customerMobile").value;
+    let list = selectedGames.map(i => `${i + 1}. ${games[i].name}`).join("%0A");
+    const mailBody = `Name: ${name}%0AMobile: ${mobile}%0AGames Selected:%0A${list}`;
+    window.location.href = `mailto:gamesplanet.7983624797@gmail.com?subject=PC Game Selection&body=${mailBody}`;
+  }
+
+  function sendSMS() {
+    const name = document.getElementById("customerName").value;
+    const mobile = document.getElementById("customerMobile").value;
+    let list = selectedGames.map(i => `${i + 1}. ${games[i].name}`).join("%0A");
+    const smsBody = `Name: ${name}%0AMobile: ${mobile}%0AGames:%0A${list}`;
+    window.location.href = `sms:7983624797?body=${smsBody}`;
+  }
+
+  function sendWhatsApp() {
+    const name = document.getElementById("customerName").value;
+    const mobile = document.getElementById("customerMobile").value;
+    let list = selectedGames.map(i => `${i + 1}. ${games[i].name}`).join("%0A");
+    const message = `Name: ${name}%0AMobile: ${mobile}%0AGames Selected:%0A${list}`;
+    window.open(`https://wa.me/917983624797?text=${message}`, '_blank');
+  }
+
+  renderGames();
+
+let speechQueue = null;
+function speak(text) {
+  if (speechQueue) window.speechSynthesis.cancel();
+  speechQueue = new SpeechSynthesisUtterance(text);
+  window.speechSynthesis.speak(speechQueue);
+}
+
+function toggleGame(index, element) {
+  const isSelected = selectedGames.includes(index);
+  const storageLimit = (parseFloat(document.getElementById("storageSize").value) || 0) - 2;
+  const currentSelectedSize = selectedGames.reduce((sum, i) => sum + games[i].size, 0);
+  const thisGameSize = games[index].size;
+
+  if (!isSelected && (currentSelectedSize + thisGameSize > storageLimit)) {
+    speak("Storage limit exceeded");
+    return;
+  }
+
+  if (isSelected) {
+    selectedGames = selectedGames.filter(i => i !== index);
+    element.classList.remove("selected");
+  } else {
+    selectedGames.push(index);
+    element.classList.add("selected");
+  }
+
+  updateSummary();
+  updateStorageBar();
+  speak(String(selectedGames.length));
+
+  const used = selectedGames.reduce((sum, i) => sum + games[i].size, 0);
+  const remaining = (parseFloat(document.getElementById("storageSize").value) || 0) - used;
+  if (remaining <= 5 && remaining > 0) {
+    if (remaining <= 1) {
+      speak("Last 1 GB remaining");
+    } else {
+      speak(`Only ${remaining.toFixed(1)} GB left`);
+    }
+  }
+}
+
+// Inject progress bar
+document.querySelector('#storageSize').insertAdjacentHTML('afterend', `
+<div style="width: 90%; margin: 10px auto;">
+  <div style="font-size: 12px; margin-bottom: 4px;" id="progressLabel">Used: 0 GB of 0 GB</div>
+  <div style="height: 10px; background: #eee; border-radius: 5px; overflow: hidden;">
+    <div id="progressBar" style="height: 100%; width: 0%; background: green;"></div>
+  </div>
+</div>
+`);
+
+const originalUpdateSummary = updateSummary;
+updateSummary = function() {
+  const totalGames = games.length;
+  const totalGameSize = games.reduce((sum, g) => sum + g.size, 0).toFixed(2);
+  const selectedCount = selectedGames.length;
+  const selectedSize = selectedGames.reduce((sum, i) => sum + games[i].size, 0).toFixed(2);
+  document.getElementById("summaryInfo").innerText =
+    `Total Games: ${totalGames} (${totalGameSize} GB) | Selected: ${selectedCount} (${selectedSize} GB)`;
+
+  const storage = parseFloat(document.getElementById("storageSize").value) || 0;
+  const percent = (selectedSize / storage) * 100;
+  const bar = document.getElementById("progressBar");
+  const label = document.getElementById("progressLabel");
+
+  bar.style.width = `${Math.min(percent, 100)}%`;
+  if (percent < 80) {
+    bar.style.background = "green";
+  } else if (percent >= 100) {
+    bar.style.background = "red";
+  } else {
+    bar.style.background = "orange";
+    bar.style.background = "red";
+  }
+  label.innerText = `Used: ${selectedSize} GB of ${storage} GB`;
+};
+
+
+function updateStorageBar() {
+  const selectedSize = selectedGames.reduce((sum, i) => sum + games[i].size, 0);
+  const totalSize = parseFloat(document.getElementById("storageSize").value || "0");
+  const usedPercent = totalSize > 0 ? Math.min((selectedSize / totalSize) * 100, 100) : 0;
+
+  document.getElementById("storageBarInfo").innerText =
+    `Used: ${selectedSize.toFixed(2)} GB of ${totalSize} GB (${usedPercent.toFixed(0)}%)`;
+}
+
+</script>
+<script>
+window.addEventListener('click', () => {
+  const music = document.getElementById('bgMusic');
+  music.muted = false;
+  music.play();
+}, { once: true });
+</script><script>
+function generateExportText() {
+  const name = document.getElementById("customerName").value.trim();
+  const mobile = document.getElementById("customerMobile").value.trim();
+  const selected = selectedGames.map(i => games[i]);
+
+  if (!name || !mobile || selected.length === 0) {
+    alert("Please enter Name, Mobile and select at least one game.");
+    return null;
+  }
+
+  selected.sort((a, b) => a.name.localeCompare(b.name));
+
+  let message = `Name: ${name}\nMobile: ${mobile}\nTotal Games Selected: ${selected.length}\nTotal Size: ${selected.reduce((s, g) => s + g.size, 0).toFixed(2)} GB\n\n`;
+  selected.forEach((g, i) => {
+    message += `${i + 1}. ${g.name}\n`;
+  });
+  message += "\nPlease install these games in my USB or device.";
+  return message;
+}
+
+function sendWhatsApp() {
+  const message = generateExportText();
+  if (!message) return;
+  const number = "7983624797";
+  const url = `https://wa.me/91${number}?text=` + encodeURIComponent(message);
+  window.open(url, "_blank");
+}
+
+function sendSMS() {
+  const message = generateExportText();
+  if (!message) return;
+  const number = "7983624797";
+  const smsUrl = `sms:${number}?body=` + encodeURIComponent(message);
+  window.open(smsUrl, "_blank");
+}
+
+function sendEmail() {
+  const message = generateExportText();
+  if (!message) return;
+  const subject = "My PC Game List";
+  const email = "Gamesplanet.7983624797@gmail.com";
+  const mailto = `mailto:${email}?subject=` + encodeURIComponent(subject) + "&body=" + encodeURIComponent(message);
+  window.open(mailto, "_blank");
+}
+</script></body>
+<script>
+const selectedGames = [];
+const games = [
+  { name: "A Plague Tale - Requiem [FitGirl Repack]", size: 24.2 },
+{ name: "AEW - Fight Forever [FitGirl Repack]", size: 12.0 },
+{ name: "A_Plague_Tale_Innocence.zip", size: 38.5 },
+{ name: "Afterimage [FitGirl Repack]", size: 3.3 },
+{ name: "Aliens. Fireteam Elite (2021)", size: 15.2 },
+{ name: "American Truck Simulator v.1.48.2.1s (2016)", size: 15.2 },
+{ name: "Amok Runner [FitGirl Repack]", size: 3.8 },
+{ name: "ArcRunner [FitGirl Repack]", size: 1.8 },
+{ name: "Ashes Cricket [FitGirl Repack]", size: 5.3 },
+{ name: "Assassin's Creed - Syndicate - Gold Edition [FitGirl Repack]", size: 20.1 },
+{ name: "Assassin's Creed Mirage [FitGirl Repack]", size: 20.8 },
+{ name: "Assassins_Creed1", size: 6.7 },
+{ name: "Assassins_Creed_Brotherhood", size: 6.2 },
+{ name: "Assassins_Creed_Liberation.zip", size: 2.9 },
+{ name: "Assassins_Creed_Odyssey_Repack.zip", size: 25.4 },
+{ name: "Assassins_Creed_Origins_Repack.zip", size: 32.0 },
+{ name: "Assassins_Creed_Unity", size: 35.7 },
+{ name: "Asterigos [FitGirl Repack]", size: 5.6 },
+{ name: "Atari 50 [FitGirl Repack]", size: 9.2 },
+{ name: "Atomic Heart [FitGirl Repack]", size: 26.6 },
+{ name: "Automobilista 2 [FitGirl Repack]", size: 19.8 },
+{ name: "BIOMUTANT.GOG-InsaneRamZes", size: 15.0 },
+{ name: "Bang-On Balls - Chronicles [FitGirl Repack]", size: 2.4 },
+{ name: "Batman Arkham Origins repack Mr DJ", size: 9.9 },
+{ name: "Batman_Arkham_Asylum.zip", size: 4.7 },
+{ name: "Batman_Arkham_Knight.zip", size: 50.2 },
+{ name: "Batora - Lost Haven [FitGirl Repack]", size: 11.7 },
+{ name: "Battlefield V PC game ^^nosTEAM^^", size: 47.4 },
+{ name: "Battlefield.3.zip", size: 13.9 },
+{ name: "Battlefield.4-RELOADED", size: 23.0 },
+{ name: "Battlefield.Bad.Company.2-RELOADED.[www.USABIT.com]", size: 5.4 },
+{ name: "Battlefield_1.zip", size: 50.4 },
+{ name: "Battlefield_1_Fix.zip", size: 0.085 },
+{ name: "Battlefield_Hardline.zip", size: 48.4 },
+{ name: "Battlefield_Hardline_Fix.zip", size: 1.4 },
+{ name: "Blood Bowl 3 [FitGirl Repack]", size: 7.6 },
+{ name: "Bright Memory - Infinite [FitGirl Repack]", size: 6.3 },
+{ name: "Bright.Memory.Infinite-CODEX", size: 11.8 },
+{ name: "Bright_Memory_Infinite_1.44_(71583)_win_gog", size: 11.1 },
+{ name: "CRISIS CORE - FF7 - REUNION [FitGirl Repack]", size: 13.4 },
+{ name: "Call of Duty - Modern Warfare 3 [FitGirl Repack]", size: 10.8 },
+{ name: "Call of Duty - Vanguard [FitGirl Repack]", size: 60.4 },
+{ name: "Call of Duty 4 Modern Warfare Repack By R.G Catalyst - MonstersBugle", size: 3.6 },
+{ name: "Call of Duty Advanced Warfare Complete - CorePack", size: 34.2 },
+{ name: "Call of Duty Black Ops 2", size: 15.0 },
+{ name: "Call of Duty Black Ops-SKIDROW", size: 7.3 },
+{ name: "Call of Duty Black ops 3", size: 107.8 },
+{ name: "Call of Duty Ghosts", size: 28.9 },
+{ name: "Call of Duty Infinite Warfare update 4 [wWw.GamesTorrents.TV]", size: 67.1 },
+{ name: "Call of Duty Modern Warfare 2 repack MP-SP ^^nosTEAM^^RO", size: 13.7 },
+{ name: "Call of Duty Modern Warfare Remastered by xatab", size: 34.3 },
+{ name: "Call.of.Duty.WWII.Digital.Deluxe.Edition.CRACKED.zip", size: 38.6 },
+{ name: "Call_of_Duty_Black_Ops_2_SP_MP_ZM.zip", size: 26.7 },
+{ name: "Call_of_Duty_Modern_Warfare_Remastered.zip", size: 42.3 },
+{ name: "Choo-Choo Charles.zip", size: 1.9 },
+{ name: "Christmas Night [FitGirl Repack]", size: 3.1 },
+{ name: "Cities - Skylines II [FitGirl Repack]", size: 36.6 },
+{ name: "Cities - Skylines [FitGirl Repack]", size: 6.7 },
+{ name: "Cobra Kai 2 [FitGirl Repack]", size: 10.8 },
+{ name: "Conan Exiles [FitGirl Repack]", size: 36.7 },
+{ name: "Contra - Operation Galuga", size: 13.6 },
+{ name: "Counter.Strike.Source.apkaward.zip", size: 2.5 },
+{ name: "Counter_Strike_1.6_War_Space.zip", size: 0.948 },
+{ name: "Counter_Strike_Global_Offensive_Multiplayer.zip", size: 1.1 },
+{ name: "Counter_Strike_Global_Offensive_Repack.zip", size: 9.7 },
+{ name: "Crash bandicoot n sane trilogy.iso", size: 25.4 },
+{ name: "Crash.Bandicoot.4-EMPRESS", size: 23.0 },
+{ name: "Cricket 19", size: 11.5 },
+{ name: "Cricket 22 [FitGirl Repack]", size: 13.6 },
+{ name: "Cricket 24 [FitGirl Repack]", size: 18.8 },
+{ name: "Crisis.Core.Final.Fantasy.VII.Reunion.v1.0.1-P2P", size: 18.0 },
+{ name: "Crysis 2 Remastered [FitGirl Repack]", size: 29.7 },
+{ name: "Crysis 3 Remastered [FitGirl Repack]", size: 11.6 },
+{ name: "Cyberpunk.2077.v1.5.iso", size: 57.3 },
+{ name: "D.B.C.14..iso", size: 2.0 },
+{ name: "DRAGON BALL FighterZ - [DODI Repack]", size: 3.5 },
+{ name: "DRAGON.BALL.XENOVERSE.2.v1.16.01-Chronos", size: 18.8 },
+{ name: "DRIFT CE [FitGirl Repack]", size: 2.0 },
+{ name: "DRIFT21 [FitGirl Repack]", size: 1.6 },
+{ name: "Dakar Desert Rally [FitGirl Repack]", size: 37.8 },
+{ name: "Dark_Light_v1.0.5.4-FLT", size: 2.2 },
+{ name: "Days Gone", size: 59.8 },
+{ name: "Dead Man's Diary [FitGirl Repack]", size: 17.0 },
+{ name: "Deadpool", size: 3.5 },
+{ name: "Death Below [FitGirl Repack]", size: 8.2 },
+{ name: "Death in the Water 2 [FitGirl Repack]", size: 3.3 },
+{ name: "Detroit - Become Human [FitGirl Repack]", size: 39.1 },
+{ name: "Detroit.Become.Human.v20211117-P2P", size: 58.7 },
+{ name: "Devil.May.Cry.3.Special.Edition-RELOADED", size: 3.8 },
+{ name: "Devil.May.Cry.5.Deluxe.Edition.zip", size: 37.4 },
+{ name: "Devil_May_Cry_4_Special_Edition.zip", size: 5.2 },
+{ name: "DiRT Rally 2.0 Deluxe Edition [wWw.GamesTorrents.TV]", size: 17.6 },
+{ name: "Disney Infinity - Gold Collection [FitGirl Repack]", size: 20.1 },
+{ name: "Disney_Infinity_1_0_Gold_Edition", size: 8.0 },
+{ name: "Disney_Infinity_1_0_Gold_Edition.zip", size: 8.0 },
+{ name: "Don Bradman Cricket 17 [FitGirl Repack]", size: 3.3 },
+{ name: "Dragon Ball Z - Kakarot [FitGirl Repack]", size: 32.6 },
+{ name: "Dragon's Dogma 2 [FitGirl Repack]", size: 42.0 },
+{ name: "Dragon.Ball.FighterZ.Android.21-EMPRESS", size: 6.0 },
+{ name: "Dragon.Ball.FighterZ.Ultimate.Edition.v1.27.MULTi11-EMPRESS.iso", size: 5.8 },
+{ name: "Dragonball.Xenoverse.Bundle.Edition-PLAZA.2015.iso", size: 9.5 },
+{ name: "DreamWorks.All-Star.Kart.Racing-TENOKE", size: 7.7 },
+{ name: "Dying Light Definitive Edition [DODI Repack]", size: 17.6 },
+{ name: "Dying Light The Following – Enhanced Edition", size: 21.6 },
+{ name: "Dying.Light.2.Stay.Human.Ultimate.Edition.Steam.Rip-InsaneRamZes", size: 81.0 },
+{ name: "EA Sports Cricket 2007", size: 1.1 },
+{ name: "EA Sports Cricket 2007.rar", size: 0.836 },
+{ name: "EDENGATE [FitGirl Repack]", size: 9.6 },
+{ name: "ELDEN RING NIGHTREIGN [FitGirl Repack]", size: 15.8 },
+{ name: "ELDEN RING [FitGirl Repack]", size: 49.3 },
+{ name: "ELEX 2 [FitGirl Repack]", size: 27.4 },
+{ name: "Escape from Hata [FitGirl Repack]", size: 1.7 },
+{ name: "Eternal Evil [FitGirl Repack]", size: 22.4 },
+{ name: "Evil Dead Regeneration [English]", size: 2.0 },
+{ name: "Evil Dead The Game [DODI Repack]", size: 7.0 },
+{ name: "Evil West [FitGirl Repack]", size: 25.5 },
+{ name: "F.E.A.R. 2 Project Origin Complete ElAmigos", size: 5.0 },
+{ name: "F1.2021.Deluxe.Edition.Full.Unlocked.rar", size: 40.7 },
+{ name: "FIFA 19 PC full game ^^nosTEAM^^", size: 43.7 },
+{ name: "FIFA 23 [DODI Repack]", size: 54.1 },
+{ name: "FIFA 23 [FitGirl Repack]", size: 41.1 },
+{ name: "FIFA.14.Ultimate.Edition.1.4.MULTi7.iso", size: 7.8 },
+{ name: "FIFA.22.Ultimate.Edition.FULL.UNLOCKED.rar", size: 31.0 },
+{ name: "FUEL [Steam]", size: 2.8 },
+{ name: "Family Curse [FitGirl Repack]", size: 18.3 },
+{ name: "Far Cry 2 Remastered Modernized Edition - [DODI Repack]", size: 3.4 },
+{ name: "Far Cry 3 - Duology [FitGirl Repack]", size: 4.3 },
+{ name: "Far Cry 5 [FitGirl Repack]", size: 52.5 },
+{ name: "Far Cry New Dawn [wWw.GamesTorrents.TV]", size: 26.7 },
+{ name: "Far.Cry.6-EMPRESS", size: 78.4 },
+{ name: "Farming Simulator 22 [FitGirl Repack]", size: 15.0 },
+{ name: "FlatOut - Ultimate Carnage CE [FitGirl Repack]", size: 1.8 },
+{ name: "Forspoken [FitGirl Repack]", size: 69.2 },
+{ name: "Forza Horizon 4 [FitGirl Repack]", size: 49.0 },
+{ name: "Forza Motorsport 7 [FitGirl Repack]", size: 67.7 },
+{ name: "Forza.Horizon.5.PROPER-EMPRESS", size: 93.1 },
+{ name: "Forza.Horizon.5.Premium.Edition.Steam.Rip-InsaneRamZes", size: 121.6 },
+{ name: "GRIME [FitGirl Repack]", size: 2.2 },
+{ name: "GRIME.v1.11.4-P2P.iso", size: 2.6 },
+{ name: "GTA 3 (PC) Grand Theft Auto III - Liberty City.zip", size: 0.621 },
+{ name: "GTA 5 Add-on Carpack", size: 53.4 },
+{ name: "GTA 5 MOD Game 150GB", size: 142.9 },
+{ name: "GTA San Andreas_2", size: 4.7 },
+{ name: "GTA San Andreas_2.rar", size: 3.8 },
+{ name: "GTA Vice City 10 Year Anniversary Edition - [DODI Repack]", size: 1.1 },
+{ name: "GYLT [FitGirl Repack]", size: 3.7 },
+{ name: "Gears of War - Ultimate Edition [FitGirl Repack]", size: 27.2 },
+{ name: "Gears_5_v1.1.15.0_CODEX.zip", size: 62.0 },
+{ name: "Generation Zero [FitGirl Repack]", size: 10.8 },
+{ name: "Ghost Recon advanced warfighter 2 [PC-DVD] [www.topetorrent.com].iso", size: 3.3 },
+{ name: "Ghost of Tsushima DC", size: 53.1 },
+{ name: "Ghostbusters - Remastered [FitGirl Repack]", size: 20.8 },
+{ name: "Gigantosaurus - Dino Kart [FitGirl Repack]", size: 1.0 },
+{ name: "God of War Ragnarok", size: 159.5 },
+{ name: "God of War Ragnarok [DODI Repack]", size: 69.4 },
+{ name: "God of War [DODI Repack]", size: 26.5 },
+{ name: "God_of_War_v1.0.12-Razor1911", size: 64.3 },
+{ name: "Gotham Knights [FitGirl Repack]", size: 30.5 },
+{ name: "Gotham_Knights_GoldBerg.zip", size: 41.0 },
+{ name: "Grand Theft Auto (GTA) San Andreas-HOODLUM", size: 3.9 },
+{ name: "Grand Theft Auto IV Complete Edition BLACK_BOX", size: 16.9 },
+{ name: "Grand Theft Auto IV Fully Loaded.rar", size: 13.7 },
+{ name: "Grand Theft Auto V Enhanced [FitGirl Repack]", size: 38.2 },
+{ name: "Grand Theft Auto V FULL 95GB", size: 88.9 },
+{ name: "Grand Theft Auto V [DODI Repack]", size: 58.7 },
+{ name: "Grand Theft Auto V [FitGirl Repack]", size: 53.9 },
+{ name: "Grand Theft Auto V.Rockstar-Rip [=nemos=]", size: 89.1 },
+{ name: "Grand.Theft.Auto.The.Trilogy.The.Definitive.Edition.RGL.Rip-InsaneRamZes", size: 32.4 },
+{ name: "Grand.Theft.Auto.The.Trilogy.The.Definitive.Edition.v1.04.5", size: 32.4 },
+{ name: "Grand.Theft.Auto.The.Trilogy.The.Definitive.Edition.v1.04.5.zip", size: 31.5 },
+{ name: "Grand.Theft.Auto.V.Update.v1.41-RELOADED", size: 11.2 },
+{ name: "Gungrave G.O.R.E-InsaneRamZes", size: 30.2 },
+{ name: "HARVESTELLA [FitGirl Repack]", size: 7.3 },
+{ name: "HITMAN (1-3) v.3.120.0.0 (2016-2018-2021)", size: 66.9 },
+{ name: "Half-Life - Alyx [FitGirl Repack]", size: 38.4 },
+{ name: "Have a Nice Death [FitGirl Repack]", size: 0.713 },
+{ name: "Hello Neighbor 2 [FitGirl Repack]", size: 4.4 },
+{ name: "Hello neighbor  v1.1.9", size: 2.9 },
+{ name: "Hello.Neighbor.2.Beta.rar", size: 2.6 },
+{ name: "Horizon - Forbidden West CE [FitGirl Repack]", size: 98.2 },
+{ name: "Horizon.Chase.Turbo.1.9.5.MULTi11-ELAMIGOS.2018.iso", size: 0.451 },
+{ name: "Horizon_Zero_Dawn_6260111_(44375)_win_gog", size: 66.6 },
+{ name: "Horror Maze 2 [FitGirl Repack]", size: 4.1 },
+{ name: "House Party [FitGirl Repack]", size: 2.0 },
+{ name: "IMAGO [FitGirl Repack]", size: 19.5 },
+{ name: "INSIDE", size: 2.2 },
+{ name: "INSIDE [FitGirl Repack]", size: 0.917 },
+{ name: "In Sound Mind [FitGirl Repack]", size: 5.7 },
+{ name: "Injustice_Gods_Among_Us.zip", size: 20.2 },
+{ name: "Just Cause 3 - XL Edition [FitGirl Repack]", size: 24.7 },
+{ name: "Just Cause 4 [FitGirl Repack]", size: 25.6 },
+{ name: "Kao the Kangaroo [FitGirl Repack]", size: 7.5 },
+{ name: "Kena - Bridge of Spirits v.2.04 (2021)", size: 24.4 },
+{ name: "Kerbal Space Program [FitGirl Repack]", size: 1.2 },
+{ name: "King of Fighters XV [FitGirl Repack]", size: 28.2 },
+{ name: "Koa and the Five Pirates of Mara [FitGirl Repack]", size: 0.671 },
+{ name: "Kong - Survivor Instinct [FitGirl Repack]", size: 4.4 },
+{ name: "Krampus Kills [FitGirl Repack]", size: 8.6 },
+{ name: "LEGO Star Wars - The Skywalker Saga [FitGirl Repack]", size: 27.6 },
+{ name: "LEGO.The.Incredibles-CODEX", size: 13.8 },
+{ name: "LEGO_Star_Wars_The_Skywalker_Saga-FLT", size: 37.0 },
+{ name: "Lego_batman_the_videogame", size: 4.0 },
+{ name: "Lifespace Traveler [FitGirl Repack]", size: 5.0 },
+{ name: "Lunacy - Saint Rhodes [FitGirl Repack]", size: 4.2 },
+{ name: "MX vs ATV Legends [FitGirl Repack]", size: 16.6 },
+{ name: "Mad Max PC game ^^nosTEAM^^", size: 31.9 },
+{ name: "Mario Party 6 (USA).iso", size: 1.4 },
+{ name: "Marvel VS Capcom Infinite [FitGirl Repack]", size: 39.9 },
+{ name: "Marvel vs Capcom 2 pc.rar", size: 0.171 },
+{ name: "Marvel's Avengers [FitGirl Repack]", size: 104.5 },
+{ name: "Marvel's Spider-Man Miles Morales (2022)", size: 56.9 },
+{ name: "Marvel's.Spider-Man.2.Digital.Deluxe.Edition-InsaneRamZes", size: 136.5 },
+{ name: "Marvel.Ultimate.Alliance.Build.30082016-Repack.iso", size: 6.2 },
+{ name: "Marvels.Guardians.of.the.Galaxy-EMPRESS", size: 37.1 },
+{ name: "Max Payne 3 - Complete Edition [FitGirl Repack]", size: 13.9 },
+{ name: "Medal Of Honor - Allied Assault War Chest (March 2, 2004)", size: 2.7 },
+{ name: "Medal.of.Honor.Warfighter-FLT", size: 15.2 },
+{ name: "Metro_Exodus_EE_3.0.7.26_(47053)_win_gog", size: 75.8 },
+{ name: "Middle-earth - Shadow of War DE [FitGirl Repack]", size: 48.6 },
+{ name: "Minecraft - Story Mode [FitGirl Repack]", size: 3.1 },
+{ name: "Minecraft 1.16 [Full, Online, Server List]", size: 0.341 },
+{ name: "Minecraft Legends [FitGirl Repack]", size: 6.2 },
+{ name: "Minecraft Story Mode Season Two Complete (build 26.04.2018) ElAmigos", size: 6.9 },
+{ name: "Minecraft [MULTI5][PC][VERSION v.1.7.2][PSP][WwW.GamesTorrents.CoM]", size: 0.536 },
+{ name: "Minecraft.Dungeons.Cloudy.Climb-CODEX", size: 2.2 },
+{ name: "Minecraft.Dungeons.v1.8.0.0.rar", size: 1.4 },
+{ name: "Minecraft.Legends.v20230803-P2P.rar", size: 7.2 },
+{ name: "Mutant Football League [FitGirl Repack]", size: 2.1 },
+{ name: "Mx.vs Atv.all.out.v1.07.iso", size: 12.6 },
+{ name: "NFS Most Wanted Black Edition", size: 2.8 },
+{ name: "NFS Underground 2 Real Remaster [DODI Repack]", size: 1.1 },
+{ name: "NINJA GAIDEN 2 Black [FitGirl Repack]", size: 59.2 },
+{ name: "Need For Speed Carbon Remastered - [DODI Repack]", size: 3.2 },
+{ name: "Need For Speed Rival Deluxe Edition", size: 7.5 },
+{ name: "Need for Speed - Payback", size: 27.1 },
+{ name: "Need for Speed Heat [wWw.GamesTorrents.NU]", size: 22.3 },
+{ name: "Need for Speed Hot Pursuit 2010", size: 7.7 },
+{ name: "Need for Speed Most Wanted Remastered - [DODI Repack]", size: 2.9 },
+{ name: "Need.For.Speed.Carbon", size: 3.3 },
+{ name: "Need.For.Speed.ProStreet.1.1.MULTi13-ELAMIGOS.2007.iso", size: 4.4 },
+{ name: "Need.For.Speed.Shift.1.02.MULTi10-ELAMIGOS.2009.iso", size: 3.1 },
+{ name: "Need.For.Speed.Shift.2.Unleashed.Limited.Edition.1.0.2.0.MULTi7-ELAMIGOS.2011.iso", size: 5.5 },
+{ name: "New Tales from the Borderlands [FitGirl PC Repack]", size: 23.1 },
+{ name: "Nickelodeon Kart Racers 3 [FitGirl Repack]", size: 5.2 },
+{ name: "Night of the Dead [FitGirl Repack]", size: 8.5 },
+{ name: "OPLM_ART_2023_11", size: 5.9 },
+{ name: "OURWORLD [FitGirl Repack]", size: 4.4 },
+{ name: "Outbreak 2030 [FitGirl Repack]", size: 12.8 },
+{ name: "POSTAL 4 - No Regerts [FitGirl Repack]", size: 13.6 },
+{ name: "Pinball FX [FitGirl Repack]", size: 25.8 },
+{ name: "Potty Knight Saga [FitGirl Repack]", size: 0.779 },
+{ name: "Project CARS 3 - [DODI Repack]", size: 26.5 },
+{ name: "Prototype 2-=AviaRa=-", size: 9.9 },
+{ name: "Pyramis [FitGirl Repack]", size: 17.9 },
+{ name: "RAVEN-MUA.iso", size: 4.0 },
+{ name: "RIDE 5 [FitGirl Repack]", size: 26.6 },
+{ name: "Raji_An_Ancient_Epic_1.6.0_(57469)_win_gog", size: 6.4 },
+{ name: "Ravenbound [FitGirl Repack]", size: 5.5 },
+{ name: "Red Dead Redemption 2 [FitGirl Repack]", size: 68.8 },
+{ name: "Red Dead Redemption [DODI Repack]", size: 8.1 },
+{ name: "Remnant II [FitGirl Repack]", size: 54.4 },
+{ name: "Resident Evil 4", size: 4.6 },
+{ name: "Resident Evil 4 HD Project.(v.1.1.0).(2022) [Decepticon] RePack", size: 27.4 },
+{ name: "Resident Evil Village.(v.1.0.11260452).(2021) [Decepticon] RePack", size: 24.2 },
+{ name: "Resident-evil-5.zip", size: 3.8 },
+{ name: "Resident.Evil.2.v20191218.incl.DLC-CODEX", size: 26.3 },
+{ name: "Resident.Evil.Village-EMPRESS", size: 27.4 },
+{ name: "Resident_Evil 6.zip", size: 5.6 },
+{ name: "Resident_Evil_3-HOODLUM", size: 20.8 },
+{ name: "Resident_Evil_7_Biohazard_Repack.zip", size: 23.8 },
+{ name: "Resident_Evil_HD_Remaster.zip", size: 4.3 },
+{ name: "Resident_Evil_Operation_Raccoon_City.zip", size: 3.8 },
+{ name: "Resident_Evil_Revelations.zip", size: 8.2 },
+{ name: "Resident_Evil_Revelations_2", size: 6.8 },
+{ name: "Resident_Evil_Revelations_2.zip", size: 6.8 },
+{ name: "Resident_Evil_Zero_HD_Remaster.zip", size: 10.2 },
+{ name: "Ridge.Racer.Unbounded.Bundle.Edition.1.13.MULTi6-ELAMIGOS.2012.iso", size: 1.4 },
+{ name: "Rise of the Tomb Raider [FitGirl Repack]", size: 12.9 },
+{ name: "Rocket Boots Mania [FitGirl Repack]", size: 0.948 },
+{ name: "SIFU-CODEX", size: 16.6 },
+{ name: "Sackboy - A Big Adventure [FitGirl Repack]", size: 18.2 },
+{ name: "Saga Cube [FitGirl Repack]", size: 3.9 },
+{ name: "Saints Row", size: 44.1 },
+{ name: "Saints Row IV - Re-Elected [FitGirl Repack]", size: 4.9 },
+{ name: "Scars Above [FitGirl Repack]", size: 10.2 },
+{ name: "Serious Sam - Siberian Mayhem [FitGirl Repack]", size: 19.3 },
+{ name: "Serious_Sam_4_v1.08-Razor1911", size: 46.8 },
+{ name: "Shadow of the Tomb Raider [FitGirl Repack]", size: 33.5 },
+{ name: "Sherlock Holmes - The Awakened - Remake [FitGirl Repack]", size: 18.6 },
+{ name: "Skinny & Franko - Fists of Violence [FitGirl Repack]", size: 1.4 },
+{ name: "Sleeping Dogs Pack [FitGirl Repack]", size: 9.7 },
+{ name: "Sniper - Ghost Warrior 3 [FitGirl Repack]", size: 36.3 },
+{ name: "Sniper - Ghost Warrior Contracts [FitGirl Repack]", size: 12.0 },
+{ name: "Sniper Elite 4 PC full game ^^nosTEAM^^RO", size: 44.0 },
+{ name: "Sniper Ghost Warrior Contracts 2 [FitGirl Repack]", size: 9.5 },
+{ name: "Someday You'll Return - DC [FitGirl Repack]", size: 3.3 },
+{ name: "Space Tail [FitGirl Repack]", size: 1.8 },
+{ name: "Special_Counter_Force_Attack.zip", size: 1.3 },
+{ name: "Spider-man Remastered [FitGirl Repack]", size: 37.6 },
+{ name: "Split Fiction [FitGirl Repack]", size: 56.6 },
+{ name: "Stranger of Paradise - FFO [FitGirl Repack]", size: 48.1 },
+{ name: "Strayed Lights [FitGirl Repack]", size: 3.2 },
+{ name: "Street Fighter V - Champion Edition [FitGirl Repack]", size: 27.4 },
+{ name: "Suicide.Squad.Kill.the.Justice.League-RUNE", size: 79.9 },
+{ name: "Super Smash Bros. Ultimate [FitGirl Repack]", size: 8.7 },
+{ name: "TDPA - The Devil in Me [FitGirl Repack]", size: 27.7 },
+{ name: "TEKKEN 7", size: 79.6 },
+{ name: "TEKKEN 8", size: 87.5 },
+{ name: "TEKKEN 8 [FitGirl Repack]", size: 69.2 },
+{ name: "TMNT - Mutants Unleashed [FitGirl Repack]", size: 9.0 },
+{ name: "TRON - Identity [FitGirl Repack]", size: 0.864 },
+{ name: "Tad the Lost Explorer [FitGirl Repack]", size: 3.1 },
+{ name: "Tekken3_Game.zip", size: 0.029 },
+{ name: "Terminator Dark Fate - Defiance", size: 20.4 },
+{ name: "Teslagrad 2 [FitGirl Repack]", size: 1.5 },
+{ name: "The Awakener - Forgotten Oath [FitGirl Repack]", size: 6.3 },
+{ name: "The Beast Inside [FitGirl Repack]", size: 8.3 },
+{ name: "The Chant [FitGirl Repack]", size: 21.8 },
+{ name: "The Entropy Centre [FitGirl Repack]", size: 7.6 },
+{ name: "The Evil Within 2", size: 31.0 },
+{ name: "The Last Case of Benedict Fox [FitGirl Repack]", size: 4.6 },
+{ name: "The Last Oricru [FitGirl Repack]", size: 16.5 },
+{ name: "The Last of Us - Part I [FitGirl Repack]", size: 52.1 },
+{ name: "The Last of Us - Part II Remastered [FitGirl Repack]", size: 77.5 },
+{ name: "The Library of Babel [FitGirl Repack]", size: 0.69 },
+{ name: "The Outer Worlds - SCE [FitGirl Repack]", size: 39.2 },
+{ name: "The Witcher 3 CE [FitGirl Repack]", size: 61.3 },
+{ name: "The.Dark.Pictures.Anthology.The.Devil.in.Me.v1.04-GoldBerg", size: 63.7 },
+{ name: "The_Counterattack_of_Sacrifice.zip", size: 2.8 },
+{ name: "The_Evil_Within.zip", size: 12.4 },
+{ name: "Them and Us [FitGirl Repack]", size: 6.6 },
+{ name: "Tiny Tina's Wonderlands [FitGirl Repack]", size: 35.7 },
+{ name: "Tom Clancy's Ghost Recon - Wildlands [FitGirl Repack]", size: 34.9 },
+{ name: "Tom Clancy's Ghost Recon Future Soldier - [DODI Repack]", size: 10.3 },
+{ name: "Tomb.Raider.Anniversary.v1.0-GOG", size: 2.8 },
+{ name: "Tomb.Raider.Underworld.v1.1-GOG", size: 6.8 },
+{ name: "UNDER NIGHT IN-BIRTH II Sys-Celes [FitGirl Repack]", size: 2.4 },
+{ name: "Uncharted - LoTC [FitGirl Repack]", size: 47.0 },
+{ name: "Unknown 9 - Awakening [FitGirl Repack]", size: 25.5 },
+{ name: "Virtua.Fighter.5.R.E.V.O-RUNE", size: 18.7 },
+{ name: "WRC Generations [FitGirl Repack]", size: 22.3 },
+{ name: "WWE 2K15", size: 21.8 },
+{ name: "WWE 2K17 [FitGirl Repack]", size: 25.8 },
+{ name: "WWE 2K18-CODEX", size: 40.3 },
+{ name: "WWE 2K22", size: 48.6 },
+{ name: "WWE 2K24 [FitGirl Repack]", size: 78.6 },
+{ name: "WWE 2k23 Icon Edition [Steam-Rip] by Ksenia", size: 78.8 },
+{ name: "WWE_2K16.zip", size: 40.8 },
+{ name: "WWE_2K19_Repack.zip", size: 38.1 },
+{ name: "WWE_2K20_Originals_CODEX.zip", size: 47.0 },
+{ name: "Watch Dogs", size: 13.7 },
+{ name: "Watchs.Dogs.Legion-EMPRESS", size: 97.1 },
+{ name: "Welcome to Kowloon [FitGirl Repack]", size: 2.3 },
+{ name: "Wo Long - Fallen Dynasty [FitGirl Repack]", size: 26.5 },
+{ name: "World War Z - Aftermath [FitGirl Repack]", size: 24.6 },
+{ name: "Yakuza - Like a Dragon [FitGirl Repack]", size: 23.9 },
+{ name: "blur", size: 8.1 },
+{ name: "gta Vice City", size: 1.3 },
+{ name: "tekken_3.zip", size: 0.474 },
+{ name: "unravel.two", size: 6.6 },
+{ name: "win10aiomultix86x64feb2020preactivated", size: 6.3 }
+];
+
+// Newly merged functions
+function guessCategory(name) {
+  name = name.toLowerCase();
+  if (name.includes("dragon ball") || name.includes("tekken") || name.includes("wwe")) return "Fighting";
+  if (name.includes("need for speed") || name.includes("racing") || name.includes("burnout")) return "Racing";
+  if (name.includes("call of duty") || name.includes("black") || name.includes("medal of honor")) return "Shooting";
+  if (name.includes("fifa") || name.includes("cricket") || name.includes("nba")) return "Sports";
+  if (name.includes("final fantasy") || name.includes("devil may cry") || name.includes("god of war")) return "Action";
+  return "Adventure";
+}
+
+function applyFilters() {
+  const category = document.getElementById('categoryFilter').value;
+  const sizeLimit = parseFloat(document.getElementById('sizeFilter').value || '100');
+  const gameList = document.getElementById('gameList');
+  gameList.innerHTML = '';
+
+  games.forEach((game, i) => {
+    const gameCategory = guessCategory(game.name);
+    if ((category === '' || gameCategory === category) && game.size <= sizeLimit) {
+      const div = document.createElement('div');
+      div.className = 'game-item';
+      div.textContent = game.name;
+      div.onclick = () => {
+        div.classList.toggle('selected');
+        const index = selectedGames.indexOf(i);
+        if (index >= 0) selectedGames.splice(index, 1);
+        else selectedGames.push(i);
+        updateStorageBar();
+        updateSummary();
+      }
+
+function updateSummary() {
+  const totalGames = selectedGames.length;
+  const totalSize = selectedGames.reduce((sum, i) => sum + games[i].size, 0);
+  document.getElementById("summaryInfo").innerText = `7983624797 | ${totalGames}
+
+function updateStorageBar() {
+  const selectedSize = selectedGames.reduce((sum, i) => sum + games[i].size, 0);
+  const totalSize = parseFloat(document.getElementById("storageSize").value || "0");
+  const usedPercent = totalSize > 0 ? Math.min((selectedSize / totalSize) * 100, 100) : 0;
+
+  document.getElementById("storageBarInfo").innerText =
+    `Used: ${selectedSize.toFixed(2)}
+
+function selectAllGames() {
+  selectedGames.length = 0;
+  const items = document.querySelectorAll('.game-item');
+  items.forEach((div) => {
+    div.classList.add('selected');
+    const gameIndex = games.findIndex(g => g.name === div.textContent);
+    if (gameIndex !== -1 && !selectedGames.includes(gameIndex)) {
+      selectedGames.push(gameIndex);
+    }
+
+function updateSummary() {
+    const totalGames = games.length;
+    const totalGameSize = games.reduce((sum, g) => sum + g.size, 0).toFixed(2);
+    const selectedCount = selectedGames.length;
+    const selectedSize = selectedGames.reduce((sum, i) => sum + games[i].size, 0).toFixed(2);
+    document.getElementById("summaryInfo").innerText =
+      `Total Games: ${totalGames}
+
+function guessCategory(name) {
+  name = name.toLowerCase();
+  if (name.includes("dragon ball") || name.includes("tekken") || name.includes("wwe")) return "Fighting";
+  if (name.includes("need for speed") || name.includes("racing") || name.includes("burnout")) return "Racing";
+  if (name.includes("call of duty") || name.includes("black") || name.includes("medal of honor")) return "Shooting";
+  if (name.includes("fifa") || name.includes("cricket") || name.includes("nba")) return "Sports";
+  if (name.includes("final fantasy") || name.includes("devil may cry") || name.includes("god of war")) return "Action";
+  return "Adventure";
+}
+
+function applyFilters() {
+  const category = document.getElementById('categoryFilter').value;
+  const sizeLimit = parseFloat(document.getElementById('sizeFilter').value || '100');
+  const gameList = document.getElementById('gameList');
+  gameList.innerHTML = '';
+
+  games.forEach((game, i) => {
+    const gameCategory = guessCategory(game.name);
+    if ((category === '' || gameCategory === category) && game.size <= sizeLimit) {
+      const div = document.createElement('div');
+      div.className = 'game-item';
+      div.textContent = game.name;
+      div.onclick = () => {
+        div.classList.toggle('selected');
+        const index = selectedGames.indexOf(i);
+        if (index >= 0) selectedGames.splice(index, 1);
+        else selectedGames.push(i);
+        updateStorageBar();
+        updateSummary();
+      }
+
+function updateSummary() {
+  const totalGames = selectedGames.length;
+  const totalSize = selectedGames.reduce((sum, i) => sum + games[i].size, 0);
+  document.getElementById("summaryInfo").innerText = `7983624797 | ${totalGames}
+
+function updateStorageBar() {
+  const selectedSize = selectedGames.reduce((sum, i) => sum + games[i].size, 0);
+  const totalSize = parseFloat(document.getElementById("storageSize").value || "0");
+  const usedPercent = totalSize > 0 ? Math.min((selectedSize / totalSize) * 100, 100) : 0;
+
+  document.getElementById("storageBarInfo").innerText =
+    `Used: ${selectedSize.toFixed(2)}
+
+function selectAllGames() {
+  selectedGames.length = 0;
+  const items = document.querySelectorAll('.game-item');
+  items.forEach((div) => {
+    div.classList.add('selected');
+    const gameIndex = games.findIndex(g => g.name === div.textContent);
+    if (gameIndex !== -1 && !selectedGames.includes(gameIndex)) {
+      selectedGames.push(gameIndex);
+    }
+
+function selectAllGames() {
+  selectedGames.length = 0;
+  const items = document.querySelectorAll('.game-item');
+  items.forEach((div) => {
+    div.classList.add('selected');
+    const gameIndex = games.findIndex(g => g.name === div.textContent);
+    if (gameIndex !== -1 && !selectedGames.includes(gameIndex)) {
+      selectedGames.push(gameIndex);
+    }
+
+function selectAllGames() {
+  selectedGames.length = 0;
+  const items = document.querySelectorAll('.game-item');
+  items.forEach((div) => {
+    div.classList.add('selected');
+    const gameIndex = games.findIndex(g => g.name === div.textContent);
+    if (gameIndex !== -1 && !selectedGames.includes(gameIndex)) {
+      selectedGames.push(gameIndex);
+    }
+
+function selectAllGames() {
+  selectedGames.length = 0;
+  const items = document.querySelectorAll('.game-item');
+  items.forEach((div) => {
+    div.classList.add('selected');
+    const gameIndex = games.findIndex(g => g.name === div.textContent);
+    if (gameIndex !== -1 && !selectedGames.includes(gameIndex)) {
+      selectedGames.push(gameIndex);
+    }
+
+// Existing logic
+
+function updateStorageBar() {
+  const selectedSize = selectedGames.reduce((sum, i) => sum + games[i].size, 0);
+  const totalSize = parseFloat(document.getElementById("storageSize").value || "0");
+  const usedPercent = totalSize > 0 ? Math.min((selectedSize / totalSize) * 100, 100) : 0;
+
+  document.getElementById("storageBarInfo").innerText =
+    `Used: ${selectedSize.toFixed(2)} GB of ${totalSize} GB (${usedPercent.toFixed(0)}%)`;
+}
+
+
+        function filterBySizeGroup(group) {
+          document.querySelectorAll(".game-item").forEach(item => {
+            const sizeGroup = item.dataset.sizeGroup;
+            item.style.display = sizeGroup === group ? "block" : "none";
+          });
+        }
+        
+function applyFilters() {
+  const search = document.getElementById("searchInput").value.toLowerCase();
+  const category = document.getElementById("categoryFilter").value;
+  document.querySelectorAll(".game-item").forEach(item => {
+    const name = item.dataset.name;
+    const cat = item.dataset.category;
+    const matchSearch = name.includes(search);
+    const matchCategory = !category || cat === category;
+    item.style.display = matchSearch && matchCategory ? "block" : "none";
+  });
+}
+function clearFilters() {
+  document.getElementById("searchInput").value = "";
+  document.getElementById("categoryFilter").value = "";
+  applyFilters();
+}
+
+
+window.onload = () => renderGames(games);
+        
+
+
+  const games = [
+  { name: "A Plague Tale - Requiem [FitGirl Repack]", size: 24.2, category: "Unknown", sizeGroup: "20-50GB", gameID: "" },
+{ name: "AEW - Fight Forever [FitGirl Repack]", size: 12.0, category: "Unknown", sizeGroup: "10-20GB", gameID: "" },
+{ name: "A_Plague_Tale_Innocence.zip", size: 38.5, category: "Unknown", sizeGroup: "20-50GB", gameID: "" },
+{ name: "Afterimage [FitGirl Repack]", size: 3.3, category: "Unknown", sizeGroup: "3-4GB", gameID: "" },
+{ name: "Aliens. Fireteam Elite (2021)", size: 15.2, category: "Unknown", sizeGroup: "10-20GB", gameID: "" },
+{ name: "American Truck Simulator v.1.48.2.1s (2016)", size: 15.2, category: "Unknown", sizeGroup: "10-20GB", gameID: "" },
+{ name: "Amok Runner [FitGirl Repack]", size: 3.8, category: "Unknown", sizeGroup: "3-4GB", gameID: "" },
+{ name: "ArcRunner [FitGirl Repack]", size: 1.8, category: "Unknown", sizeGroup: "1-2GB", gameID: "" },
+{ name: "Ashes Cricket [FitGirl Repack]", size: 5.3, category: "Unknown", sizeGroup: "5-10GB", gameID: "" },
+{ name: "Assassin's Creed - Syndicate - Gold Edition [FitGirl Repack]", size: 20.1, category: "Unknown", sizeGroup: "20-50GB", gameID: "" },
+{ name: "Assassin's Creed Mirage [FitGirl Repack]", size: 20.8, category: "Unknown", sizeGroup: "20-50GB", gameID: "" },
+{ name: "Assassins_Creed1", size: 6.7, category: "Unknown", sizeGroup: "5-10GB", gameID: "" },
+{ name: "Assassins_Creed_Brotherhood", size: 6.2, category: "Unknown", sizeGroup: "5-10GB", gameID: "" },
+{ name: "Assassins_Creed_Liberation.zip", size: 2.9, category: "Unknown", sizeGroup: "2-3GB", gameID: "" },
+{ name: "Assassins_Creed_Odyssey_Repack.zip", size: 25.4, category: "Unknown", sizeGroup: "20-50GB", gameID: "" },
+{ name: "Assassins_Creed_Origins_Repack.zip", size: 32.0, category: "Unknown", sizeGroup: "20-50GB", gameID: "" },
+{ name: "Assassins_Creed_Unity", size: 35.7, category: "Unknown", sizeGroup: "20-50GB", gameID: "" },
+{ name: "Asterigos [FitGirl Repack]", size: 5.6, category: "Unknown", sizeGroup: "5-10GB", gameID: "" },
+{ name: "Atari 50 [FitGirl Repack]", size: 9.2, category: "Unknown", sizeGroup: "5-10GB", gameID: "" },
+{ name: "Atomic Heart [FitGirl Repack]", size: 26.6, category: "Unknown", sizeGroup: "20-50GB", gameID: "" },
+{ name: "Automobilista 2 [FitGirl Repack]", size: 19.8, category: "Unknown", sizeGroup: "10-20GB", gameID: "" },
+{ name: "BIOMUTANT.GOG-InsaneRamZes", size: 15.0, category: "Unknown", sizeGroup: "10-20GB", gameID: "" },
+{ name: "Bang-On Balls - Chronicles [FitGirl Repack]", size: 2.4, category: "Unknown", sizeGroup: "2-3GB", gameID: "" },
+{ name: "Batman Arkham Origins repack Mr DJ", size: 9.9, category: "Unknown", sizeGroup: "5-10GB", gameID: "" },
+{ name: "Batman_Arkham_Asylum.zip", size: 4.7, category: "Unknown", sizeGroup: "4-5GB", gameID: "" },
+{ name: "Batman_Arkham_Knight.zip", size: 50.2, category: "Unknown", sizeGroup: "50GB+", gameID: "" },
+{ name: "Batora - Lost Haven [FitGirl Repack]", size: 11.7, category: "Unknown", sizeGroup: "10-20GB", gameID: "" },
+{ name: "Battlefield V PC game ^^nosTEAM^^", size: 47.4, category: "Unknown", sizeGroup: "20-50GB", gameID: "" },
+{ name: "Battlefield.3.zip", size: 13.9, category: "Unknown", sizeGroup: "10-20GB", gameID: "" },
+{ name: "Battlefield.4-RELOADED", size: 23.0, category: "Unknown", sizeGroup: "20-50GB", gameID: "" },
+{ name: "Battlefield.Bad.Company.2-RELOADED.[www.USABIT.com]", size: 5.4, category: "Unknown", sizeGroup: "5-10GB", gameID: "" },
+{ name: "Battlefield_1.zip", size: 50.4, category: "Unknown", sizeGroup: "50GB+", gameID: "" },
+{ name: "Battlefield_1_Fix.zip", size: 0.085, category: "Unknown", sizeGroup: "<1GB", gameID: "" },
+{ name: "Battlefield_Hardline.zip", size: 48.4, category: "Unknown", sizeGroup: "20-50GB", gameID: "" },
+{ name: "Battlefield_Hardline_Fix.zip", size: 1.4, category: "Unknown", sizeGroup: "1-2GB", gameID: "" },
+{ name: "Blood Bowl 3 [FitGirl Repack]", size: 7.6, category: "Unknown", sizeGroup: "5-10GB", gameID: "" },
+{ name: "Bright Memory - Infinite [FitGirl Repack]", size: 6.3, category: "Unknown", sizeGroup: "5-10GB", gameID: "" },
+{ name: "Bright.Memory.Infinite-CODEX", size: 11.8, category: "Unknown", sizeGroup: "10-20GB", gameID: "" },
+{ name: "Bright_Memory_Infinite_1.44_(71583)_win_gog", size: 11.1, category: "Unknown", sizeGroup: "10-20GB", gameID: "" },
+{ name: "CRISIS CORE - FF7 - REUNION [FitGirl Repack]", size: 13.4, category: "Unknown", sizeGroup: "10-20GB", gameID: "" },
+{ name: "Call of Duty - Modern Warfare 3 [FitGirl Repack]", size: 10.8, category: "Unknown", sizeGroup: "10-20GB", gameID: "" },
+{ name: "Call of Duty - Vanguard [FitGirl Repack]", size: 60.4, category: "Unknown", sizeGroup: "50GB+", gameID: "" },
+{ name: "Call of Duty 4 Modern Warfare Repack By R.G Catalyst - MonstersBugle", size: 3.6, category: "Unknown", sizeGroup: "3-4GB", gameID: "" },
+{ name: "Call of Duty Advanced Warfare Complete - CorePack", size: 34.2, category: "Unknown", sizeGroup: "20-50GB", gameID: "" },
+{ name: "Call of Duty Black Ops 2", size: 15.0, category: "Unknown", sizeGroup: "10-20GB", gameID: "" },
+{ name: "Call of Duty Black Ops-SKIDROW", size: 7.3, category: "Unknown", sizeGroup: "5-10GB", gameID: "" },
+{ name: "Call of Duty Black ops 3", size: 107.8, category: "Unknown", sizeGroup: "50GB+", gameID: "" },
+{ name: "Call of Duty Ghosts", size: 28.9, category: "Unknown", sizeGroup: "20-50GB", gameID: "" },
+{ name: "Call of Duty Infinite Warfare update 4 [wWw.GamesTorrents.TV]", size: 67.1, category: "Unknown", sizeGroup: "50GB+", gameID: "" },
+{ name: "Call of Duty Modern Warfare 2 repack MP-SP ^^nosTEAM^^RO", size: 13.7, category: "Unknown", sizeGroup: "10-20GB", gameID: "" },
+{ name: "Call of Duty Modern Warfare Remastered by xatab", size: 34.3, category: "Unknown", sizeGroup: "20-50GB", gameID: "" },
+{ name: "Call.of.Duty.WWII.Digital.Deluxe.Edition.CRACKED.zip", size: 38.6, category: "Unknown", sizeGroup: "20-50GB", gameID: "" },
+{ name: "Call_of_Duty_Black_Ops_2_SP_MP_ZM.zip", size: 26.7, category: "Unknown", sizeGroup: "20-50GB", gameID: "" },
+{ name: "Call_of_Duty_Modern_Warfare_Remastered.zip", size: 42.3, category: "Unknown", sizeGroup: "20-50GB", gameID: "" },
+{ name: "Choo-Choo Charles.zip", size: 1.9, category: "Unknown", sizeGroup: "1-2GB", gameID: "" },
+{ name: "Christmas Night [FitGirl Repack]", size: 3.1, category: "Unknown", sizeGroup: "3-4GB", gameID: "" },
+{ name: "Cities - Skylines II [FitGirl Repack]", size: 36.6, category: "Unknown", sizeGroup: "20-50GB", gameID: "" },
+{ name: "Cities - Skylines [FitGirl Repack]", size: 6.7, category: "Unknown", sizeGroup: "5-10GB", gameID: "" },
+{ name: "Cobra Kai 2 [FitGirl Repack]", size: 10.8, category: "Unknown", sizeGroup: "10-20GB", gameID: "" },
+{ name: "Conan Exiles [FitGirl Repack]", size: 36.7, category: "Unknown", sizeGroup: "20-50GB", gameID: "" },
+{ name: "Contra - Operation Galuga", size: 13.6, category: "Unknown", sizeGroup: "10-20GB", gameID: "" },
+{ name: "Counter.Strike.Source.apkaward.zip", size: 2.5, category: "Unknown", sizeGroup: "2-3GB", gameID: "" },
+{ name: "Counter_Strike_1.6_War_Space.zip", size: 0.948, category: "Unknown", sizeGroup: "<1GB", gameID: "" },
+{ name: "Counter_Strike_Global_Offensive_Multiplayer.zip", size: 1.1, category: "Unknown", sizeGroup: "1-2GB", gameID: "" },
+{ name: "Counter_Strike_Global_Offensive_Repack.zip", size: 9.7, category: "Unknown", sizeGroup: "5-10GB", gameID: "" },
+{ name: "Crash bandicoot n sane trilogy.iso", size: 25.4, category: "Unknown", sizeGroup: "20-50GB", gameID: "" },
+{ name: "Crash.Bandicoot.4-EMPRESS", size: 23.0, category: "Unknown", sizeGroup: "20-50GB", gameID: "" },
+{ name: "Cricket 19", size: 11.5, category: "Unknown", sizeGroup: "10-20GB", gameID: "" },
+{ name: "Cricket 22 [FitGirl Repack]", size: 13.6, category: "Unknown", sizeGroup: "10-20GB", gameID: "" },
+{ name: "Cricket 24 [FitGirl Repack]", size: 18.8, category: "Unknown", sizeGroup: "10-20GB", gameID: "" },
+{ name: "Crisis.Core.Final.Fantasy.VII.Reunion.v1.0.1-P2P", size: 18.0, category: "Unknown", sizeGroup: "10-20GB", gameID: "" },
+{ name: "Crysis 2 Remastered [FitGirl Repack]", size: 29.7, category: "Unknown", sizeGroup: "20-50GB", gameID: "" },
+{ name: "Crysis 3 Remastered [FitGirl Repack]", size: 11.6, category: "Unknown", sizeGroup: "10-20GB", gameID: "" },
+{ name: "Cyberpunk.2077.v1.5.iso", size: 57.3, category: "Unknown", sizeGroup: "50GB+", gameID: "" },
+{ name: "D.B.C.14..iso", size: 2.0, category: "Unknown", sizeGroup: "2-3GB", gameID: "" },
+{ name: "DRAGON BALL FighterZ - [DODI Repack]", size: 3.5, category: "Unknown", sizeGroup: "3-4GB", gameID: "" },
+{ name: "DRAGON.BALL.XENOVERSE.2.v1.16.01-Chronos", size: 18.8, category: "Unknown", sizeGroup: "10-20GB", gameID: "" },
+{ name: "DRIFT CE [FitGirl Repack]", size: 2.0, category: "Unknown", sizeGroup: "2-3GB", gameID: "" },
+{ name: "DRIFT21 [FitGirl Repack]", size: 1.6, category: "Unknown", sizeGroup: "1-2GB", gameID: "" },
+{ name: "Dakar Desert Rally [FitGirl Repack]", size: 37.8, category: "Unknown", sizeGroup: "20-50GB", gameID: "" },
+{ name: "Dark_Light_v1.0.5.4-FLT", size: 2.2, category: "Unknown", sizeGroup: "2-3GB", gameID: "" },
+{ name: "Days Gone", size: 59.8, category: "Unknown", sizeGroup: "50GB+", gameID: "" },
+{ name: "Dead Man's Diary [FitGirl Repack]", size: 17.0, category: "Unknown", sizeGroup: "10-20GB", gameID: "" },
+{ name: "Deadpool", size: 3.5, category: "Unknown", sizeGroup: "3-4GB", gameID: "" },
+{ name: "Death Below [FitGirl Repack]", size: 8.2, category: "Unknown", sizeGroup: "5-10GB", gameID: "" },
+{ name: "Death in the Water 2 [FitGirl Repack]", size: 3.3, category: "Unknown", sizeGroup: "3-4GB", gameID: "" },
+{ name: "Detroit - Become Human [FitGirl Repack]", size: 39.1, category: "Unknown", sizeGroup: "20-50GB", gameID: "" },
+{ name: "Detroit.Become.Human.v20211117-P2P", size: 58.7, category: "Unknown", sizeGroup: "50GB+", gameID: "" },
+{ name: "Devil.May.Cry.3.Special.Edition-RELOADED", size: 3.8, category: "Unknown", sizeGroup: "3-4GB", gameID: "" },
+{ name: "Devil.May.Cry.5.Deluxe.Edition.zip", size: 37.4, category: "Unknown", sizeGroup: "20-50GB", gameID: "" },
+{ name: "Devil_May_Cry_4_Special_Edition.zip", size: 5.2, category: "Unknown", sizeGroup: "5-10GB", gameID: "" },
+{ name: "DiRT Rally 2.0 Deluxe Edition [wWw.GamesTorrents.TV]", size: 17.6, category: "Unknown", sizeGroup: "10-20GB", gameID: "" },
+{ name: "Disney Infinity - Gold Collection [FitGirl Repack]", size: 20.1, category: "Unknown", sizeGroup: "20-50GB", gameID: "" },
+{ name: "Disney_Infinity_1_0_Gold_Edition", size: 8.0, category: "Unknown", sizeGroup: "5-10GB", gameID: "" },
+{ name: "Disney_Infinity_1_0_Gold_Edition.zip", size: 8.0, category: "Unknown", sizeGroup: "5-10GB", gameID: "" },
+{ name: "Don Bradman Cricket 17 [FitGirl Repack]", size: 3.3, category: "Unknown", sizeGroup: "3-4GB", gameID: "" },
+{ name: "Dragon Ball Z - Kakarot [FitGirl Repack]", size: 32.6, category: "Unknown", sizeGroup: "20-50GB", gameID: "" },
+{ name: "Dragon's Dogma 2 [FitGirl Repack]", size: 42.0, category: "Unknown", sizeGroup: "20-50GB", gameID: "" },
+{ name: "Dragon.Ball.FighterZ.Android.21-EMPRESS", size: 6.0, category: "Unknown", sizeGroup: "5-10GB", gameID: "" },
+{ name: "Dragon.Ball.FighterZ.Ultimate.Edition.v1.27.MULTi11-EMPRESS.iso", size: 5.8, category: "Unknown", sizeGroup: "5-10GB", gameID: "" },
+{ name: "Dragonball.Xenoverse.Bundle.Edition-PLAZA.2015.iso", size: 9.5, category: "Unknown", sizeGroup: "5-10GB", gameID: "" },
+{ name: "DreamWorks.All-Star.Kart.Racing-TENOKE", size: 7.7, category: "Unknown", sizeGroup: "5-10GB", gameID: "" },
+{ name: "Dying Light Definitive Edition [DODI Repack]", size: 17.6, category: "Unknown", sizeGroup: "10-20GB", gameID: "" },
+{ name: "Dying Light The Following – Enhanced Edition", size: 21.6, category: "Unknown", sizeGroup: "20-50GB", gameID: "" },
+{ name: "Dying.Light.2.Stay.Human.Ultimate.Edition.Steam.Rip-InsaneRamZes", size: 81.0, category: "Unknown", sizeGroup: "50GB+", gameID: "" },
+{ name: "EA Sports Cricket 2007", size: 1.1, category: "Unknown", sizeGroup: "1-2GB", gameID: "" },
+{ name: "EA Sports Cricket 2007.rar", size: 0.836, category: "Unknown", sizeGroup: "<1GB", gameID: "" },
+{ name: "EDENGATE [FitGirl Repack]", size: 9.6, category: "Unknown", sizeGroup: "5-10GB", gameID: "" },
+{ name: "ELDEN RING NIGHTREIGN [FitGirl Repack]", size: 15.8, category: "Unknown", sizeGroup: "10-20GB", gameID: "" },
+{ name: "ELDEN RING [FitGirl Repack]", size: 49.3, category: "Unknown", sizeGroup: "20-50GB", gameID: "" },
+{ name: "ELEX 2 [FitGirl Repack]", size: 27.4, category: "Unknown", sizeGroup: "20-50GB", gameID: "" },
+{ name: "Escape from Hata [FitGirl Repack]", size: 1.7, category: "Unknown", sizeGroup: "1-2GB", gameID: "" },
+{ name: "Eternal Evil [FitGirl Repack]", size: 22.4, category: "Unknown", sizeGroup: "20-50GB", gameID: "" },
+{ name: "Evil Dead Regeneration [English]", size: 2.0, category: "Unknown", sizeGroup: "2-3GB", gameID: "" },
+{ name: "Evil Dead The Game [DODI Repack]", size: 7.0, category: "Unknown", sizeGroup: "5-10GB", gameID: "" },
+{ name: "Evil West [FitGirl Repack]", size: 25.5, category: "Unknown", sizeGroup: "20-50GB", gameID: "" },
+{ name: "F.E.A.R. 2 Project Origin Complete ElAmigos", size: 5.0, category: "Unknown", sizeGroup: "5-10GB", gameID: "" },
+{ name: "F1.2021.Deluxe.Edition.Full.Unlocked.rar", size: 40.7, category: "Unknown", sizeGroup: "20-50GB", gameID: "" },
+{ name: "FIFA 19 PC full game ^^nosTEAM^^", size: 43.7, category: "Unknown", sizeGroup: "20-50GB", gameID: "" },
+{ name: "FIFA 23 [DODI Repack]", size: 54.1, category: "Unknown", sizeGroup: "50GB+", gameID: "" },
+{ name: "FIFA 23 [FitGirl Repack]", size: 41.1, category: "Unknown", sizeGroup: "20-50GB", gameID: "" },
+{ name: "FIFA.14.Ultimate.Edition.1.4.MULTi7.iso", size: 7.8, category: "Unknown", sizeGroup: "5-10GB", gameID: "" },
+{ name: "FIFA.22.Ultimate.Edition.FULL.UNLOCKED.rar", size: 31.0, category: "Unknown", sizeGroup: "20-50GB", gameID: "" },
+{ name: "FUEL [Steam]", size: 2.8, category: "Unknown", sizeGroup: "2-3GB", gameID: "" },
+{ name: "Family Curse [FitGirl Repack]", size: 18.3, category: "Unknown", sizeGroup: "10-20GB", gameID: "" },
+{ name: "Far Cry 2 Remastered Modernized Edition - [DODI Repack]", size: 3.4, category: "Unknown", sizeGroup: "3-4GB", gameID: "" },
+{ name: "Far Cry 3 - Duology [FitGirl Repack]", size: 4.3, category: "Unknown", sizeGroup: "4-5GB", gameID: "" },
+{ name: "Far Cry 5 [FitGirl Repack]", size: 52.5, category: "Unknown", sizeGroup: "50GB+", gameID: "" },
+{ name: "Far Cry New Dawn [wWw.GamesTorrents.TV]", size: 26.7, category: "Unknown", sizeGroup: "20-50GB", gameID: "" },
+{ name: "Far.Cry.6-EMPRESS", size: 78.4, category: "Unknown", sizeGroup: "50GB+", gameID: "" },
+{ name: "Farming Simulator 22 [FitGirl Repack]", size: 15.0, category: "Unknown", sizeGroup: "10-20GB", gameID: "" },
+{ name: "FlatOut - Ultimate Carnage CE [FitGirl Repack]", size: 1.8, category: "Unknown", sizeGroup: "1-2GB", gameID: "" },
+{ name: "Forspoken [FitGirl Repack]", size: 69.2, category: "Unknown", sizeGroup: "50GB+", gameID: "" },
+{ name: "Forza Horizon 4 [FitGirl Repack]", size: 49.0, category: "Unknown", sizeGroup: "20-50GB", gameID: "" },
+{ name: "Forza Motorsport 7 [FitGirl Repack]", size: 67.7, category: "Unknown", sizeGroup: "50GB+", gameID: "" },
+{ name: "Forza.Horizon.5.PROPER-EMPRESS", size: 93.1, category: "Unknown", sizeGroup: "50GB+", gameID: "" },
+{ name: "Forza.Horizon.5.Premium.Edition.Steam.Rip-InsaneRamZes", size: 121.6, category: "Unknown", sizeGroup: "50GB+", gameID: "" },
+{ name: "GRIME [FitGirl Repack]", size: 2.2, category: "Unknown", sizeGroup: "2-3GB", gameID: "" },
+{ name: "GRIME.v1.11.4-P2P.iso", size: 2.6, category: "Unknown", sizeGroup: "2-3GB", gameID: "" },
+{ name: "GTA 3 (PC) Grand Theft Auto III - Liberty City.zip", size: 0.621, category: "Unknown", sizeGroup: "<1GB", gameID: "" },
+{ name: "GTA 5 Add-on Carpack", size: 53.4, category: "Unknown", sizeGroup: "50GB+", gameID: "" },
+{ name: "GTA 5 MOD Game 150GB", size: 142.9, category: "Unknown", sizeGroup: "50GB+", gameID: "" },
+{ name: "GTA San Andreas_2", size: 4.7, category: "Unknown", sizeGroup: "4-5GB", gameID: "" },
+{ name: "GTA San Andreas_2.rar", size: 3.8, category: "Unknown", sizeGroup: "3-4GB", gameID: "" },
+{ name: "GTA Vice City 10 Year Anniversary Edition - [DODI Repack]", size: 1.1, category: "Unknown", sizeGroup: "1-2GB", gameID: "" },
+{ name: "GYLT [FitGirl Repack]", size: 3.7, category: "Unknown", sizeGroup: "3-4GB", gameID: "" },
+{ name: "Gears of War - Ultimate Edition [FitGirl Repack]", size: 27.2, category: "Unknown", sizeGroup: "20-50GB", gameID: "" },
+{ name: "Gears_5_v1.1.15.0_CODEX.zip", size: 62.0, category: "Unknown", sizeGroup: "50GB+", gameID: "" },
+{ name: "Generation Zero [FitGirl Repack]", size: 10.8, category: "Unknown", sizeGroup: "10-20GB", gameID: "" },
+{ name: "Ghost Recon advanced warfighter 2 [PC-DVD] [www.topetorrent.com].iso", size: 3.3, category: "Unknown", sizeGroup: "3-4GB", gameID: "" },
+{ name: "Ghost of Tsushima DC", size: 53.1, category: "Unknown", sizeGroup: "50GB+", gameID: "" },
+{ name: "Ghostbusters - Remastered [FitGirl Repack]", size: 20.8, category: "Unknown", sizeGroup: "20-50GB", gameID: "" },
+{ name: "Gigantosaurus - Dino Kart [FitGirl Repack]", size: 1.0, category: "Unknown", sizeGroup: "1-2GB", gameID: "" },
+{ name: "God of War Ragnarok", size: 159.5, category: "Unknown", sizeGroup: "50GB+", gameID: "" },
+{ name: "God of War Ragnarok [DODI Repack]", size: 69.4, category: "Unknown", sizeGroup: "50GB+", gameID: "" },
+{ name: "God of War [DODI Repack]", size: 26.5, category: "Unknown", sizeGroup: "20-50GB", gameID: "" },
+{ name: "God_of_War_v1.0.12-Razor1911", size: 64.3, category: "Unknown", sizeGroup: "50GB+", gameID: "" },
+{ name: "Gotham Knights [FitGirl Repack]", size: 30.5, category: "Unknown", sizeGroup: "20-50GB", gameID: "" },
+{ name: "Gotham_Knights_GoldBerg.zip", size: 41.0, category: "Unknown", sizeGroup: "20-50GB", gameID: "" },
+{ name: "Grand Theft Auto (GTA) San Andreas-HOODLUM", size: 3.9, category: "Unknown", sizeGroup: "3-4GB", gameID: "" },
+{ name: "Grand Theft Auto IV Complete Edition BLACK_BOX", size: 16.9, category: "Unknown", sizeGroup: "10-20GB", gameID: "" },
+{ name: "Grand Theft Auto IV Fully Loaded.rar", size: 13.7, category: "Unknown", sizeGroup: "10-20GB", gameID: "" },
+{ name: "Grand Theft Auto V Enhanced [FitGirl Repack]", size: 38.2, category: "Unknown", sizeGroup: "20-50GB", gameID: "" },
+{ name: "Grand Theft Auto V FULL 95GB", size: 88.9, category: "Unknown", sizeGroup: "50GB+", gameID: "" },
+{ name: "Grand Theft Auto V [DODI Repack]", size: 58.7, category: "Unknown", sizeGroup: "50GB+", gameID: "" },
+{ name: "Grand Theft Auto V [FitGirl Repack]", size: 53.9, category: "Unknown", sizeGroup: "50GB+", gameID: "" },
+{ name: "Grand Theft Auto V.Rockstar-Rip [=nemos=]", size: 89.1, category: "Unknown", sizeGroup: "50GB+", gameID: "" },
+{ name: "Grand.Theft.Auto.The.Trilogy.The.Definitive.Edition.RGL.Rip-InsaneRamZes", size: 32.4, category: "Unknown", sizeGroup: "20-50GB", gameID: "" },
+{ name: "Grand.Theft.Auto.The.Trilogy.The.Definitive.Edition.v1.04.5", size: 32.4, category: "Unknown", sizeGroup: "20-50GB", gameID: "" },
+{ name: "Grand.Theft.Auto.The.Trilogy.The.Definitive.Edition.v1.04.5.zip", size: 31.5, category: "Unknown", sizeGroup: "20-50GB", gameID: "" },
+{ name: "Grand.Theft.Auto.V.Update.v1.41-RELOADED", size: 11.2, category: "Unknown", sizeGroup: "10-20GB", gameID: "" },
+{ name: "Gungrave G.O.R.E-InsaneRamZes", size: 30.2, category: "Unknown", sizeGroup: "20-50GB", gameID: "" },
+{ name: "HARVESTELLA [FitGirl Repack]", size: 7.3, category: "Unknown", sizeGroup: "5-10GB", gameID: "" },
+{ name: "HITMAN (1-3) v.3.120.0.0 (2016-2018-2021)", size: 66.9, category: "Unknown", sizeGroup: "50GB+", gameID: "" },
+{ name: "Half-Life - Alyx [FitGirl Repack]", size: 38.4, category: "Unknown", sizeGroup: "20-50GB", gameID: "" },
+{ name: "Have a Nice Death [FitGirl Repack]", size: 0.713, category: "Unknown", sizeGroup: "<1GB", gameID: "" },
+{ name: "Hello Neighbor 2 [FitGirl Repack]", size: 4.4, category: "Unknown", sizeGroup: "4-5GB", gameID: "" },
+{ name: "Hello neighbor  v1.1.9", size: 2.9, category: "Unknown", sizeGroup: "2-3GB", gameID: "" },
+{ name: "Hello.Neighbor.2.Beta.rar", size: 2.6, category: "Unknown", sizeGroup: "2-3GB", gameID: "" },
+{ name: "Horizon - Forbidden West CE [FitGirl Repack]", size: 98.2, category: "Unknown", sizeGroup: "50GB+", gameID: "" },
+{ name: "Horizon.Chase.Turbo.1.9.5.MULTi11-ELAMIGOS.2018.iso", size: 0.451, category: "Unknown", sizeGroup: "<1GB", gameID: "" },
+{ name: "Horizon_Zero_Dawn_6260111_(44375)_win_gog", size: 66.6, category: "Unknown", sizeGroup: "50GB+", gameID: "" },
+{ name: "Horror Maze 2 [FitGirl Repack]", size: 4.1, category: "Unknown", sizeGroup: "4-5GB", gameID: "" },
+{ name: "House Party [FitGirl Repack]", size: 2.0, category: "Unknown", sizeGroup: "2-3GB", gameID: "" },
+{ name: "IMAGO [FitGirl Repack]", size: 19.5, category: "Unknown", sizeGroup: "10-20GB", gameID: "" },
+{ name: "INSIDE", size: 2.2, category: "Unknown", sizeGroup: "2-3GB", gameID: "" },
+{ name: "INSIDE [FitGirl Repack]", size: 0.917, category: "Unknown", sizeGroup: "<1GB", gameID: "" },
+{ name: "In Sound Mind [FitGirl Repack]", size: 5.7, category: "Unknown", sizeGroup: "5-10GB", gameID: "" },
+{ name: "Injustice_Gods_Among_Us.zip", size: 20.2, category: "Unknown", sizeGroup: "20-50GB", gameID: "" },
+{ name: "Just Cause 3 - XL Edition [FitGirl Repack]", size: 24.7, category: "Unknown", sizeGroup: "20-50GB", gameID: "" },
+{ name: "Just Cause 4 [FitGirl Repack]", size: 25.6, category: "Unknown", sizeGroup: "20-50GB", gameID: "" },
+{ name: "Kao the Kangaroo [FitGirl Repack]", size: 7.5, category: "Unknown", sizeGroup: "5-10GB", gameID: "" },
+{ name: "Kena - Bridge of Spirits v.2.04 (2021)", size: 24.4, category: "Unknown", sizeGroup: "20-50GB", gameID: "" },
+{ name: "Kerbal Space Program [FitGirl Repack]", size: 1.2, category: "Unknown", sizeGroup: "1-2GB", gameID: "" },
+{ name: "King of Fighters XV [FitGirl Repack]", size: 28.2, category: "Unknown", sizeGroup: "20-50GB", gameID: "" },
+{ name: "Koa and the Five Pirates of Mara [FitGirl Repack]", size: 0.671, category: "Unknown", sizeGroup: "<1GB", gameID: "" },
+{ name: "Kong - Survivor Instinct [FitGirl Repack]", size: 4.4, category: "Unknown", sizeGroup: "4-5GB", gameID: "" },
+{ name: "Krampus Kills [FitGirl Repack]", size: 8.6, category: "Unknown", sizeGroup: "5-10GB", gameID: "" },
+{ name: "LEGO Star Wars - The Skywalker Saga [FitGirl Repack]", size: 27.6, category: "Unknown", sizeGroup: "20-50GB", gameID: "" },
+{ name: "LEGO.The.Incredibles-CODEX", size: 13.8, category: "Unknown", sizeGroup: "10-20GB", gameID: "" },
+{ name: "LEGO_Star_Wars_The_Skywalker_Saga-FLT", size: 37.0, category: "Unknown", sizeGroup: "20-50GB", gameID: "" },
+{ name: "Lego_batman_the_videogame", size: 4.0, category: "Unknown", sizeGroup: "4-5GB", gameID: "" },
+{ name: "Lifespace Traveler [FitGirl Repack]", size: 5.0, category: "Unknown", sizeGroup: "5-10GB", gameID: "" },
+{ name: "Lunacy - Saint Rhodes [FitGirl Repack]", size: 4.2, category: "Unknown", sizeGroup: "4-5GB", gameID: "" },
+{ name: "MX vs ATV Legends [FitGirl Repack]", size: 16.6, category: "Unknown", sizeGroup: "10-20GB", gameID: "" },
+{ name: "Mad Max PC game ^^nosTEAM^^", size: 31.9, category: "Unknown", sizeGroup: "20-50GB", gameID: "" },
+{ name: "Mario Party 6 (USA).iso", size: 1.4, category: "Unknown", sizeGroup: "1-2GB", gameID: "" },
+{ name: "Marvel VS Capcom Infinite [FitGirl Repack]", size: 39.9, category: "Unknown", sizeGroup: "20-50GB", gameID: "" },
+{ name: "Marvel vs Capcom 2 pc.rar", size: 0.171, category: "Unknown", sizeGroup: "<1GB", gameID: "" },
+{ name: "Marvel's Avengers [FitGirl Repack]", size: 104.5, category: "Unknown", sizeGroup: "50GB+", gameID: "" },
+{ name: "Marvel's Spider-Man Miles Morales (2022)", size: 56.9, category: "Unknown", sizeGroup: "50GB+", gameID: "" },
+{ name: "Marvel's.Spider-Man.2.Digital.Deluxe.Edition-InsaneRamZes", size: 136.5, category: "Unknown", sizeGroup: "50GB+", gameID: "" },
+{ name: "Marvel.Ultimate.Alliance.Build.30082016-Repack.iso", size: 6.2, category: "Unknown", sizeGroup: "5-10GB", gameID: "" },
+{ name: "Marvels.Guardians.of.the.Galaxy-EMPRESS", size: 37.1, category: "Unknown", sizeGroup: "20-50GB", gameID: "" },
+{ name: "Max Payne 3 - Complete Edition [FitGirl Repack]", size: 13.9, category: "Unknown", sizeGroup: "10-20GB", gameID: "" },
+{ name: "Medal Of Honor - Allied Assault War Chest (March 2, 2004)", size: 2.7, category: "Unknown", sizeGroup: "2-3GB", gameID: "" },
+{ name: "Medal.of.Honor.Warfighter-FLT", size: 15.2, category: "Unknown", sizeGroup: "10-20GB", gameID: "" },
+{ name: "Metro_Exodus_EE_3.0.7.26_(47053)_win_gog", size: 75.8, category: "Unknown", sizeGroup: "50GB+", gameID: "" },
+{ name: "Middle-earth - Shadow of War DE [FitGirl Repack]", size: 48.6, category: "Unknown", sizeGroup: "20-50GB", gameID: "" },
+{ name: "Minecraft - Story Mode [FitGirl Repack]", size: 3.1, category: "Unknown", sizeGroup: "3-4GB", gameID: "" },
+{ name: "Minecraft 1.16 [Full, Online, Server List]", size: 0.341, category: "Unknown", sizeGroup: "<1GB", gameID: "" },
+{ name: "Minecraft Legends [FitGirl Repack]", size: 6.2, category: "Unknown", sizeGroup: "5-10GB", gameID: "" },
+{ name: "Minecraft Story Mode Season Two Complete (build 26.04.2018) ElAmigos", size: 6.9, category: "Unknown", sizeGroup: "5-10GB", gameID: "" },
+{ name: "Minecraft [MULTI5][PC][VERSION v.1.7.2][PSP][WwW.GamesTorrents.CoM]", size: 0.536, category: "Unknown", sizeGroup: "<1GB", gameID: "" },
+{ name: "Minecraft.Dungeons.Cloudy.Climb-CODEX", size: 2.2, category: "Unknown", sizeGroup: "2-3GB", gameID: "" },
+{ name: "Minecraft.Dungeons.v1.8.0.0.rar", size: 1.4, category: "Unknown", sizeGroup: "1-2GB", gameID: "" },
+{ name: "Minecraft.Legends.v20230803-P2P.rar", size: 7.2, category: "Unknown", sizeGroup: "5-10GB", gameID: "" },
+{ name: "Mutant Football League [FitGirl Repack]", size: 2.1, category: "Unknown", sizeGroup: "2-3GB", gameID: "" },
+{ name: "Mx.vs Atv.all.out.v1.07.iso", size: 12.6, category: "Unknown", sizeGroup: "10-20GB", gameID: "" },
+{ name: "NFS Most Wanted Black Edition", size: 2.8, category: "Unknown", sizeGroup: "2-3GB", gameID: "" },
+{ name: "NFS Underground 2 Real Remaster [DODI Repack]", size: 1.1, category: "Unknown", sizeGroup: "1-2GB", gameID: "" },
+{ name: "NINJA GAIDEN 2 Black [FitGirl Repack]", size: 59.2, category: "Unknown", sizeGroup: "50GB+", gameID: "" },
+{ name: "Need For Speed Carbon Remastered - [DODI Repack]", size: 3.2, category: "Unknown", sizeGroup: "3-4GB", gameID: "" },
+{ name: "Need For Speed Rival Deluxe Edition", size: 7.5, category: "Unknown", sizeGroup: "5-10GB", gameID: "" },
+{ name: "Need for Speed - Payback", size: 27.1, category: "Unknown", sizeGroup: "20-50GB", gameID: "" },
+{ name: "Need for Speed Heat [wWw.GamesTorrents.NU]", size: 22.3, category: "Unknown", sizeGroup: "20-50GB", gameID: "" },
+{ name: "Need for Speed Hot Pursuit 2010", size: 7.7, category: "Unknown", sizeGroup: "5-10GB", gameID: "" },
+{ name: "Need for Speed Most Wanted Remastered - [DODI Repack]", size: 2.9, category: "Unknown", sizeGroup: "2-3GB", gameID: "" },
+{ name: "Need.For.Speed.Carbon", size: 3.3, category: "Unknown", sizeGroup: "3-4GB", gameID: "" },
+{ name: "Need.For.Speed.ProStreet.1.1.MULTi13-ELAMIGOS.2007.iso", size: 4.4, category: "Unknown", sizeGroup: "4-5GB", gameID: "" },
+{ name: "Need.For.Speed.Shift.1.02.MULTi10-ELAMIGOS.2009.iso", size: 3.1, category: "Unknown", sizeGroup: "3-4GB", gameID: "" },
+{ name: "Need.For.Speed.Shift.2.Unleashed.Limited.Edition.1.0.2.0.MULTi7-ELAMIGOS.2011.iso", size: 5.5, category: "Unknown", sizeGroup: "5-10GB", gameID: "" },
+{ name: "New Tales from the Borderlands [FitGirl PC Repack]", size: 23.1, category: "Unknown", sizeGroup: "20-50GB", gameID: "" },
+{ name: "Nickelodeon Kart Racers 3 [FitGirl Repack]", size: 5.2, category: "Unknown", sizeGroup: "5-10GB", gameID: "" },
+{ name: "Night of the Dead [FitGirl Repack]", size: 8.5, category: "Unknown", sizeGroup: "5-10GB", gameID: "" },
+{ name: "OPLM_ART_2023_11", size: 5.9, category: "Unknown", sizeGroup: "5-10GB", gameID: "" },
+{ name: "OURWORLD [FitGirl Repack]", size: 4.4, category: "Unknown", sizeGroup: "4-5GB", gameID: "" },
+{ name: "Outbreak 2030 [FitGirl Repack]", size: 12.8, category: "Unknown", sizeGroup: "10-20GB", gameID: "" },
+{ name: "POSTAL 4 - No Regerts [FitGirl Repack]", size: 13.6, category: "Unknown", sizeGroup: "10-20GB", gameID: "" },
+{ name: "Pinball FX [FitGirl Repack]", size: 25.8, category: "Unknown", sizeGroup: "20-50GB", gameID: "" },
+{ name: "Potty Knight Saga [FitGirl Repack]", size: 0.779, category: "Unknown", sizeGroup: "<1GB", gameID: "" },
+{ name: "Project CARS 3 - [DODI Repack]", size: 26.5, category: "Unknown", sizeGroup: "20-50GB", gameID: "" },
+{ name: "Prototype 2-=AviaRa=-", size: 9.9, category: "Unknown", sizeGroup: "5-10GB", gameID: "" },
+{ name: "Pyramis [FitGirl Repack]", size: 17.9, category: "Unknown", sizeGroup: "10-20GB", gameID: "" },
+{ name: "RAVEN-MUA.iso", size: 4.0, category: "Unknown", sizeGroup: "4-5GB", gameID: "" },
+{ name: "RIDE 5 [FitGirl Repack]", size: 26.6, category: "Unknown", sizeGroup: "20-50GB", gameID: "" },
+{ name: "Raji_An_Ancient_Epic_1.6.0_(57469)_win_gog", size: 6.4, category: "Unknown", sizeGroup: "5-10GB", gameID: "" },
+{ name: "Ravenbound [FitGirl Repack]", size: 5.5, category: "Unknown", sizeGroup: "5-10GB", gameID: "" },
+{ name: "Red Dead Redemption 2 [FitGirl Repack]", size: 68.8, category: "Unknown", sizeGroup: "50GB+", gameID: "" },
+{ name: "Red Dead Redemption [DODI Repack]", size: 8.1, category: "Unknown", sizeGroup: "5-10GB", gameID: "" },
+{ name: "Remnant II [FitGirl Repack]", size: 54.4, category: "Unknown", sizeGroup: "50GB+", gameID: "" },
+{ name: "Resident Evil 4", size: 4.6, category: "Unknown", sizeGroup: "4-5GB", gameID: "" },
+{ name: "Resident Evil 4 HD Project.(v.1.1.0).(2022) [Decepticon] RePack", size: 27.4, category: "Unknown", sizeGroup: "20-50GB", gameID: "" },
+{ name: "Resident Evil Village.(v.1.0.11260452).(2021) [Decepticon] RePack", size: 24.2, category: "Unknown", sizeGroup: "20-50GB", gameID: "" },
+{ name: "Resident-evil-5.zip", size: 3.8, category: "Unknown", sizeGroup: "3-4GB", gameID: "" },
+{ name: "Resident.Evil.2.v20191218.incl.DLC-CODEX", size: 26.3, category: "Unknown", sizeGroup: "20-50GB", gameID: "" },
+{ name: "Resident.Evil.Village-EMPRESS", size: 27.4, category: "Unknown", sizeGroup: "20-50GB", gameID: "" },
+{ name: "Resident_Evil 6.zip", size: 5.6, category: "Unknown", sizeGroup: "5-10GB", gameID: "" },
+{ name: "Resident_Evil_3-HOODLUM", size: 20.8, category: "Unknown", sizeGroup: "20-50GB", gameID: "" },
+{ name: "Resident_Evil_7_Biohazard_Repack.zip", size: 23.8, category: "Unknown", sizeGroup: "20-50GB", gameID: "" },
+{ name: "Resident_Evil_HD_Remaster.zip", size: 4.3, category: "Unknown", sizeGroup: "4-5GB", gameID: "" },
+{ name: "Resident_Evil_Operation_Raccoon_City.zip", size: 3.8, category: "Unknown", sizeGroup: "3-4GB", gameID: "" },
+{ name: "Resident_Evil_Revelations.zip", size: 8.2, category: "Unknown", sizeGroup: "5-10GB", gameID: "" },
+{ name: "Resident_Evil_Revelations_2", size: 6.8, category: "Unknown", sizeGroup: "5-10GB", gameID: "" },
+{ name: "Resident_Evil_Revelations_2.zip", size: 6.8, category: "Unknown", sizeGroup: "5-10GB", gameID: "" },
+{ name: "Resident_Evil_Zero_HD_Remaster.zip", size: 10.2, category: "Unknown", sizeGroup: "10-20GB", gameID: "" },
+{ name: "Ridge.Racer.Unbounded.Bundle.Edition.1.13.MULTi6-ELAMIGOS.2012.iso", size: 1.4, category: "Unknown", sizeGroup: "1-2GB", gameID: "" },
+{ name: "Rise of the Tomb Raider [FitGirl Repack]", size: 12.9, category: "Unknown", sizeGroup: "10-20GB", gameID: "" },
+{ name: "Rocket Boots Mania [FitGirl Repack]", size: 0.948, category: "Unknown", sizeGroup: "<1GB", gameID: "" },
+{ name: "SIFU-CODEX", size: 16.6, category: "Unknown", sizeGroup: "10-20GB", gameID: "" },
+{ name: "Sackboy - A Big Adventure [FitGirl Repack]", size: 18.2, category: "Unknown", sizeGroup: "10-20GB", gameID: "" },
+{ name: "Saga Cube [FitGirl Repack]", size: 3.9, category: "Unknown", sizeGroup: "3-4GB", gameID: "" },
+{ name: "Saints Row", size: 44.1, category: "Unknown", sizeGroup: "20-50GB", gameID: "" },
+{ name: "Saints Row IV - Re-Elected [FitGirl Repack]", size: 4.9, category: "Unknown", sizeGroup: "4-5GB", gameID: "" },
+{ name: "Scars Above [FitGirl Repack]", size: 10.2, category: "Unknown", sizeGroup: "10-20GB", gameID: "" },
+{ name: "Serious Sam - Siberian Mayhem [FitGirl Repack]", size: 19.3, category: "Unknown", sizeGroup: "10-20GB", gameID: "" },
+{ name: "Serious_Sam_4_v1.08-Razor1911", size: 46.8, category: "Unknown", sizeGroup: "20-50GB", gameID: "" },
+{ name: "Shadow of the Tomb Raider [FitGirl Repack]", size: 33.5, category: "Unknown", sizeGroup: "20-50GB", gameID: "" },
+{ name: "Sherlock Holmes - The Awakened - Remake [FitGirl Repack]", size: 18.6, category: "Unknown", sizeGroup: "10-20GB", gameID: "" },
+{ name: "Skinny & Franko - Fists of Violence [FitGirl Repack]", size: 1.4, category: "Unknown", sizeGroup: "1-2GB", gameID: "" },
+{ name: "Sleeping Dogs Pack [FitGirl Repack]", size: 9.7, category: "Unknown", sizeGroup: "5-10GB", gameID: "" },
+{ name: "Sniper - Ghost Warrior 3 [FitGirl Repack]", size: 36.3, category: "Unknown", sizeGroup: "20-50GB", gameID: "" },
+{ name: "Sniper - Ghost Warrior Contracts [FitGirl Repack]", size: 12.0, category: "Unknown", sizeGroup: "10-20GB", gameID: "" },
+{ name: "Sniper Elite 4 PC full game ^^nosTEAM^^RO", size: 44.0, category: "Unknown", sizeGroup: "20-50GB", gameID: "" },
+{ name: "Sniper Ghost Warrior Contracts 2 [FitGirl Repack]", size: 9.5, category: "Unknown", sizeGroup: "5-10GB", gameID: "" },
+{ name: "Someday You'll Return - DC [FitGirl Repack]", size: 3.3, category: "Unknown", sizeGroup: "3-4GB", gameID: "" },
+{ name: "Space Tail [FitGirl Repack]", size: 1.8, category: "Unknown", sizeGroup: "1-2GB", gameID: "" },
+{ name: "Special_Counter_Force_Attack.zip", size: 1.3, category: "Unknown", sizeGroup: "1-2GB", gameID: "" },
+{ name: "Spider-man Remastered [FitGirl Repack]", size: 37.6, category: "Unknown", sizeGroup: "20-50GB", gameID: "" },
+{ name: "Split Fiction [FitGirl Repack]", size: 56.6, category: "Unknown", sizeGroup: "50GB+", gameID: "" },
+{ name: "Stranger of Paradise - FFO [FitGirl Repack]", size: 48.1, category: "Unknown", sizeGroup: "20-50GB", gameID: "" },
+{ name: "Strayed Lights [FitGirl Repack]", size: 3.2, category: "Unknown", sizeGroup: "3-4GB", gameID: "" },
+{ name: "Street Fighter V - Champion Edition [FitGirl Repack]", size: 27.4, category: "Unknown", sizeGroup: "20-50GB", gameID: "" },
+{ name: "Suicide.Squad.Kill.the.Justice.League-RUNE", size: 79.9, category: "Unknown", sizeGroup: "50GB+", gameID: "" },
+{ name: "Super Smash Bros. Ultimate [FitGirl Repack]", size: 8.7, category: "Unknown", sizeGroup: "5-10GB", gameID: "" },
+{ name: "TDPA - The Devil in Me [FitGirl Repack]", size: 27.7, category: "Unknown", sizeGroup: "20-50GB", gameID: "" },
+{ name: "TEKKEN 7", size: 79.6, category: "Unknown", sizeGroup: "50GB+", gameID: "" },
+{ name: "TEKKEN 8", size: 87.5, category: "Unknown", sizeGroup: "50GB+", gameID: "" },
+{ name: "TEKKEN 8 [FitGirl Repack]", size: 69.2, category: "Unknown", sizeGroup: "50GB+", gameID: "" },
+{ name: "TMNT - Mutants Unleashed [FitGirl Repack]", size: 9.0, category: "Unknown", sizeGroup: "5-10GB", gameID: "" },
+{ name: "TRON - Identity [FitGirl Repack]", size: 0.864, category: "Unknown", sizeGroup: "<1GB", gameID: "" },
+{ name: "Tad the Lost Explorer [FitGirl Repack]", size: 3.1, category: "Unknown", sizeGroup: "3-4GB", gameID: "" },
+{ name: "Tekken3_Game.zip", size: 0.029, category: "Unknown", sizeGroup: "<1GB", gameID: "" },
+{ name: "Terminator Dark Fate - Defiance", size: 20.4, category: "Unknown", sizeGroup: "20-50GB", gameID: "" },
+{ name: "Teslagrad 2 [FitGirl Repack]", size: 1.5, category: "Unknown", sizeGroup: "1-2GB", gameID: "" },
+{ name: "The Awakener - Forgotten Oath [FitGirl Repack]", size: 6.3, category: "Unknown", sizeGroup: "5-10GB", gameID: "" },
+{ name: "The Beast Inside [FitGirl Repack]", size: 8.3, category: "Unknown", sizeGroup: "5-10GB", gameID: "" },
+{ name: "The Chant [FitGirl Repack]", size: 21.8, category: "Unknown", sizeGroup: "20-50GB", gameID: "" },
+{ name: "The Entropy Centre [FitGirl Repack]", size: 7.6, category: "Unknown", sizeGroup: "5-10GB", gameID: "" },
+{ name: "The Evil Within 2", size: 31.0, category: "Unknown", sizeGroup: "20-50GB", gameID: "" },
+{ name: "The Last Case of Benedict Fox [FitGirl Repack]", size: 4.6, category: "Unknown", sizeGroup: "4-5GB", gameID: "" },
+{ name: "The Last Oricru [FitGirl Repack]", size: 16.5, category: "Unknown", sizeGroup: "10-20GB", gameID: "" },
+{ name: "The Last of Us - Part I [FitGirl Repack]", size: 52.1, category: "Unknown", sizeGroup: "50GB+", gameID: "" },
+{ name: "The Last of Us - Part II Remastered [FitGirl Repack]", size: 77.5, category: "Unknown", sizeGroup: "50GB+", gameID: "" },
+{ name: "The Library of Babel [FitGirl Repack]", size: 0.69, category: "Unknown", sizeGroup: "<1GB", gameID: "" },
+{ name: "The Outer Worlds - SCE [FitGirl Repack]", size: 39.2, category: "Unknown", sizeGroup: "20-50GB", gameID: "" },
+{ name: "The Witcher 3 CE [FitGirl Repack]", size: 61.3, category: "Unknown", sizeGroup: "50GB+", gameID: "" },
+{ name: "The.Dark.Pictures.Anthology.The.Devil.in.Me.v1.04-GoldBerg", size: 63.7, category: "Unknown", sizeGroup: "50GB+", gameID: "" },
+{ name: "The_Counterattack_of_Sacrifice.zip", size: 2.8, category: "Unknown", sizeGroup: "2-3GB", gameID: "" },
+{ name: "The_Evil_Within.zip", size: 12.4, category: "Unknown", sizeGroup: "10-20GB", gameID: "" },
+{ name: "Them and Us [FitGirl Repack]", size: 6.6, category: "Unknown", sizeGroup: "5-10GB", gameID: "" },
+{ name: "Tiny Tina's Wonderlands [FitGirl Repack]", size: 35.7, category: "Unknown", sizeGroup: "20-50GB", gameID: "" },
+{ name: "Tom Clancy's Ghost Recon - Wildlands [FitGirl Repack]", size: 34.9, category: "Unknown", sizeGroup: "20-50GB", gameID: "" },
+{ name: "Tom Clancy's Ghost Recon Future Soldier - [DODI Repack]", size: 10.3, category: "Unknown", sizeGroup: "10-20GB", gameID: "" },
+{ name: "Tomb.Raider.Anniversary.v1.0-GOG", size: 2.8, category: "Unknown", sizeGroup: "2-3GB", gameID: "" },
+{ name: "Tomb.Raider.Underworld.v1.1-GOG", size: 6.8, category: "Unknown", sizeGroup: "5-10GB", gameID: "" },
+{ name: "UNDER NIGHT IN-BIRTH II Sys-Celes [FitGirl Repack]", size: 2.4, category: "Unknown", sizeGroup: "2-3GB", gameID: "" },
+{ name: "Uncharted - LoTC [FitGirl Repack]", size: 47.0, category: "Unknown", sizeGroup: "20-50GB", gameID: "" },
+{ name: "Unknown 9 - Awakening [FitGirl Repack]", size: 25.5, category: "Unknown", sizeGroup: "20-50GB", gameID: "" },
+{ name: "Virtua.Fighter.5.R.E.V.O-RUNE", size: 18.7, category: "Unknown", sizeGroup: "10-20GB", gameID: "" },
+{ name: "WRC Generations [FitGirl Repack]", size: 22.3, category: "Unknown", sizeGroup: "20-50GB", gameID: "" },
+{ name: "WWE 2K15", size: 21.8, category: "Unknown", sizeGroup: "20-50GB", gameID: "" },
+{ name: "WWE 2K17 [FitGirl Repack]", size: 25.8, category: "Unknown", sizeGroup: "20-50GB", gameID: "" },
+{ name: "WWE 2K18-CODEX", size: 40.3, category: "Unknown", sizeGroup: "20-50GB", gameID: "" },
+{ name: "WWE 2K22", size: 48.6, category: "Unknown", sizeGroup: "20-50GB", gameID: "" },
+{ name: "WWE 2K24 [FitGirl Repack]", size: 78.6, category: "Unknown", sizeGroup: "50GB+", gameID: "" },
+{ name: "WWE 2k23 Icon Edition [Steam-Rip] by Ksenia", size: 78.8, category: "Unknown", sizeGroup: "50GB+", gameID: "" },
+{ name: "WWE_2K16.zip", size: 40.8, category: "Unknown", sizeGroup: "20-50GB", gameID: "" },
+{ name: "WWE_2K19_Repack.zip", size: 38.1, category: "Unknown", sizeGroup: "20-50GB", gameID: "" },
+{ name: "WWE_2K20_Originals_CODEX.zip", size: 47.0, category: "Unknown", sizeGroup: "20-50GB", gameID: "" },
+{ name: "Watch Dogs", size: 13.7, category: "Unknown", sizeGroup: "10-20GB", gameID: "" },
+{ name: "Watchs.Dogs.Legion-EMPRESS", size: 97.1, category: "Unknown", sizeGroup: "50GB+", gameID: "" },
+{ name: "Welcome to Kowloon [FitGirl Repack]", size: 2.3, category: "Unknown", sizeGroup: "2-3GB", gameID: "" },
+{ name: "Wo Long - Fallen Dynasty [FitGirl Repack]", size: 26.5, category: "Unknown", sizeGroup: "20-50GB", gameID: "" },
+{ name: "World War Z - Aftermath [FitGirl Repack]", size: 24.6, category: "Unknown", sizeGroup: "20-50GB", gameID: "" },
+{ name: "Yakuza - Like a Dragon [FitGirl Repack]", size: 23.9, category: "Unknown", sizeGroup: "20-50GB", gameID: "" },
+{ name: "blur", size: 8.1, category: "Unknown", sizeGroup: "5-10GB", gameID: "" },
+{ name: "gta Vice City", size: 1.3, category: "Unknown", sizeGroup: "1-2GB", gameID: "" },
+{ name: "tekken_3.zip", size: 0.474, category: "Unknown", sizeGroup: "<1GB", gameID: "" },
+{ name: "unravel.two", size: 6.6, category: "Unknown", sizeGroup: "5-10GB", gameID: "" },
+{ name: "win10aiomultix86x64feb2020preactivated", size: 6.3, category: "Unknown", sizeGroup: "5-10GB", gameID: "" },
+];
+
+  let selectedGames = [];
+
+  function renderGames() {
+    const list = document.getElementById("gameList");
+    list.innerHTML = "";
+    games.forEach((game, index) => {
+      const item = document.createElement("div");
+      item.className = "game-item";
+      const displayName = game.name.replace(/\.iso$/i, "").replace(/\.ISO$/i, "");
+    item.innerText = `${displayName} - ${game.size} GB`;
+      item.onclick = () => toggleGame(index, item);
+      list.appendChild(item);
+    });
+  }
+
+  function toggleGame(index, element) {
+    const isSelected = selectedGames.includes(index);
+    if (isSelected) {
+      selectedGames = selectedGames.filter(i => i !== index);
+      element.classList.remove("selected");
+    } else {
+      selectedGames.push(index);
+      element.classList.add("selected");
+    }
+    updateSummary();
+  updateStorageBar();
+  }
+
+  function updateSummary() {
+    const totalGames = games.length;
+    const totalGameSize = games.reduce((sum, g) => sum + g.size, 0).toFixed(2);
+    const selectedCount = selectedGames.length;
+    const selectedSize = selectedGames.reduce((sum, i) => sum + games[i].size, 0).toFixed(2);
+    document.getElementById("summaryInfo").innerText =
+      `Total Games: ${totalGames} (${totalGameSize} GB) | Selected: ${selectedCount} (${selectedSize} GB)`;
+  }
+
+  function printPlainText() {
+    const name = document.getElementById("customerName").value;
+    const mobile = document.getElementById("customerMobile").value;
+    const totalGames = selectedGames.length;
+    const totalSize = selectedGames.reduce((sum, i) => sum + games[i].size, 0).toFixed(2);
+    let list = selectedGames.map((i, idx) => `${idx + 1}. ${games[i].name} (${games[i].size} GB)`).join("\n");
+
+    let content = `Name: ${name}\nMobile: ${mobile}\nTotal Games: ${totalGames} | Total Size: ${totalSize} GB\n\n${list}\n\nSend this list to Games Planet for installation.`;
+
+    const win = window.open('', '', 'width=800,height=600');
+    win.document.write(`<pre style="font-size: 14px; font-family: monospace;">${content}</pre>`);
+    win.print();
+  }
+
+  function saveAsPDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+    const name = document.getElementById("customerName").value;
+    const mobile = document.getElementById("customerMobile").value;
+    const totalGames = selectedGames.length;
+    const totalSize = selectedGames.reduce((sum, i) => sum + games[i].size, 0).toFixed(2);
+    let y = 10;
+
+    doc.setFontSize(12);
+    doc.text(`Name: ${name}`, 10, y); y += 7;
+    doc.text(`Mobile: ${mobile}`, 10, y); y += 7;
+    doc.text(`Total Games: ${totalGames} | Total Size: ${totalSize} GB`, 10, y); y += 10;
+
+    selectedGames.forEach((i, idx) => {
+      const gameLine = `${idx + 1}. ${games[i].name} (${games[i].size} GB)`;
+      doc.text(gameLine, 10, y);
+      y += 7;
+      if (y > 280) { doc.addPage(); y = 10; }
+    });
+
+    y += 10;
+    doc.text("Send this list to Games Planet for installation.", 10, y);
+    doc.save("PC_Game_Selection.pdf");
+  }
+
+  function sendEmail() {
+    const name = document.getElementById("customerName").value;
+    const mobile = document.getElementById("customerMobile").value;
+    let list = selectedGames.map(i => `${i + 1}. ${games[i].name}`).join("%0A");
+    const mailBody = `Name: ${name}%0AMobile: ${mobile}%0AGames Selected:%0A${list}`;
+    window.location.href = `mailto:gamesplanet.7983624797@gmail.com?subject=PC Game Selection&body=${mailBody}`;
+  }
+
+  function sendSMS() {
+    const name = document.getElementById("customerName").value;
+    const mobile = document.getElementById("customerMobile").value;
+    let list = selectedGames.map(i => `${i + 1}. ${games[i].name}`).join("%0A");
+    const smsBody = `Name: ${name}%0AMobile: ${mobile}%0AGames:%0A${list}`;
+    window.location.href = `sms:7983624797?body=${smsBody}`;
+  }
+
+  function sendWhatsApp() {
+    const name = document.getElementById("customerName").value;
+    const mobile = document.getElementById("customerMobile").value;
+    let list = selectedGames.map(i => `${i + 1}. ${games[i].name}`).join("%0A");
+    const message = `Name: ${name}%0AMobile: ${mobile}%0AGames Selected:%0A${list}`;
+    window.open(`https://wa.me/917983624797?text=${message}`, '_blank');
+  }
+
+  renderGames();
+
+let speechQueue = null;
+function speak(text) {
+  if (speechQueue) window.speechSynthesis.cancel();
+  speechQueue = new SpeechSynthesisUtterance(text);
+  window.speechSynthesis.speak(speechQueue);
+}
+
+function toggleGame(index, element) {
+  const isSelected = selectedGames.includes(index);
+  const storageLimit = (parseFloat(document.getElementById("storageSize").value) || 0) - 2;
+  const currentSelectedSize = selectedGames.reduce((sum, i) => sum + games[i].size, 0);
+  const thisGameSize = games[index].size;
+
+  if (!isSelected && (currentSelectedSize + thisGameSize > storageLimit)) {
+    speak("Storage limit exceeded");
+    return;
+  }
+
+  if (isSelected) {
+    selectedGames = selectedGames.filter(i => i !== index);
+    element.classList.remove("selected");
+  } else {
+    selectedGames.push(index);
+    element.classList.add("selected");
+  }
+
+  updateSummary();
+  updateStorageBar();
+  speak(String(selectedGames.length));
+
+  const used = selectedGames.reduce((sum, i) => sum + games[i].size, 0);
+  const remaining = (parseFloat(document.getElementById("storageSize").value) || 0) - used;
+  if (remaining <= 5 && remaining > 0) {
+    if (remaining <= 1) {
+      speak("Last 1 GB remaining");
+    } else {
+      speak(`Only ${remaining.toFixed(1)} GB left`);
+    }
+  }
+}
+
+// Inject progress bar
+document.querySelector('#storageSize').insertAdjacentHTML('afterend', `
+<div style="width: 90%; margin: 10px auto;">
+  <div style="font-size: 12px; margin-bottom: 4px;" id="progressLabel">Used: 0 GB of 0 GB</div>
+  <div style="height: 10px; background: #eee; border-radius: 5px; overflow: hidden;">
+    <div id="progressBar" style="height: 100%; width: 0%; background: green;"></div>
+  </div>
+</div>
+`);
+
+const originalUpdateSummary = updateSummary;
+updateSummary = function() {
+  const totalGames = games.length;
+  const totalGameSize = games.reduce((sum, g) => sum + g.size, 0).toFixed(2);
+  const selectedCount = selectedGames.length;
+  const selectedSize = selectedGames.reduce((sum, i) => sum + games[i].size, 0).toFixed(2);
+  document.getElementById("summaryInfo").innerText =
+    `Total Games: ${totalGames} (${totalGameSize} GB) | Selected: ${selectedCount} (${selectedSize} GB)`;
+
+  const storage = parseFloat(document.getElementById("storageSize").value) || 0;
+  const percent = (selectedSize / storage) * 100;
+  const bar = document.getElementById("progressBar");
+  const label = document.getElementById("progressLabel");
+
+  bar.style.width = `${Math.min(percent, 100)}%`;
+  if (percent < 80) {
+    bar.style.background = "green";
+  } else if (percent >= 100) {
+    bar.style.background = "red";
+  } else {
+    bar.style.background = "orange";
+    bar.style.background = "red";
+  }
+  label.innerText = `Used: ${selectedSize} GB of ${storage} GB`;
+};
+
+
+function updateStorageBar() {
+  const selectedSize = selectedGames.reduce((sum, i) => sum + games[i].size, 0);
+  const totalSize = parseFloat(document.getElementById("storageSize").value || "0");
+  const usedPercent = totalSize > 0 ? Math.min((selectedSize / totalSize) * 100, 100) : 0;
+
+  document.getElementById("storageBarInfo").innerText =
+    `Used: ${selectedSize.toFixed(2)} GB of ${totalSize} GB (${usedPercent.toFixed(0)}%)`;
+}
+
+
+
+window.addEventListener('click', () => {
+  const music = document.getElementById('bgMusic');
+  music.muted = false;
+  music.play();
+}, { once: true });
+
+
+function generateExportText() {
+  const name = document.getElementById("customerName").value.trim();
+  const mobile = document.getElementById("customerMobile").value.trim();
+  const selected = selectedGames.map(i => games[i]);
+
+  if (!name || !mobile || selected.length === 0) {
+    alert("Please enter Name, Mobile and select at least one game.");
+    return null;
+  }
+
+  selected.sort((a, b) => a.name.localeCompare(b.name));
+
+  let message = `Name: ${name}\nMobile: ${mobile}\nTotal Games Selected: ${selected.length}\nTotal Size: ${selected.reduce((s, g) => s + g.size, 0).toFixed(2)} GB\n\n`;
+  selected.forEach((g, i) => {
+    message += `${i + 1}. ${g.name}\n`;
+  });
+  message += "\nPlease install these games in my USB or device.";
+  return message;
+}
+
+function sendWhatsApp() {
+  const message = generateExportText();
+  if (!message) return;
+  const number = "7983624797";
+  const url = `https://wa.me/91${number}?text=` + encodeURIComponent(message);
+  window.open(url, "_blank");
+}
+
+function sendSMS() {
+  const message = generateExportText();
+  if (!message) return;
+  const number = "7983624797";
+  const smsUrl = `sms:${number}?body=` + encodeURIComponent(message);
+  window.open(smsUrl, "_blank");
+}
+
+function sendEmail() {
+  const message = generateExportText();
+  if (!message) return;
+  const subject = "My PC Game List";
+  const email = "Gamesplanet.7983624797@gmail.com";
+  const mailto = `mailto:${email}?subject=` + encodeURIComponent(subject) + "&body=" + encodeURIComponent(message);
+  window.open(mailto, "_blank");
+}
+
+</script>
+</html>
