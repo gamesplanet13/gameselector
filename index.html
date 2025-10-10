@@ -4,148 +4,54 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Games Planet — Game Selector</title>
-  <meta name="description" content="Games Planet — Quick selector for PS2, PS3 and PC game pages. Put all files in the same folder and click a button to open the selector pages." />
   <style>
-    :root{
-      --bg1: #0f172a;
-      --bg2: #071133;
-      --accent: #00d4ff;
-      --accent-2: #7b2ff7;
-      --card: rgba(255,255,255,0.04);
-      --glass: rgba(255,255,255,0.04);
-      --glass-2: rgba(255,255,255,0.02);
-      --radius: 14px;
-      --shadow: 0 10px 30px rgba(2,6,23,0.6);
-      color-scheme: dark;
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle at center, #0f172a, #071133);
+      font-family: 'Poppins', sans-serif;
+      color: white;
     }
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{
-      margin:0;
-      font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-      background: radial-gradient(1200px 600px at 10% 10%, rgba(123,47,247,0.10), transparent),
-                  linear-gradient(180deg,var(--bg1), var(--bg2));
-      color:#e6eef8;
-      -webkit-font-smoothing:antialiased;
-      -moz-osx-font-smoothing:grayscale;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      padding:28px;
+    h1 {
+      font-size: 32px;
+      margin-bottom: 40px;
+      letter-spacing: 1px;
+      background: linear-gradient(90deg, #00d4ff, #7b2ff7);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
-    .card{
-      width:100%;
-      max-width:980px;
-      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-      border-radius:22px;
-      padding:28px;
-      box-shadow:var(--shadow);
-      border: 1px solid rgba(255,255,255,0.03);
-      display:grid;
-      grid-template-columns: 1fr 360px;
-      gap:20px;
-      align-items:center;
+    .buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      align-items: center;
     }
-    .brand{
-      display:flex;
-      gap:16px;
-      align-items:center;
+    a {
+      text-decoration: none;
+      color: white;
+      font-size: 18px;
+      padding: 15px 40px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #00d4ff, #7b2ff7);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+      transition: transform 0.2s, box-shadow 0.2s;
     }
-    .logo{
-      width:84px;height:84px;border-radius:18px;
-      background: conic-gradient(from 120deg, var(--accent), var(--accent-2));
-      display:flex;align-items:center;justify-content:center;
-      box-shadow: 0 6px 20px rgba(123,47,247,0.18);
-      font-weight:700;font-size:22px;color:#051331;
-    }
-    h1{margin:0;font-size:22px;letter-spacing:0.2px}
-    p.lead{margin:6px 0 0 0;color:rgba(230,238,248,0.78)}
-    .left{
-      padding:6px 0 6px 0;
-    }
-    .desc{margin-top:18px;color:rgba(230,238,248,0.6);font-size:13px}
-    .buttons{
-      margin-top:22px;display:flex;flex-wrap:wrap;gap:12px;
-    }
-    .btn{
-      --pad:14px 22px;
-      display:inline-flex;align-items:center;gap:12px;
-      padding:var(--pad);
-      border-radius:12px;border:0;cursor:pointer;font-weight:600;font-size:15px;
-      background: linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-      color:inherit;backdrop-filter: blur(6px);box-shadow: 0 6px 16px rgba(2,6,23,0.45);
-      transition: transform .12s ease, box-shadow .12s ease;
-      text-decoration:none;
-    }
-    .btn:hover{transform:translateY(-4px);box-shadow: 0 18px 40px rgba(2,6,23,0.55)}
-    .btn .icon{width:38px;height:38px;border-radius:10px;display:inline-grid;place-items:center;font-weight:700;background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#011022}
-
-    .right{
-      padding:18px;border-radius:14px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border:1px solid rgba(255,255,255,0.02);
-      min-height:180px;display:flex;flex-direction:column;gap:10px;justify-content:center;align-items:center;
-    }
-    .hint{font-size:13px;color:rgba(230,238,248,0.6);text-align:center}
-    code{background:var(--glass-2);padding:6px 8px;border-radius:8px;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace}
-    .small{font-size:13px;color:rgba(230,238,248,0.65)}
-    footer{margin-top:18px;font-size:12px;color:rgba(230,238,248,0.52)}
-    /* responsive */
-    @media (max-width:880px){
-      .card{grid-template-columns:1fr;}
-      .right{order:-1}
+    a:hover {
+      transform: scale(1.05);
+      box-shadow: 0 6px 25px rgba(0,0,0,0.6);
     }
   </style>
 </head>
 <body>
-  <main class="card" role="main">
-    <section class="left">
-      <div class="brand">
-        <div class="logo">GP</div>
-        <div>
-          <h1>Games Planet — Game Selector</h1>
-          <p class="lead">Quickly open the console/PC selectors placed in the same folder.</p>
-        </div>
-      </div>
-
-      <p class="desc">Click any branded button below to open the corresponding selector page. Make sure the three files listed below are in the <strong>same folder</strong> as this file.</p>
-
-      <div class="buttons" aria-label="game selector buttons">
-        <a class="btn" href="PS2GAMESELECTOR.html" title="Open PS2 Game Selector">
-          <span class="icon">2</span>
-          <span>PS2 GAMES — Open PS2GAMESELECTOR.html</span>
-        </a>
-
-        <a class="btn" href="ps3_selector.html" title="Open PS3 Game Selector">
-          <span class="icon">3</span>
-          <span>PS3 GAMES — Open ps3_selector.html</span>
-        </a>
-
-        <a class="btn" href="PCGAMESELECTOR.html" title="Open PC Game Selector">
-          <span class="icon">PC</span>
-          <span>PC GAMES — Open PCGAMESELECTOR.html</span>
-        </a>
-      </div>
-
-      <div class="desc" style="margin-top:18px">
-        If you want the buttons to open pages in a new tab/window, edit the links and add <code>target="_blank"</code> to the <code>&lt;a&gt;</code> tags.
-      </div>
-
-      <footer>
-        <div class="small">Files required (put in same folder): <code>PS2GAMESELECTOR.html</code>, <code>ps3_selector.html</code>, <code>PCGAMESELECTOR.html</code>.</div>
-      </footer>
-    </section>
-
-    <aside class="right">
-      <div style="text-align:center">
-        <h3 style="margin:0">Usage Notes</h3>
-        <p class="hint">For best results — open this file from your local filesystem or serve the folder with a simple static server. Some browsers restrict local file navigation when opened from certain contexts.</p>
-      </div>
-
-      <div style="width:100%;display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
-        <div style="padding:8px 12px;border-radius:10px;background:var(--card)"><strong>Open file:</strong><div style="margin-top:6px"><code>index.html</code> (or any name you choose)</div></div>
-        <div style="padding:8px 12px;border-radius:10px;background:var(--card)"><strong>Folder:</strong><div style="margin-top:6px"><code>same folder as selectors</code></div></div>
-      </div>
-
-    </aside>
-  </main>
+  <h1>Games Planet — Game Selector</h1>
+  <div class="buttons">
+    <a href="PS2GAMESELECTOR.html">PS2 GAMES</a>
+    <a href="ps3_selector.html">PS3 GAMES</a>
+    <a href="PCGAMESELECTOR.html">PC GAMES</a>
+  </div>
 </body>
 </html>
