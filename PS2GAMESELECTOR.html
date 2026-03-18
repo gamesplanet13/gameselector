@@ -67,7 +67,13 @@ function filterGames() {
 <div style="text-align: center; margin-bottom: 1em;">
 <input id="customerName" placeholder="Customer Name" style="padding: 5px; width: 200px; margin-right: 10px;" type="text"/>
 <input id="customerMobile" placeholder="Mobile Number" style="padding: 5px; width: 150px; margin-right: 10px;" type="text"/>
-<input id="storageSize" placeholder="Storage Size (GB)" style="padding: 5px; width: 150px;" type="text" value="57"/>
+<select id="storageSize" style="padding: 5px; width: 150px;">
+  <option value="57" selected>64GB (57GB usable)</option>
+  <option value="114">128GB (114GB usable)</option>
+  <option value="228">256GB (228GB usable)</option>
+  <option value="456">512GB (456GB usable)</option>
+  <option value="912">1TB (912GB usable)</option>
+</select>
 </div>
 
 <div style="text-align:center; margin: 10px;">
