@@ -1,845 +1,697 @@
-<!-- Patched: PS4 games replaced with PS4 games. File name: PS4_GAME_SELECTOR.txt -->
 <!DOCTYPE html>
 
 <html lang="en">
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>GAMES PLANET - PS4 Game Selector</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js">
-
-
-function filterGames() {
-  const searchValue = document.getElementById('searchBox').value.toLowerCase();
-  const categoryValue = document.getElementById('categoryFilter').value;
-  const sizeValue = document.getElementById('sizeFilter').value;
-  const items = document.querySelectorAll('.game-item');
-
-  // parse sizeValue into numeric min/max (handles formats like "0-10GB", "1000GB+", "<1GB", "4GB+")
-  function parseRange(v) {
-    if (!v) return null;
-    v = v.replace(/\s+/g, '');
-    if (v.endsWith('GB+')) {
-      const num = parseFloat(v.replace('GB+','').replace('+','')) || null;
-      return { min: num, max: Infinity };
-    }
-    // handle formats like "<1GB"
-    if (v.startsWith('<')) {
-      const num = parseFloat(v.replace('<','').replace('GB','')) || null;
-      return { min: 0, max: num };
-    }
-    // handle ranges like "0-10GB" or "90-100GB"
-    const m = v.match(/([\d\.]+)[^\d]+([\d\.]+)/);
-    if (m) {
-      return { min: parseFloat(m[1]), max: parseFloat(m[2]) };
-    }
-    // fallback: exact number
-    const n = parseFloat(v.replace('GB','')) ;
-    if (!isNaN(n)) return { min: n, max: n };
-    return null;
-  }
-
-  const range = parseRange(sizeValue);
-
-  items.forEach(item => {
-    const name = (item.dataset.name || '').toLowerCase();
-    const category = item.dataset.category || '';
-    const sizeGroup = item.dataset.sizegroup || '';
-    const sizeNum = parseFloat(item.dataset.size || item.innerText.replace(/[^\d\.]/g,'')) || 0;
-
-    const matchesSearch = name.includes(searchValue);
-    const matchesCategory = !categoryValue || category === categoryValue;
-
-    let matchesSize = true;
-    if (range) {
-      // compare numeric size to range
-      matchesSize = (sizeNum >= range.min) && (sizeNum <= range.max);
-    } else if (sizeValue) {
-      // fallback to string compare
-      matchesSize = sizeGroup === sizeValue;
-    }
-
-    item.style.display = (matchesSearch && matchesCategory && matchesSize) ? '' : 'none';
-  });
-}
-
-</script>
+<title>PS4 Game Selector — Conservative Merged</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&amp;display=swap" rel="stylesheet"/>
 <style>
-    body { font-family: Arial, sans-serif; padding: 1em; margin: 0; background: #f4f4f4; }
+    :root { color-scheme: dark; --bg:#080b12; --panel:#121826; --line:#26334b; --blue:#2d7dff; --green:#20c77a; --text:#f6f8fc; --muted:#9ca9bd; }
+    * { box-sizing: border-box; }
+    html, body { width: 100%; max-width: 100%; overflow-x: hidden; }
+    body { font-family: Arial, sans-serif; margin: 0; background: var(--bg); color: var(--text); padding-bottom: 178px; }
+    button, input, select { font: inherit; max-width: 100%; }
     h1 { text-align: center; }
-    .game-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 70px; }
-    .game-item { background: white; padding: 10px; border-radius: 10px; border: 2px solid #ccc; cursor: pointer; transition: all 0.2s; }
-    .game-item.selected { background: #d1e7dd; border-color: #0f5132; }
-    .footer { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; padding: 10px; box-shadow: 0 -2px 6px rgba(0,0,0,0.1); }
-    .footer .info-line { font-size: 12px; text-align: center; margin-bottom: 5px; }
-    .footer .buttons { display: flex; justify-content: center; gap: 10px; flex-wrap: nowrap; overflow-x: auto; }
-    
-.footer button {
-  padding: 5px 8px;
-  font-size: 12px;
-  border: none;
-  border-radius: 4px;
-  background: #007bff;
-  color: white;
-  cursor: pointer;
-}
-.footer button:hover {
-  background: #0056b3;
-}
-    .footer button:hover { background: #0056b3; }
+    .brand { background:linear-gradient(135deg,#05070c,#17233b); padding:14px 12px; text-align:center; border-bottom:1px solid var(--line); }
+    .page-shell { width:min(100% - 24px, 980px); margin:0 auto; }
+    .subtitle { text-align:center; margin:16px 0 12px; font-size:clamp(17px,4vw,22px); font-weight:700; line-height:1.3; }
+    .form-grid, .filter-grid { display:grid; gap:10px; grid-template-columns:repeat(3,minmax(0,1fr)); margin-bottom:12px; }
+    .filter-grid { grid-template-columns:minmax(0,2fr) repeat(3,minmax(0,1fr)); }
+    input, select { width:100%; min-width:0; min-height:44px; padding:10px 12px; border:1px solid var(--line); border-radius:10px; background:var(--panel); color:var(--text); outline:none; }
+    input:focus, select:focus { border-color:var(--blue); box-shadow:0 0 0 3px rgba(45,125,255,.18); }
+    .storage-control { display:grid; grid-template-columns:1fr; gap:6px; min-width:0; }
+    .storage-control.manual-active { grid-template-columns:1fr 1fr; }
+    [hidden] { display:none !important; }
+    .search-wrap { position:relative; min-width:0; }
+    .search-wrap input { padding-right:42px; }
+    .clear-search { position:absolute; right:5px; top:5px; width:34px; min-height:34px; padding:0; border:0; border-radius:8px; background:transparent; color:var(--muted); font-size:22px; }
+    .results-info { color:var(--muted); font-size:13px; margin:4px 2px 10px; }
+    .game-list { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin-bottom:18px; }
+    .game-item { min-width:0; background:var(--panel); padding:8px 10px; border-radius:10px; border:1px solid var(--line); cursor:pointer; transition:.15s; overflow-wrap:anywhere; line-height:1.2; }
+    .game-item:hover { border-color:#4d6388; transform:translateY(-1px); }
+    .game-item.selected { background:#123727; border-color:var(--green); box-shadow:inset 4px 0 var(--green); }
+    .game-name { display:block; font-weight:700; font-size:14px; }
+    .game-original { display:block; color:#9fb0ca; font-size:9px; line-height:1.1; margin-top:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .game-size { display:block; color:var(--muted); font-size:10px; line-height:1.1; margin-top:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .empty-state { grid-column:1/-1; padding:30px 15px; text-align:center; background:var(--panel); border:1px dashed var(--line); border-radius:12px; color:var(--muted); }
+    .progress-wrap { margin:4px 0 14px; }
+    .progress-track { height:10px; background:#222b3b; border-radius:99px; overflow:hidden; }
+    #progressBar { height:100%; width:0; background:var(--green); transition:width .2s; }
+    #progressLabel { font-size:12px; margin-bottom:5px; color:var(--muted); }
+    .footer { position:fixed; z-index:20; bottom:0; left:0; right:0; background:rgba(12,16,25,.97); padding:8px max(10px,env(safe-area-inset-right)) calc(8px + env(safe-area-inset-bottom)) max(10px,env(safe-area-inset-left)); box-shadow:0 -4px 18px rgba(0,0,0,.35); border-top:1px solid var(--line); }
+    .footer .info-line { font-size:12px; text-align:center; margin-bottom:4px; white-space:normal; overflow-wrap:anywhere; }
+    .footer-actions, .more-menu { display:grid; gap:6px; width:min(100%,680px); margin:auto; }
+    .footer-actions { grid-template-columns:1fr 1fr; }
+    .footer-actions .whatsapp-primary { grid-column:1/-1; background:#16a765; font-size:15px; font-weight:700; }
+    .footer-actions .whatsapp-primary:hover { background:#118653; }
+    .more-menu { grid-template-columns:repeat(4,minmax(0,1fr)); margin-bottom:6px; padding:7px; border:1px solid var(--line); border-radius:10px; background:#151c2a; }
+    .more-menu[hidden] { display:none; }
+    .footer button { min-width:0; min-height:38px; padding:7px 4px; font-size:12px; border:0; border-radius:8px; background:var(--blue); color:white; cursor:pointer; }
+    .reset-button { background:#8f2e3a !important; }
+    .more-button { background:#34445f !important; }
+    .footer button:hover { background:#1768df; }
     @keyframes flashTitle {
       0% { opacity: 1; }
       50% { opacity: 0.2; }
       100% { opacity: 1; }
     }
     .flash { animation: flashTitle 1s infinite; }
+    @media (max-width: 680px) {
+      body { padding-bottom:178px; }
+      .page-shell { width:min(100% - 16px,980px); }
+      .form-grid, .filter-grid { grid-template-columns:1fr; }
+      .game-list { grid-template-columns:1fr; gap:8px; }
+      .more-menu { grid-template-columns:repeat(2,minmax(0,1fr)); }
+    }
+    @media (max-width: 360px) { .footer button { font-size:11px; } }
+    @media (prefers-reduced-motion: reduce) { .flash { animation:none; } .game-item { transition:none; } }
   </style>
 </head>
 <body>
-<audio autoplay="" id="bgMusic" loop="" muted="">
-<source src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_19b5747b58.mp3?filename=future-tech-ambient-11150.mp3" type="audio/mpeg"/>
-</audio>
-<div style="background:black; padding:10px; text-align:center;">
+<div class="brand">
 <h1 class="flash" style="font-family: 'Orbitron', sans-serif; color: white; font-size: 32px; margin: 0;">GAMES PLANET</h1>
 </div>
-<div style="text-align:center; margin-top:10px; font-size:18px; font-weight:bold; white-space:nowrap;">PS4 Game List - Select your favorite games</div>
-<div style="text-align: center; margin-bottom: 1em;">
-<input id="customerName" placeholder="Customer Name" style="padding: 5px; width: 200px; margin-right: 10px;" type="text"/>
-<input id="customerMobile" placeholder="Mobile Number" style="padding: 5px; width: 150px; margin-right: 10px;" type="text"/>
-<input id="storageSize" placeholder="Storage Size (GB)" style="padding: 5px; width: 150px;" type="text" value="114"/>
+<main class="page-shell">
+<div class="subtitle">PS4 Game List – Select Your Favorite Games</div>
+<div class="form-grid">
+<input id="customerName" autocomplete="name" placeholder="Customer Name" type="text"/>
+<input id="customerMobile" autocomplete="tel" inputmode="numeric" maxlength="10" placeholder="Mobile Number" type="tel"/>
+<div class="storage-control" id="storageControl">
+  <select id="storageProfile" aria-label="PS4 storage type">
+    <option value="400" selected>500GB PS4 — 400GB Games</option>
+    <option value="800">1TB PS4 — 800GB Games</option>
+    <option value="manual">Enter Size Manually</option>
+  </select>
+  <input id="manualStorage" type="number" inputmode="decimal" min="1" step="1" placeholder="Usable GB" hidden/>
 </div>
-
-<div style="text-align:center; margin: 10px;">
-<input id="searchBox" oninput="filterGames()" placeholder="Search games..." style="padding:5px; width:200px;" type="text"/>
-<select id="categoryFilter" onchange="filterGames()" style="padding:5px;">
+</div>
+<div class="progress-wrap">
+  <div id="progressLabel">Used: 0 GB of 400 GB</div>
+  <div class="progress-track"><div id="progressBar"></div></div>
+</div>
+<div class="filter-grid">
+<div class="search-wrap"><input id="searchBox" autocomplete="off" placeholder="Search any game..." type="search"/><button class="clear-search" id="clearSearch" aria-label="Clear search" type="button">×</button></div>
+<select id="categoryFilter" aria-label="Game category">
 <option value="">All Categories</option>
-<option value="Unknown">Unknown</option>
+<option value="Action">Action</option>
+<option value="Adventure">Adventure</option>
+<option value="Open-World Action-Adventure">Open-World Action-Adventure</option>
+<option value="Fighting">Fighting</option>
+<option value="Racing">Racing</option>
+<option value="Shooter">Shooter</option>
+<option value="Sports">Sports</option>
+<option value="Other">Other</option>
 </select>
-
-<select id="sizeFilter" onchange="filterGames()" style="padding:5px;">
+<select id="sizeFilter" aria-label="Game size">
 <option value="">All Sizes</option>
-<option value="0-10GB">0-10GB</option>
-<option value="10-20GB">10-20GB</option>
-<option value="20-30GB">20-30GB</option>
-<option value="30-40GB">30-40GB</option>
-<option value="40-50GB">40-50GB</option>
-<option value="50-60GB">50-60GB</option>
-<option value="60-70GB">60-70GB</option>
-<option value="70-80GB">70-80GB</option>
-<option value="80-90GB">80-90GB</option>
-<option value="90-100GB">90-100GB</option>
-<option value="100-150GB">100-150GB</option>
-<option value="150-200GB">150-200GB</option>
-<option value="200-300GB">200-300GB</option>
-<option value="300-400GB">300-400GB</option>
-<option value="400-500GB">400-500GB</option>
-<option value="500-1000GB">500-1000GB</option>
-<option value="1000GB+">1000GB+</option>
+<option value="&lt;10GB">&lt;10GB</option>
+<option value="10-20GB">10–20GB</option>
+<option value="20-40GB">20–40GB</option>
+<option value="40-60GB">40–60GB</option>
+<option value="60-100GB">60–100GB</option>
+<option value="100GB+">100GB+</option>
 </select>
-
+<select id="playerFilter" aria-label="Player mode">
+<option value="">All Player Modes</option>
+<option value="single">Offline Single Player</option>
+<option value="multi">Offline Multiplayer</option>
+</select>
 </div>
+<div class="results-info" id="resultsInfo"></div>
 <div class="game-list" id="gameList"></div>
+</main>
 <div class="footer">
 <div class="info-line" id="summaryInfo"></div>
 <div class="info-line" id="storageBarInfo" style="font-size: 10px; color: #666;"></div>
-<div class="buttons">
-<button onclick="printPlainText()">Print</button>
-<button onclick="saveAsPDF()">PDF</button>
-<button onclick="sendEmail()">Email</button>
-<button onclick="sendSMS()">SMS</button>
-<button onclick="sendWhatsApp()">WhatsApp</button>
+<div class="more-menu" id="moreMenu" hidden>
+  <button onclick="printPlainText()">Print</button>
+  <button onclick="saveAsPDF()">PDF</button>
+  <button onclick="sendEmail()">Email</button>
+  <button onclick="sendSMS()">SMS</button>
+</div>
+<div class="footer-actions">
+  <button class="whatsapp-primary" onclick="sendWhatsApp()">Send Selected List on WhatsApp</button>
+  <button class="reset-button" id="resetSelection" type="button">Reset Selection</button>
+  <button class="more-button" id="moreButton" type="button" aria-expanded="false" aria-controls="moreMenu">More</button>
 </div>
 </div>
 <script>
   const games = [
-  { name: "1", size: 2 },
-  { name: "8-Bit Armies [Cusa07710] [V01.00]", size: 5 },
-  { name: "9.Monkeys.Of.Shaolin.Ps4-Duplex", size: 5 },
-  { name: "9.Monkeys.Of.Shaolin.Update.V1.01.Ps4-Duplex", size: 5 },
-  { name: "A Plague Tale Game-Dp", size: 2 },
-  { name: "A Plague Tale Game0-A0108-V0100", size: 2 },
-  { name: "A Plague Tale Innocence Update V1.06 Ps4-Duplex", size: 2 },
-  { name: "A Plague Tale Innocence [Cusa10812]", size: 38 },
-  { name: "A Way Out", size: 18 },
-  { name: "A.O.T.Wings.Of.Freedom.Internal.Ps4-Prelude", size: 15 },
-  { name: "Ashes Cricket 17", size: 13 },
-  { name: "Assassins Creed Rogue", size: 11 },
-  { name: "A_Jugglers_Tale_Fxdv1.00_[Fw900]", size: 2 },
-  { name: "Aliens.Fireteam.Elite", size: 19 },
-  { name: "All-Terrain Skeleton ꞉ Gold (Lv. 1) [Cusa11260]", size: 2 },
-  { name: "Apsulov_End_Of_Gods", size: 5 },
-  { name: "Aragami.2", size: 13 },
-  { name: "Armor Plate ꞉ Gold (Lv. 1) [Cusa11260]", size: 2 },
-  { name: "Armor Plate ꞉ Gold (Lv. 2) [Cusa11260]", size: 2 },
-  { name: "Ary.And.The.Secret.Of", size: 14 },
-  { name: "Assassin'S Creed Origins Full", size: 51 },
-  { name: "Assassin'S Creed Syndicate", size: 40 },
-  { name: "Assassin'S Creed Unity (Usa)", size: 42 },
-  { name: "Assassin'S Creed® Mirage [Cusa33151]", size: 18 },
-  { name: "Assassin'S_Creed_Freedom Cry", size: 8 },
-  { name: "Assassins.Creed.Odyssey.Ps4-Duplex", size: 45 },
-  { name: "Assassins.Creed.Valhalla_Cusa18534", size: 43 },
-  { name: "Assassins.Creed.Valhalla_Cusa18534 Fix", size: 2 },
-  { name: "Assetto Corsa Competizione 1.0", size: 11 },
-  { name: "Assetto Corsa Competizione 1.12", size: 11 },
-  { name: "Atomic.Heart.Premium.Edition", size: 50 },
-  { name: "Attack.On.Titan.2.Ps4-Duplex", size: 23 },
-  { name: "Batman Arkham Asylum_0", size: 8 },
-  { name: "Batman Arkham City", size: 38 },
-  { name: "Batman Arkham City_2", size: 38 },
-  { name: "Battlefield 1", size: 43 },
-  { name: "Beach_Buggy_Racing_2_Island_Adventure", size: 4 },
-  { name: "Bound By Flame", size: 5 },
-  { name: "Back To School Dlc [Cusa33399]", size: 2 },
-  { name: "Baldo The Guardian Owls", size: 2 },
-  { name: "Baldo The Guardian Owls1.12", size: 2 },
-  { name: "Batman Arkham Knight", size: 50 },
-  { name: "Battlefield 4", size: 38 },
-  { name: "Battlefield V Ps4 Fpkg [Cusa08670]", size: 35 },
-  { name: "Ben 10 Power Trip", size: 4 },
-  { name: "Biohazard_Umbrella_Corps", size: 5 },
-  { name: "Biohazard_Umbrella_Corps_Ud106", size: 4 },
-  { name: "Biped [Cusa23185]", size: 5 },
-  { name: "Biped_Cusa23185_V1.00_[6.72]_Opoisso893", size: 5 },
-  { name: "Biped_Cusa23185_V1.01_[6.72]_Opoisso893", size: 2 },
-  { name: "Biped_Cusa23185_V1.10_Backport_[6.72-7.Xx-9.00]_Opoisso893", size: 3 },
-  { name: "Bloodrayne_Revamped", size: 6 },
-  { name: "Bloodborne Game Of The Year Edition", size: 32 },
-  { name: "Bloody.Zombies_Cusa08543_V1.00_[4.00]_Opoisso893", size: 4 },
-  { name: "Bramble The Mountain King", size: 7 },
-  { name: "Burnout Paradise Remastered Cusa-10866", size: 10 },
-  { name: "Burnout Revenge", size: 3 },
-  { name: "Burnout-Revenge", size: 3 },
-  { name: "Cod Aw", size: 63 },
-  { name: "Cod Bo Cold War", size: 187 },
-  { name: "Cod Bo3", size: 65 },
-  { name: "Cod Bo3 Dlc Zombies Chronicles", size: 18 },
-  { name: "Cod Bo4-Ps4-Duplex-Cusa12443", size: 95 },
-  { name: "Cod Ghost", size: 31 },
-  { name: "Cod Infinite Warfare", size: 70 },
-  { name: "Cod Vanguard", size: 94 },
-  { name: "Cod Ww2", size: 74 },
-  { name: "Crash Team Racing V1.20 Backported Update", size: 8 },
-  { name: "Crash_Team_Racing_Nitro-Fueled", size: 31 },
-  { name: "Cricket22", size: 49 },
-  { name: "Cup Head Ep8254-Cusa20469 A0101-V0100-Cyb1K", size: 2 },
-  { name: "Cusa15010-Usa-V1.41-[Fix.5.05-6.72-7.02-7.55-9.00]-Ps4-[Dlpsgame.Com]", size: 94 },
-  { name: "Cusa23827.Dumping", size: 2 },
-  { name: "Cusa27373.Callisto.Protocol.Season.Pass-Arczi", size: 2 },
-  { name: "Call Of Duty Black Ops 6 Arabic By Haider Kiara", size: 63 },
-  { name: "Call Of Duty Modern Warfare Campaign 1", size: 17 },
-  { name: "Call Of Duty Modern Warfare Campaign 2", size: 24 },
-  { name: "Call Of Duty Modern Warfare Ii Content 0 License", size: 2 },
-  { name: "Call Of Duty Modern Warfare Ii Content 1 License", size: 2 },
-  { name: "Call Of Duty Modern Warfare Ii Content 2 License", size: 2 },
-  { name: "Call Of Duty Modern Warfare Ii Content 3 License", size: 2 },
-  { name: "Call Of Duty Modern Warfare Ii Content 4 License", size: 2 },
-  { name: "Call Of Duty Modern Warfare Ii Content 5 License", size: 2 },
-  { name: "Call Of Duty Modern Warfare Multiplayer Pack", size: 10 },
-  { name: "Call Of Duty Modern Warfare Special Ops Pack 2", size: 5 },
-  { name: "Call Of Duty Modern Warfare Survival Pack", size: 4 },
-  { name: "Call Of Duty® Black Ops 6 [Cusa23827]", size: 56 },
-  { name: "Call Of Duty® Modern Warfare Ii - Campaign Pack 1", size: 21 },
-  { name: "Call Of Duty® Modern Warfare Ii - Campaign Pack 2", size: 20 },
-  { name: "Call Of Duty® Modern Warfare Ii - Co-Op Pack", size: 5 },
-  { name: "Call Of Duty® Modern Warfare Ii - Multiplayer Pack", size: 7 },
-  { name: "Call Of Duty® Modern Warfare Ii - Content Pac 5", size: 4 },
-  { name: "Call Of Duty® Modern Warfare Ii Core Gam", size: 54 },
-  { name: "Call Of Duty® Modern Warfare Ii Core Game 1", size: 2 },
-  { name: "Call Of Duty® Modern Warfare®", size: 95 },
-  { name: "Call Of Duty® Modern Warfare® - Campaign And Special Ops Pack", size: 26 },
-  { name: "Call Of Duty® Modern Warfare® - Multiplayer And Special Ops Pack", size: 13 },
-  { name: "Call Of Duty® Modern Warfare® - Multiplayer Pack", size: 10 },
-  { name: "Call Of Duty® Modern Warfare® - Multiplayer Pack 2", size: 24 },
-  { name: "Call Of Duty® Modern Warfare® - Special Ops Pack", size: 21 },
-  { name: "Call Of Duty® Modern Warfare® - Special Ops Pack 1", size: 25 },
-  { name: "Call Of Duty® Modern Warfare® 1.9", size: 71 },
-  { name: "Call Of Duty® ꞉ Black Ops Cold War [Cusa15010]", size: 15 },
-  { name: "Call Of Duty® ꞉ Modern Warfare Ii [Cusa23827]", size: 2 },
-  { name: "Call.Of.Duty.Modern.Warfare.Ps4-Duplex", size: 10 },
-  { name: "Capcom.Arcade.Stadium_", size: 2 },
-  { name: "Chiral Gold Color For The Bridges Hat [Cusa11260]", size: 2 },
-  { name: "Chiral Gold Color For The “Ludens Mask“ Sunglasses [Cusa11260]", size: 2 },
-  { name: "Chiral Gold Color For The “Sam“ Sunglasses [Cusa11260]", size: 2 },
-  { name: "Chronos-Cusa15161.Update1.01", size: 8 },
-  { name: "Chronos-Cusa15161.V1.0", size: 8 },
-  { name: "Cloudpunk.Ps4-Unlimited", size: 10 },
-  { name: "Cobra Kai The Karate Kid Saga Continues", size: 7 },
-  { name: "Cobra.Kai.2.Dojos.Rising_", size: 6 },
-  { name: "Contra_Anniversary_Collection", size: 4 },
-  { name: "Control", size: 31 },
-  { name: "Crash Bandicoot™ 4 It'S About Time Cusa23470", size: 24 },
-  { name: "Crash.Bandicoot.N.Sane.Trilogy", size: 24 },
-  { name: "Creaks", size: 6 },
-  { name: "Cricket 24 [Cusa43293]", size: 40 },
-  { name: "Cricket.24_Cusa43293_V1.00_[11.00]_Opoisso893-[Dlpsgame.Com]", size: 30 },
-  { name: "Cricket.24_Cusa43293_V1.28_Backport_[5.05-6.72-7.Xx-8.Xx-9.00]_Opoisso893", size: 39 },
-  { name: "Cricket.24_Cusa43293_V1.30_Backport_[5.05-6.72-7.Xx-9.00]_Opoisso893", size: 40 },
-  { name: "Crysis.2.Remastered-A0100-Arczi", size: 19 },
-  { name: "Crysis.Remastered.Ps4-Duplex", size: 14 },
-  { name: "Cuphead", size: 7 },
-  { name: "Cyberpunk 2077 [Cusa16579]", size: 67 },
-  { name: "Dahrpreorderus00-A0000-V0100", size: 2 },
-  { name: "Dark Wood", size: 6 },
-  { name: "Deadpool Ps4", size: 7 },
-  { name: "Death Stranding Digital Deluxe Edition [Cusa11260]", size: 2 },
-  { name: "Death Stranding [Cusa11260]", size: 49 },
-  { name: "Dirt 4", size: 41 },
-  { name: "Dirt 5™", size: 28 },
-  { name: "Dmc Devil May Cry", size: 19 },
-  { name: "Dragon Ball Xenoverse 2 - Anime Music Pack 1", size: 2 },
-  { name: "Dragon Ball Xenoverse 2 - Anime Music Pack 2", size: 2 },
-  { name: "Dragon Ball Xenoverse 2 - Conton City Vote Pack", size: 2 },
-  { name: "Dragon Ball Xenoverse 2 - Extra Dlc Pack 1", size: 2 },
-  { name: "Dragon Ball Xenoverse 2 - Extra Dlc Pack 2", size: 2 },
-  { name: "Dragon Ball Xenoverse 2 - Extra Dlc Pack 3", size: 2 },
-  { name: "Dragon Ball Xenoverse 2 - Extra Dlc Pack 4", size: 2 },
-  { name: "Dragon Ball Xenoverse 2 - Future Trunks", size: 2 },
-  { name: "Dragon Ball Xenoverse 2 - Goku Black And Tao Pai Pai Stick", size: 2 },
-  { name: "Dragon Ball Xenoverse 2 - Hero Of Justice Pack 1", size: 2 },
-  { name: "Dragon Ball Xenoverse 2 - Hero Of Justice Pack 2", size: 2 },
-  { name: "Dragon Ball Xenoverse 2 - Legend Patrol", size: 4 },
-  { name: "Dragon Ball Xenoverse 2 - Legendary Pack 1", size: 2 },
-  { name: "Dragon Ball Xenoverse 2 - Legendary Pack 2", size: 2 },
-  { name: "Dragon Ball Xenoverse 2 - Masters Pack", size: 2 },
-  { name: "Dragon Ball Xenoverse 2 - Steve Aoki Pack", size: 2 },
-  { name: "Dragon Ball Xenoverse 2 - Super Pack 1", size: 2 },
-  { name: "Dragon Ball Xenoverse 2 - Super Pack 2", size: 2 },
-  { name: "Dragon Ball Xenoverse 2 - Super Pack 3", size: 2 },
-  { name: "Dragon Ball Xenoverse 2 - Super Pack 4", size: 2 },
-  { name: "Dragon Ball Xenoverse 2 - Ultra Pack 1", size: 2 },
-  { name: "Dragon Ball Xenoverse 2 - Ultra Pack 2", size: 2 },
-  { name: "Dragon Ball Xenoverse 2 1.36", size: 9 },
-  { name: "Danger.Zone.Ps4-Unlimited", size: 2 },
-  { name: "Danger.Zone.Update.V1.04.Ps4-Unlimited", size: 4 },
-  { name: "Dark.Alliance", size: 46 },
-  { name: "Dark.Alliance.Ps4-Duplex", size: 21 },
-  { name: "Dark.Alliance_Cusa25234_V1.08_Backport_", size: 25 },
-  { name: "Dark.Souls.Iii.Game.Of.The.Year", size: 26 },
-  { name: "Darksiders_Iii", size: 21 },
-  { name: "Darkwood", size: 6 },
-  { name: "Days.Gone.V1.80.Ps4-Duplex", size: 43 },
-  { name: "Death By Degrees", size: 7 },
-  { name: "Destroy All Humans Cusa14899", size: 20 },
-  { name: "Destroy All Humans Cusa14899 Update", size: 9 },
-  { name: "Detroit Become Human Ps4 Fpkg [Cusa08308]", size: 42 },
-  { name: "Detroit Become Human Update", size: 2 },
-  { name: "Deus Ex Mankind Divided", size: 53 },
-  { name: "Devil_May_Cry_5_Ps4-Caf", size: 33 },
-  { name: "Dirt Rally 2.0", size: 28 },
-  { name: "Diablo Iii Ultimate Evil", size: 45 },
-  { name: "Diablo.Ii.Resurrected", size: 19 },
-  { name: "Diablo.Ii.Resurrected.Ps4-Duplex", size: 15 },
-  { name: "Diablo.Ii.Resurrected.Update.V1.11.Ps4-Duplex", size: 4 },
-  { name: "Diablo® Ii Resurrected™", size: 4 },
-  { name: "Dishonored.Death.Of.The.Outsider_Cusa08779_V1.00_[5.05]_Opoisso893", size: 25 },
-  { name: "Dishonored.Death.Of.The.Outsider_Cusa08779_V1.04_[5.05]_Opoisso893", size: 6 },
-  { name: "Don.Bradman.Cricket.17.Ps4", size: 11 },
-  { name: "Doom 3", size: 17 },
-  { name: "Dragon.Ball.Fighterz", size: 5 },
-  { name: "Dragon.Ball.Z.Kakarot", size: 34 },
-  { name: "Dragon.Ball.Z.Kakarot.Update.V1.91-Cusa14835", size: 27 },
-  { name: "Dustwind.The.Last.Resort.Ps4-Unlimited", size: 2 },
-  { name: "Dustwind.The.Last.Resort.Update.V1.03.Ps4-Unlimited", size: 2 },
-  { name: "Dying Light", size: 17 },
-  { name: "Dying Light 2 Stay Human", size: 24 },
-  { name: "Dying.Light.2.Stay.Human 6.72 Bac Port", size: 2 },
-  { name: "Dying.Light.The.Following.Enhanced.Edition_Cusa03977", size: 16 },
-  { name: "Ea Sports Fc 25 [Cusa46399]", size: 6 },
-  { name: "Ea.S.Fc.25_Cusa46399_Unlock_Opoisso893-[Dlpsgame.Com]", size: 2 },
-  { name: "Elden.Ring", size: 10 },
-  { name: "Eldenring", size: 33 },
-  { name: "Elex 2 Cusa28134", size: 36 },
-  { name: "Ep0001-Cusa00462_00-A0108-V0100-Shunt75-Isagi-[Dlpsgame.Com]", size: 3 },
-  { name: "Ep1004-Cusa00411_00-Gtapreorderbonus", size: 2 },
-  { name: "Ep4133-Cusa37321_00-Atohatomicpassy0-A0000-V0100-Cyb1K", size: 2 },
-  { name: "Ep4133-Cusa37321_00-Atohgloveskin000-A0000-V0100-Cyb1K", size: 2 },
-  { name: "Ep4133-Cusa37321_00-Atohswedeelectro-A0000-V0100-Cyb1K", size: 2 },
-  { name: "Ep4133-Cusa37321_00-Atohzvezdochkaak-A0000-V0100-Cyb1K", size: 2 },
-  { name: "Everspace", size: 6 },
-  { name: "Evil West [Cusa25569]", size: 28 },
-  { name: "Evil.Genius.2.Ps4-Duplex", size: 11 },
-  { name: "Evil.Genius.2.Update.V1.02.Ps4-Duplex", size: 2 },
-  { name: "Evil.West_Cusa25569_V1.06_Optionalfix_[9.00]_Opoisso893", size: 2 },
-  { name: "F1.24_Cusa44372_V1.00_[11.00]_Opoisso893", size: 40 },
-  { name: "F1.24_Cusa44372_V1.18_Backport_[5.05-6.72-7.Xx-9.00]_Opoisso893", size: 22 },
-  { name: "Fallout 4 Fullgame-Cusa02557_- A0136-V0100", size: 12 },
-  { name: "Farcry 5 Game Dlc", size: 2 },
-  { name: "Farcry 5 Game Update0", size: 9 },
-  { name: "Farcry 5 Main Game", size: 29 },
-  { name: "Farcry Primal", size: 13 },
-  { name: "Farming Simulat 22-A0100-V0101", size: 14 },
-  { name: "Far_Cry_6 Dlc400000-A0000-V0100-Cyb1K", size: 2 },
-  { name: "Far_Cry_6 Game00000-A0110-V0100-9.00-Cyb1K", size: 69 },
-  { name: "Far_Cry_6_Cusa15717_Fxdv1.00_[Fw900]", size: 37 },
-  { name: "Fifa.19", size: 42 },
-  { name: "Fifa.24", size: 48 },
-  { name: "Fighting Ex.Layer", size: 3 },
-  { name: "Fighting X.Layer Pdate.V1.19", size: 3 },
-  { name: "Fallout 4 - Game Of The Year Edition", size: 37 },
-  { name: "Far Cry® 4 Escape From Durgesh Prison [Cusa00462]", size: 2 },
-  { name: "Far Cry® 4 Hurk Deluxe Pack [Cusa00462]", size: 2 },
-  { name: "Far Cry® 4 Overrun [Cusa00462]", size: 2 },
-  { name: "Far Cry® 4 Season Pass [Cusa00462]", size: 2 },
-  { name: "Far Cry® 4 Syringe Mission [Cusa00462]", size: 2 },
-  { name: "Far Cry® 4 Valley Of The Yetis [Cusa00462]", size: 3 },
-  { name: "Far Cry® 4 [Cusa00462]", size: 26 },
-  { name: "Far.Cry.3.Classic.Edition.Ps4-Duplex", size: 9 },
-  { name: "Far.Cry.New.Dawn.Ps4-Duplex", size: 24 },
-  { name: "Far.Cry.New.Dawn.Update.V1.05.Ps4-Duplex", size: 2 },
-  { name: "Fast.And.Furious.Crossroads.Cusa11445", size: 42 },
-  { name: "Fast.And.Furious.Spy.Racers.Rise.Of", size: 7 },
-  { name: "Fifa 25_Cusa46399_Unlock_", size: 2 },
-  { name: "Fifa 25_Cusa46399_V1.00_[11.00]", size: 46 },
-  { name: "Fifa 25_Cusa46399_V1.18_[9.00+]", size: 6 },
-  { name: "Filename", size: 4 },
-  { name: "Flatout.4.Total", size: 9 },
-  { name: "Fracked.Vr.Ps4-Duplex", size: 7 },
-  { name: "Fracked.Vr.Update.V1.01.Ps4-Duplex", size: 7 },
-  { name: "Freedom-Chronichles-Episode-One", size: 5 },
-  { name: "Freedom-Chronichles-Episode-Zero", size: 2 },
-  { name: "Fury_Unleashed", size: 2 },
-  { name: "Fury_Unleashed_Upd_V1_09", size: 2 },
-  { name: "Ghost Runner", size: 13 },
-  { name: "Gi Joe Blackout", size: 14 },
-  { name: "God Of War 3 Remastered", size: 43 },
-  { name: "God_Of_War_Ragnarok", size: 92 },
-  { name: "God_Of_War_Ragnarok Deluxe_Pack_Dlc_Fxd", size: 2 },
-  { name: "God_Of_War_Ragnarok_ Preorder_Pack_Dlc_Fxd", size: 2 },
-  { name: "Grid 0307", size: 18 },
-  { name: "Grid Legends", size: 13 },
-  { name: "Gta 3", size: 6 },
-  { name: "Gta 5", size: 48 },
-  { name: "Gta 5 Update 1.38", size: 39 },
-  { name: "Gta 5 Update Cusa0041 1.53", size: 51 },
-  { name: "Gta V -Cusa00419_00--A0146-V0100-Cyb1K", size: 45 },
-  { name: "Gta V Cusa00419 Updatea0153-V0100", size: 51 },
-  { name: "Guilty Gear Strive", size: 13 },
-  { name: "Gun Dam Breaker 3 Pm", size: 14 },
-  { name: "Guns_Gore_And_Cannoli_2", size: 2 },
-  { name: "Gang.Beasts_Cusa04865_V1.18_[8.50]_Opoisso893", size: 2 },
-  { name: "Gear.Club Unlimited 2 Ultimate Edition", size: 21 },
-  { name: "Ghost Of Tsushima-Cusa16972", size: 33 },
-  { name: "Ghost Of Tsushima-Cusa16972 Fix", size: 2 },
-  { name: "Gleamlight_Cusa18500_V1.00_[7.02]_Opoisso893", size: 2 },
-  { name: "God Of War", size: 40 },
-  { name: "God Of War 1.34Up", size: 9 },
-  { name: "God Of War Iii - Fall Of Olympus - Dynamic_1", size: 2 },
-  { name: "God Of War Iii - Fall Of Olympus - Dynamic_2", size: 2 },
-  { name: "God.Of.War.Ragnarok_Cusa34386_V6.03_[9.00-11.00]_Opoisso893", size: 26 },
-  { name: "Gran.Turismo.7_Cusa24769_V1.00_[9.00]_Opoisso893", size: 86 },
-  { name: "Gran.Turismo.Sport.Ps4-Blaze", size: 44 },
-  { name: "Grand Theft Auto V [Cusa00411]", size: 46 },
-  { name: "Grand Theft Auto V [Cusa00419]", size: 46 },
-  { name: "Grand Theft Auto Vice City", size: 2 },
-  { name: "Grand.Theft.Auto.Iii–The.Definitive.Edition_Cusa26613", size: 6 },
-  { name: "Grand.Theft.Auto.Iii–The.Definitive.Edition_Cusa26613_V1.04", size: 2 },
-  { name: "Grand.Theft.Auto.San.Andreas–The.Definitive.Edition_", size: 24 },
-  { name: "Grand.Theft.Auto.San.Andreas–The.Definitive.Edition_Patch", size: 2 },
-  { name: "Grand.Theft.Auto.Vice.City–The.Definitive.Edition", size: 12 },
-  { name: "Grand.Theft.Auto.Vice.City–The.Definitive.Edition_Backport", size: 2 },
-  { name: "Grid.Legends.V1.00-Cusa28261", size: 31 },
-  { name: "Gungrave G.O.R.E Dlc", size: 36 },
-  { name: "Gunjack.Vr.Ps4-Duplex", size: 2 },
-  { name: "Hitman", size: 45 },
-  { name: "Hitman 3 - Berlin [Cusa18210]", size: 2 },
-  { name: "Hitman.3.Ps4-Duplex", size: 47 },
-  { name: "Hitman™ [Cusa06508]", size: 45 },
-  { name: "Hogwarts Legacy Main", size: 40 },
-  { name: "Hogwarts Legacy Update", size: 32 },
-  { name: "Horizon Forbidden West", size: 86 },
-  { name: "Hades.Ps4-Duplex", size: 9 },
-  { name: "Hades.Update.V1.03.Ps4-Duplex", size: 2 },
-  { name: "Heavy.Rain Ps4", size: 30 },
-  { name: "Hellblade Senua'S Sacrifice", size: 15 },
-  { name: "Hello Neighbor 2 [Cusa33399]", size: 6 },
-  { name: "Hello-Copter Dlc [Cusa33399]", size: 2 },
-  { name: "Hello.Neighbor.2_Cusa33399_V1.00_[11.00]_Opoisso893", size: 6 },
-  { name: "Hello.Neighbor.2_Cusa33399_V1.06_Backport_[5.05-6.72-7.Xx-9.00]_Opoisso893", size: 6 },
-  { name: "Herodefense.Ps4-Duplex", size: 2 },
-  { name: "Hitman ꞉ Blood Money Hd [Cusa13612]", size: 7 },
-  { name: "Hogwarts Legacy", size: 33 },
-  { name: "Hogwarts Legacy (Cusa12824) - 1.06 Update (Fix Game Info)", size: 2 },
-  { name: "Hogwarts Legacy [Cusa12824]", size: 2 },
-  { name: "Horizon Zero Dawn - Complete Edition V1", size: 51 },
-  { name: "Hotshot Racing", size: 7 },
-  { name: "Hotshot.Racing_Cusa11573_V1.00_[7.02]_Opoisso893", size: 4 },
-  { name: "Hotshot.Racing_Cusa11573_V1.06_[7.02]_Opoisso893", size: 3 },
-  { name: "Hungry Shark® World", size: 4 },
-  { name: "Huntdown", size: 6 },
-  { name: "Infamous First Light (Rus) [Ps4]", size: 11 },
-  { name: "Infamouse Second Sons", size: 25 },
-  { name: "Install Steps.Txt", size: 2 },
-  { name: "Inertial.Drift.Ps4-Unlimited Cusa17431", size: 3 },
-  { name: "Inertial.Drift.Update.V1.03.Ps4-Unlimited Cusa17431", size: 2 },
-  { name: "Infliction", size: 5 },
-  { name: "Injustice 2 Legendary Edition", size: 34 },
-  { name: "Insurgency.Sandstorm.Ps4-Duplex", size: 10 },
-  { name: "Insurgency.Sandstorm.Update.V1.07.Ps4-Duplex", size: 10 },
-  { name: "It Takes Two", size: 36 },
-  { name: "Jump Force", size: 27 },
-  { name: "John.Wick.Hex.Ps4-Unlimited", size: 4 },
-  { name: "Just In Time Incorporated", size: 2 },
-  { name: "Just Cuse 4", size: 44 },
-  { name: "King Of Fighters 15", size: 59 },
-  { name: "Kena.Bridge.Of.Spirits", size: 11 },
-  { name: "Kena.Bridge.Of.Spirits.Celebration.Hats.For.Rot", size: 2 },
-  { name: "Kena.Bridge.Of.Spirits.Digital.Deluxe-Arczi", size: 2 },
-  { name: "Killzone Shadow Fall", size: 44 },
-  { name: "Last Guardiane", size: 14 },
-  { name: "Lego Star Wars The Force Awakens", size: 16 },
-  { name: "Lego Star Wars The Skywalker Saga Cusa13794", size: 35 },
-  { name: "Lego® City Undercover", size: 21 },
-  { name: "Late Fees Dlc [Cusa33399]", size: 2 },
-  { name: "Lego Star Wars The Skywalker Saga", size: 38 },
-  { name: "Little Nightmares Ii Cusa12779 Up", size: 2 },
-  { name: "Little.Nightmares.Ii.Cusa12779", size: 5 },
-  { name: "Lode Runner Legacy", size: 4 },
-  { name: "Lost.Judgment_Cusa28183_V1.04_[5.05]_Backport893", size: 44 },
-  { name: "Madmax The Game Ps4", size: 34 },
-  { name: "Mafia Definative Edition One", size: 46 },
-  { name: "Mark_Of_The_Ninja_Remastered", size: 13 },
-  { name: "Marvel Ultt Wo2015-A0100-V0100", size: 9 },
-  { name: "Medievil", size: 21 },
-  { name: "Metal Gear Solid V The Phantom Pain", size: 28 },
-  { name: "Metal Gear Solid V The Phantom Pain Up", size: 2 },
-  { name: "Metal.Slug.Xx", size: 2 },
-  { name: "Monster Of The Deep Final Fantasy Xv", size: 13 },
-  { name: "Mortal Kombat 11", size: 69 },
-  { name: "Mortal Kombat Xl", size: 41 },
-  { name: "Moto Gp 17", size: 12 },
-  { name: "Moto Gp 21 Dlc01000-A0000-V0100", size: 2 },
-  { name: "Moto Gp 21 Dlc02B00-A0000-V0100", size: 2 },
-  { name: "Moto Gp 21 Fullgame-A0100-V0113", size: 25 },
-  { name: "Mx.Vs.Atv.Legends_Cusa25622_V1.07_Optionalfix_Opoisso893", size: 2 },
-  { name: "Mx.Vs.Atv.Legends_Cusa25622_V1.09_Optionalfix_Opoisso893", size: 2 },
-  { name: "Mx.Vs.Atv.Legends_Cusa25622_V1.09_[9.00]_Opoisso893", size: 27 },
-  { name: "Mafia.Iii.Repack.Ps4-Duplex", size: 47 },
-  { name: "Mafia.Iii._Backport", size: 17 },
-  { name: "Maid.Of.Sker.Ps4-Duplex", size: 10 },
-  { name: "Martha Is Dead", size: 11 },
-  { name: "Marvel'S Avengers Cusa14026", size: 69 },
-  { name: "Marvel'S Guardians Of The Galaxy", size: 62 },
-  { name: "Marvel'S Spider-Man Cusa02299", size: 45 },
-  { name: "Marvels Spider Man Miles Morales", size: 52 },
-  { name: "Marvels Spider Man Miles Morales Bp", size: 2 },
-  { name: "Mass Effect™ Legendary Edition", size: 69 },
-  { name: "Metal Gear Solid V The Phantom Pain Ps4 Eur Multi Cusa01154 - Ind", size: 28 },
-  { name: "Metal Gear Survive", size: 17 },
-  { name: "Metal.Gear.Survive.", size: 17 },
-  { name: "Metro Redux", size: 13 },
-  { name: "Metro.Exodus.Ps4-Duplex", size: 49 },
-  { name: "Metro.Exodus.Update.V1.08.Ps4-Duplex", size: 21 },
-  { name: "Middle Earth Shadow Of War", size: 52 },
-  { name: "Middle-Earth_ Shadow Of Mordor - Game Of The Year Edition (Cusa01940) - 1.04 Game", size: 38 },
-  { name: "Minecraft.Playstation4.Edition_Cusa00265_V1.00_[1.70]_Opoisso893", size: 2 },
-  { name: "Mirror'S Edge Catalyst", size: 17 },
-  { name: "Monster Hunter World", size: 17 },
-  { name: "Monster.Energy.Supercross-The.Official.Videogame.5_Cusa28535_V1.00_[9.00]_Opoisso893", size: 19 },
-  { name: "Monster.Energy.Supercross-The.Official.Videogame.5_Cusa28535_V1.13_[9.00]_Opoisso893", size: 19 },
-  { name: "Monster.Truck.Championship.Ps4-Duplex", size: 5 },
-  { name: "Monster.Truck.Championship.Update.V1.01.Ps4-Duplex", size: 5 },
-  { name: "Mortal Kombat 11 - Community Art_1", size: 2 },
-  { name: "Mortal Kombat 11 - Community Art_2", size: 2 },
-  { name: "Motogp25_Cusa53165_V1.10_Backport_[5 To11.00", size: 21 },
-  { name: "Motogp™25 - Iconic Liveries Pack [Cusa53165]", size: 2 },
-  { name: "Motogp™25 - Off Road Helmets Pack [Cusa53165]", size: 2 },
-  { name: "Motogp™25 [Cusa53165]", size: 20 },
-  { name: "Naruto", size: 35 },
-  { name: "Nascar Arcade Rush [Cusa40791]", size: 6 },
-  { name: "Nascar.Arcade.Rush_V1.01_5.05_Backport_Cusa40791", size: 6 },
-  { name: "Nba 2K14", size: 42 },
-  { name: "Nba 2K26 International Commentary Pack [Cusa54085]", size: 5 },
-  { name: "Nba 2K26 [Cusa54085]", size: 80 },
-  { name: "Nba.2K22_Cusa28234_V1.00_[8.50]_Opoisso893", size: 49 },
-  { name: "Nba.2K26_Cusa54085_International.Commentary.Pack.[Spanish-Chinese]_Opoisso893", size: 5 },
-  { name: "Nba.2K23-Cusa33075-Eur-Game-Ps4-Cyb1K", size: 48 },
-  { name: "Nba.2K23-Cusa33075-Eur-V1.09-[Fix.5.05-6.72-7.02-7.55-9.00]-Cyb1K", size: 79 },
-  { name: "Nfs Payback", size: 18 },
-  { name: "Nfs Rivals", size: 15 },
-  { name: "Ninja Gaiden 3 Razor'S Edge", size: 7 },
-  { name: "Ninja Gaiden Σ 1", size: 9 },
-  { name: "Ninja Gaiden Σ 2", size: 9 },
-  { name: "Ninja Gaiden ꞉ Ragebound [Cusa54473]", size: 2 },
-  { name: "Nioheu", size: 40 },
-  { name: "Narcos Rise Of The Cartels", size: 12 },
-  { name: "Naught", size: 2 },
-  { name: "Naught-A0100-Arczi", size: 2 },
-  { name: "Naught_Edahi.&.Dohai-Arczi", size: 2 },
-  { name: "Naught_Sudagi.Dlc-Arczi", size: 2 },
-  { name: "Need.For.Speed.Heat", size: 27 },
-  { name: "Nerf.Legends.Alpha.Pack.Dlc.Ps4-Duplex", size: 2 },
-  { name: "Nerf.Legends.Ps4-Duplex", size: 10 },
-  { name: "Nerf.Legends.Update.V1.01.Ps4-Duplex", size: 10 },
-  { name: "New Super Lucky'S Tale", size: 6 },
-  { name: "Nier Automata", size: 36 },
-  { name: "Nier Automata", size: 10 },
-  { name: "Ninja Legends", size: 4 },
-  { name: "Ninja Legends [Cusa20667] [V01.00]", size: 2 },
-  { name: "Ninja Legends [Cusa20667] [V01.01]", size: 2 },
-  { name: "Outlast", size: 5 },
-  { name: "Observer", size: 14 },
-  { name: "Oddworld.Soulstorm.Ps4-Duplex", size: 10 },
-  { name: "Offroad.Racing.Buggy.X.Atv.X.Moto_Cusa16627_V1.00_[6.72]_Opoisso893", size: 6 },
-  { name: "Outbreak The Nightmare Chronicles", size: 3 },
-  { name: "Overpass [Cusa15507] [V01.00]", size: 16 },
-  { name: "Payload.Bin", size: 2 },
-  { name: "Pc.Building.Simulator_Cusa14566_V1.00_[6.72]_Opoisso893", size: 3 },
-  { name: "Pes 2021 Season Update Cusa18676 Rev2", size: 30 },
-  { name: "Pes2021", size: 33 },
-  { name: "Pes2021 Up", size: 5 },
-  { name: "Project_Cars_Cusa01338", size: 28 },
-  { name: "Ps4 Pkg Tool.Exe", size: 2 },
-  { name: "Ps4_Item00001_V1.06", size: 2 },
-  { name: "Panzer.Dragoon.Remake.Ps4-Duplex", size: 7 },
-  { name: "Panzer.Dragoon.Remake.Update.V1.01.Ps4-Duplex", size: 2 },
-  { name: "Phoenix.Point.Ps4-Duplex", size: 21 },
-  { name: "Plague.Road.Ps4-Unlimited", size: 2 },
-  { name: "Plague.Road.Update.V1.01.Ps4-Unlimited", size: 2 },
-  { name: "Power Skeleton ꞉ Gold (Lv. 1) [Cusa11260]", size: 2 },
-  { name: "Predator.Hunting.Grounds.Ps4-Duplex", size: 13 },
-  { name: "Prey [Cusa06559]", size: 42 },
-  { name: "Project Warlock", size: 4 },
-  { name: "Project.Cars.2.Ps4-Duplex", size: 39 },
-  { name: "Project.Cars.3.Ps4-Duplex", size: 37 },
-  { name: "Pumpkin.Jack_Cusa23760_V1.00_[8.00]_Opoisso893", size: 2 },
-  { name: "Pumpkin.Jack_Cusa23760_V1.02_Backport_[5.05-6.72-7.Xx]_Opoisso893", size: 2 },
-  { name: "Pumpkin.Jack_Cusa23760_V1.02_[8.00]_Opoisso893", size: 2 },
-  { name: "Re8 She-Ra_And_Yorha_Daughters_And_Magneto_And_Bikini_Miranda_Cusa18017", size: 2 },
-  { name: "Re8 Tifa_Dimitrescu_And_Yorha_Daughters_White_And_Dante_And_John_Mcclane_And_Ghostface_Cusa18017", size: 2 },
-  { name: "Re8_Bikini_Ladies_Cusa18017", size: 2 },
-  { name: "Residen Evil Village Cusa18017 Dlc", size: 10 },
-  { name: "Resident Evil 7 Biohazard Gold Edition", size: 31 },
-  { name: "Resident Evil Origins Collection", size: 27 },
-  { name: "Resident_Evil_2_Cusa09193", size: 50 },
-  { name: "Resident Evil 5 Hd Ps4", size: 18 },
-  { name: "Riders.Republic.Ps4-Unlimited", size: 17 },
-  { name: "Riders.Republic.Update.V1.05.Ps4-Unlimited", size: 17 },
-  { name: "Rise Of Tomb Raider", size: 19 },
-  { name: "Rive.Ps4-Unlimited", size: 2 },
-  { name: "Rive.Update.V1.15.Ps4-Unlimited", size: 2 },
-  { name: "Rocket League", size: 4 },
-  { name: "Rad.Rodgers", size: 9 },
-  { name: "Ratchet & Clank", size: 30 },
-  { name: "Raw Data", size: 9 },
-  { name: "Red.Dead.Redemption.2", size: 86 },
-  { name: "Red.Dead.Redemption.2.Update.V1.24", size: 19 },
-  { name: "Remnant.From.The.Ashes", size: 33 },
-  { name: "Remothered.Broken.Porcelain.", size: 12 },
-  { name: "Resident Evil 3", size: 23 },
-  { name: "Resident Evil 4 Re", size: 31 },
-  { name: "Resident Evil Revelations 1", size: 18 },
-  { name: "Resident Evil Revelations 2", size: 25 },
-  { name: "Resident Evil Village", size: 31 },
-  { name: "Rims.Racing.Ps4-Cusa23641", size: 9 },
-  { name: "Rims.Racing.V1.05.Patch.Ps4-Cusa23641", size: 5 },
-  { name: "Ride.4.Ps4-Duplex", size: 24 },
-  { name: "Riptide Gp ꞉ Renegade [Cusa04565]", size: 2 },
-  { name: "Riptide Gp2 [Cusa02365]", size: 2 },
-  { name: "Risen_Cusa31481_V1.00_[9.00]_Opoisso893", size: 5 },
-  { name: "Risen_Cusa31481_V1.02_[9.00]_Opoisso893", size: 2 },
-  { name: "Road.Redemption", size: 7 },
-  { name: "Saints Row 00Ps4Eu-A0100-V0100-Cyb1K", size: 40 },
-  { name: "Samurai.Warriors.5.Ps4-Duplex", size: 14 },
-  { name: "Samurai.Warriors.5.Update.V1.03.Ps4-Duplex", size: 2 },
-  { name: "Sifu_Cusa25761_V1.00_[8.50]_Opoisso893", size: 9 },
-  { name: "Sifu_Cusa25761_V1.11_Backport_[5.05-6.72-7.Xx-8.0X]_Opoisso893", size: 9 },
-  { name: "Sky Rim", size: 33 },
-  { name: "Sles25536.Complete", size: 2 },
-  { name: "Sniper 3 Ghost Warrior", size: 41 },
-  { name: "Sniper Elite 4", size: 33 },
-  { name: "Sniper Elite 5", size: 41 },
-  { name: "Sonic Frontiers - Cusa28194", size: 2 },
-  { name: "Star Wars - Squadrons [Cusa15080]", size: 23 },
-  { name: "Star.Wars.Jedi.Fallen.Order.Ps4-Duplex", size: 49 },
-  { name: "Stray", size: 8 },
-  { name: "Stray_Fxdv1", size: 16 },
-  { name: "Stride_Fxdv1.00_[Fw900]", size: 4 },
-  { name: "Syberia 3", size: 16 },
-  { name: "Sackboy.A.Big.Adventure.Cusa18886", size: 36 },
-  { name: "Samurai Jack ꞉ Battle Through Time", size: 5 },
-  { name: "Samurai Jack ꞉ Battle Through Time V01.00", size: 5 },
-  { name: "Sekiro", size: 18 },
-  { name: "Serious Sam Collection Cusa08218", size: 10 },
-  { name: "Shadow Man Remastered", size: 8 },
-  { name: "Shadow Of The Tomb Raider Ps4 Fpkg [Cusa10872]", size: 30 },
-  { name: "Sherlock Holmes Crimes & Punishments", size: 10 },
-  { name: "Silent Hills", size: 2 },
-  { name: "Skully", size: 5 },
-  { name: "Skully [Cusa19269]", size: 5 },
-  { name: "Skully.Ps4-Duplex", size: 5 },
-  { name: "Skully.Update.V1.02.Ps4-Duplex", size: 5 },
-  { name: "Smack Down Here Comes The Pain", size: 4 },
-  { name: "Song.Of.Horror.Ps4-Duplex", size: 8 },
-  { name: "Song.Of.Horror.Update.V1.03.Ps4-Duplex", size: 9 },
-  { name: "Sonic Racing ꞉ Crossworlds [Cusa35016]", size: 14 },
-  { name: "Sonic.Racing.Crossworlds_Cusa35016_V1.00_[12.02]_Opoisso893", size: 14 },
-  { name: "Speed Skeleton ꞉ Gold (Lv. 1) [Cusa11260]", size: 2 },
-  { name: "Speed.3.Grand.Prix_Cusa20552_V1.00_[7.50]_Opoisso893", size: 3 },
-  { name: "Speed.3.Grand.Prix_Cusa20552_V1.01_[7.50]_Opoisso893", size: 2 },
-  { name: "Spelunky 2", size: 4 },
-  { name: "Star.Wars.Episode.I.Racer_Cusa18211_V1.00_[7.02]_Opoisso893", size: 2 },
-  { name: "Star.Wars.Episode.I.Racer_Cusa18211_V1.01_[7.02]_Opoisso893", size: 2 },
-  { name: "Star_Wars-Battlefront_Ii-Wdr", size: 66 },
-  { name: "State Of Mind", size: 8 },
-  { name: "Stranger Of Paradise Final Fantasy Origin", size: 33 },
-  { name: "Street Fighter 5 Update 2.02", size: 20 },
-  { name: "Street Fighte 5 Main", size: 7 },
-  { name: "Street.Fighter.6-Cusa31498-Eur-Game-Ps4-Cyb1K", size: 36 },
-  { name: "Street.Fighter.6-Cusa31498-Eur-Update-Fix-[5.05-9.00]-Ps4-Cyb1K", size: 2 },
-  { name: "Street.Fighter.6-Fighting.Ground-Cyb1K", size: 4 },
-  { name: "Street.Fighter.6-World.Tour-Cyb1K", size: 2 },
-  { name: "Subnautica Below Zero", size: 9 },
-  { name: "Tekken 3", size: 2 },
-  { name: "Tekken Dark Resurrection [Psptops4]", size: 3 },
-  { name: "Tekken.7_", size: 106 },
-  { name: "The Evil Withineng", size: 42 },
-  { name: "The King Of Fighters Xiv", size: 24 },
-  { name: "The Order 1886", size: 36 },
-  { name: "The_House_Of_The_Dead_Remake", size: 6 },
-  { name: "The_Incredible_Adventures_Of_Van_Helsing_2_Fxdv1.00 Cusa09370_", size: 10 },
-  { name: "The_Surge_2_Cusa12564", size: 10 },
-  { name: "The_Walking_Dead_Onslaught_Fxdv1.00_[Fw702]", size: 10 },
-  { name: "Thief", size: 22 },
-  { name: "Tmnt.Splintered.Fate_Cusa50828_V1.08_Backport_[5.05-6.72-7.Xx-9.00-11.00]_Opoisso893", size: 3 },
-  { name: "Toothntail00Siee", size: 4 },
-  { name: "Transformers Battlegrounds", size: 6 },
-  { name: "Transformers Fall Of Cybertron", size: 15 },
-  { name: "Taxi.Chaos.", size: 4 },
-  { name: "Taxi.Chaos_Cusa20140_V1.00_[7.50]_Opoisso893", size: 2 },
-  { name: "Teenage Mutant Ninja Turtles ꞉ Splintered Fate [Cusa50828]", size: 3 },
-  { name: "Tekken.7.05972.Dlc.Character.Armor.King", size: 2 },
-  { name: "Tekken.7.05972.Dlc.Character.Fahkumram", size: 2 },
-  { name: "Terminator.Resistance_Cusa15306_V1.02_Optionalfix_[8.00]_Opoisso893", size: 2 },
-  { name: "Terminator.Resistance_Cusa15306_V1.02_[8.00]_Opoisso893", size: 19 },
-  { name: "The Amazing Spider Man 2", size: 12 },
-  { name: "The Caligula Effect 2", size: 8 },
-  { name: "The Callisto Protocol-Cusa27373", size: 64 },
-  { name: "The Crew® 2 Cusa08600 Main", size: 27 },
-  { name: "The Crew® 2 [Cusa08600]", size: 38 },
-  { name: "The Dark Pictures Anthology House Of Ashes", size: 32 },
-  { name: "The Evil Within 2", size: 30 },
-  { name: "The King Of Fighters Xv (U) - Classic Leona Costume", size: 2 },
-  { name: "The King Of Fighters Xv (U) - Garou Terry Costume", size: 2 },
-  { name: "The King Of Fighters Xv (U) - Team Awakened Orochi", size: 2 },
-  { name: "The King Of Fighters Xv (U) - Team Garou", size: 2 },
-  { name: "The King Of Fighters Xv (U) - Team South Town", size: 2 },
-  { name: "The King Of Fihter 1995", size: 2 },
-  { name: "The Last Campfire V1.07-Cusa19445", size: 2 },
-  { name: "The Last Of Us 2", size: 73 },
-  { name: "The Last Of Us 2 Fix", size: 2 },
-  { name: "The Walking Dead - Saints & Sinners", size: 23 },
-  { name: "The Witcher 3 Wild Hunt", size: 43 },
-  { name: "The Witcher 3 Wild Hunt – Complete Edition", size: 11 },
-  { name: "The.Dark.Pictures.Anthology.Little.Hope.Ps4-Duplex", size: 36 },
-  { name: "The.King.Of.Fighters.Collection.The.Orochi.Saga", size: 2 },
-  { name: "The.Last.Of.Us.Remastered_Cusa00556_V1.00", size: 48 },
-  { name: "The.Last.Of.Us.Remastered_Cusa00556_V1.11_Opoisso893", size: 2 },
-  { name: "The.Witcher.3.Wild.Hunt.Complete.Edition.Ps4-Duplex", size: 41 },
-  { name: "The_Pathless", size: 5 },
-  { name: "This.Is.The.Police.2.Ps4-Duplex", size: 4 },
-  { name: "This.Is.The.Police.2_Cusa11626_A0101_Backport505_Opoisso893", size: 2 },
-  { name: "Tiny_Tinas_Assault_On_Dragon_Keep_A_Wonderlands_One-Shot_Adventure", size: 15 },
-  { name: "Tom Clancy'S Ghost Recon - Wildlands", size: 55 },
-  { name: "Tomb Raider Definitive", size: 21 },
-  { name: "Tormented.Souls_Cusa29199_V1.00_[8.50]_Opoisso893", size: 7 },
-  { name: "Total Overdose", size: 6 },
-  { name: "Transformers_Rise_Of_The_Dark_Spark_Ps4-Playable", size: 11 },
-  { name: "Trials.Rising.(Tm)_Cusa09435_V1.00_[6.72]_Opoisso893", size: 24 },
-  { name: "Trials.Rising.(Tm)_Cusa09435_V1.12_[6.72]_Opoisso893", size: 9 },
-  { name: "Ufc 3", size: 20 },
-  { name: "Ufc.4_Cusa14209_V1.00_[7.50]_Opoisso893", size: 26 },
-  { name: "Ufc® 4 V24.00_Backport_", size: 10 },
-  { name: "Uncharted 4 A Thief'S End", size: 63 },
-  { name: "Uncharted 4 Lost Legacy", size: 51 },
-  { name: "Until Dawn", size: 39 },
-  { name: "Up0001-Cusa27237_00-Game000000000000-A0100-V0100-Cyb1K", size: 6 },
-  { name: "Up1003-Cusa02557_00-Fallout4Fullgame-A0100-V0100-Cyb1K-[Dlpsgame.Com]", size: 32 },
-  { name: "Up6139-Cusa34689_00-5188217272288673-A0100-V0100-Notrophy-Trifecta", size: 2 },
-  { name: "Up9000-Slus20787_00-Slus207870000001-A0100-V0100", size: 6 },
-  { name: "Ultra Age", size: 7 },
-  { name: "Uncharted.Drakes.Fortune.Resmastered.Ps4-Blaze", size: 12 },
-  { name: "Underworld Ascendant", size: 10 },
-  { name: "Unravel.Cusa02532", size: 4 },
-  { name: "Unravel.Two.Ps4-Duplex", size: 4 },
-  { name: "Unravel.Two.Update.V1.01.Ps4-Duplex", size: 2 },
-  { name: "Unruly Heroes-Cusa16109.V1.0", size: 3 },
-  { name: "Urban Trial Tricky [Cusa23270]", size: 2 },
-  { name: "Vampyr.Ps4-Duplex", size: 15 },
-  { name: "Volume.Usa.Ps4-Cusa02943", size: 2 },
-  { name: "Volume.V1.08.Patch.Usa.Ps4-Cusa02943", size: 2 },
-  { name: "Vroom Kaboom", size: 8 },
-  { name: "Wasteland 2 Gty", size: 6 },
-  { name: "Watchdogs", size: 22 },
-  { name: "Wrc.10.Fia.World.Rally.Championship.Ps4-Duplex", size: 27 },
-  { name: "Wrc.10.Fia.World.Rally.Championship.Update.V1.04.Ps4-Duplex", size: 14 },
-  { name: "Wrc.9.Fia.World.Rally.Championship.Ps4-Duplex", size: 22 },
-  { name: "Wrc.9.Fia.World.Rally.Championship.Update.V1.04.Ps4-Duplex", size: 9 },
-  { name: "Wrc.Generations_Cusa33609_V1.00_[9.00]_Opoisso893", size: 31 },
-  { name: "Wrc.Generations_Cusa33609_V1.04_[9.00]_Opoisso893", size: 13 },
-  { name: "Wwe 2K24-Main", size: 62 },
-  { name: "Wwe 2K24-Update 1.05", size: 30 },
-  { name: "Wwe.2K.Battlegrounds.Ps4-Duplex", size: 7 },
-  { name: "Wwe.2K.Battlegrounds.Update.V10.50.Ps4-Duplex", size: 4 },
-  { name: "Wwe.2K25_Cusa48576_Bloodline.Edition.Bonus.Pack_Opoisso893", size: 2 },
-  { name: "Wwe.2K25_Cusa48576_Deadman.Edition.Bonus.Pack_Opoisso893", size: 2 },
-  { name: "Wwe.2K25_Cusa48576_Myrise.Megaboost_Opoisso893", size: 2 },
-  { name: "Wwe.2K25_Cusa48576_New.Wave.Pack_Opoisso893", size: 2 },
-  { name: "Wwe.2K25_Cusa48576_Season.Pass_Opoisso893", size: 2 },
-  { name: "Wwe.2K25_Cusa48576_Supercharger_Opoisso893", size: 2 },
-  { name: "Wwe.2K25_Cusa48576_The.Rock.Nation.Of.Domination.Pack_Opoisso893", size: 2 },
-  { name: "Wwe.2K25_Cusa48576_Wyatt.Sicks.Pack_Opoisso893", size: 2 },
-  { name: "Wwe.2K25_Cusa48576_V1.00_[12.00]", size: 42 },
-  { name: "Wwe.2K25_Cusa48576_V1.00_[12.00]_Opoisso893", size: 42 },
-  { name: "Wwe.2K25_Cusa48576_V1.07_Backport-9.00-11.00", size: 50 },
-  { name: "Wwe.2K25_Cusa48576_V1.11_Backport_[5.05-6.72-7.Xx-9.00-11.00]_Opoisso893", size: 51 },
-  { name: "Wwe2K24-A0108-V0100-Cyb1K-[Dlpsgame.Com]", size: 31 },
-  { name: "Wanted Dead", size: 21 },
-  { name: "Watch Dogs® Legion", size: 36 },
-  { name: "Watchdogs 2", size: 23 },
-  { name: "Weird West Cusa17598", size: 5 },
-  { name: "White.Night.Ps4-Unlimited", size: 2 },
-  { name: "Wolfenstein Ii - The New Colossus V1", size: 4 },
-  { name: "Wolfenstein The New Order", size: 51 },
-  { name: "World War Z", size: 37 },
-  { name: "Yakuza 0", size: 25 },
-  { name: "Yakuza 6", size: 38 },
-  { name: "You.Suck.At.Parking_Cusa35113_V1.00_[11.00]_Opoisso893", size: 2 },
-  { name: "You.Suck.At.Parking_Cusa35113_V1.10_Backport_[5.05-6.72-7.Xx-9.00]_Opoisso893", size: 2 },
-  { name: "You.Suck.At.Parking_Cusa35113_V1.10_[11.00]_Opoisso893", size: 2 },
-  { name: "Your Toy", size: 2 },
-  { name: "Zombi", size: 22 },
-  { name: "Zombie Driver Immortal Edition", size: 2 },
-  { name: "Zombie.Army.4.Dead.War.Ps4-Duplex", size: 21 },
-  { name: "Blz-Awou", size: 18 },
-  { name: "Efootball.2022_Cusa26997_V1.06_Optionalfix_[8.50]_Opoisso893", size: 2 },
-  { name: "Efootball.2022_Cusa26997_V1.06_[8.50]_Opoisso893", size: 42 },
-  { name: "Farming Simulator 22", size: 22 },
-  { name: "Goldhen.Bin", size: 2 },
-  { name: "Goldhen.Zip", size: 2 },
-  { name: "Hitman 2", size: 32 },
-  { name: "Payload.Bin", size: 2 },
-  { name: "Ps2 Elf Loader", size: 4 },
-  { name: "Street Fighter 30Th Ac", size: 6 },
-  { name: "War Tech Fighters", size: 6 },
-  { name: "Wwe Smackdown Here Comes The Pain", size: 4 },
-  { name: "Wwe Smack Pain", size: 4 },
+  {"name":"9 Monkeys of Shaolin","size":10},
+  {"name":"A O T Wings Of Freedom Internal Ps4-Prelude","size":15},
+  {"name":"A Plague Tale Innocence","size":40},
+  {"name":"A Way Out","size":18},
+  {"name":"Aliens Fireteam Elite","size":19},
+  {"name":"All-Terrain Skeleton ꞉ Gold (Lv 1) [Cusa11260]","size":2},
+  {"name":"Apsulov End Of Gods","size":5},
+  {"name":"Aragami 2","size":13},
+  {"name":"Armor Plate ꞉ Gold (Lv 1) [Cusa11260]","size":2},
+  {"name":"Armor Plate ꞉ Gold (Lv 2) [Cusa11260]","size":2},
+  {"name":"Ary And The Secret Of","size":14},
+  {"name":"Ashes Cricket 17","size":13},
+  {"name":"Assassin'S Creed Freedom Cry","size":8},
+  {"name":"Assassin'S Creed Origins Full","size":51},
+  {"name":"Assassin'S Creed Syndicate","size":40},
+  {"name":"Assassin'S Creed Unity (Usa)","size":42},
+  {"name":"Assassin'S Creed® Mirage [Cusa33151]","size":18},
+  {"name":"Assassins Creed Odyssey Ps4-Duplex","size":45},
+  {"name":"Assassins Creed Rogue","size":11},
+  {"name":"Assassins Creed Valhalla Cusa18534","size":43},
+  {"name":"Atomic Heart Premium Edition","size":50},
+  {"name":"Attack On Titan 2 Ps4-Duplex","size":23},
+  {"name":"Baldo The Guardian Owls","size":2},
+  {"name":"Batman Arkham Asylum 0","size":8},
+  {"name":"Batman Arkham City","size":38},
+  {"name":"Batman Arkham City 2","size":38},
+  {"name":"Batman Arkham Knight","size":50},
+  {"name":"Battlefield 1","size":43},
+  {"name":"Battlefield 4","size":38},
+  {"name":"Battlefield V Ps4 Fpkg [Cusa08670]","size":35},
+  {"name":"Beach Buggy Racing 2 Island Adventure","size":4},
+  {"name":"Ben 10 Power Trip","size":4},
+  {"name":"Biohazard Umbrella Corps","size":5},
+  {"name":"Biohazard Umbrella Corps Ud106","size":4},
+  {"name":"Biped","size":10},
+  {"name":"Bloodborne Game Of The Year Edition","size":32},
+  {"name":"Bloodrayne Revamped","size":6},
+  {"name":"Blz-Awou","size":18},
+  {"name":"Bound By Flame","size":5},
+  {"name":"Bramble The Mountain King","size":7},
+  {"name":"Burnout Paradise Remastered Cusa-10866","size":10},
+  {"name":"Burnout Revenge","size":3},
+  {"name":"Call of Duty: Black Ops III","size":83,"originalName":"Cod Bo3 + Cod Bo3 Dlc Zombies Chronicles"},
+  {"name":"Call of Duty: Black Ops 6","size":63,"originalName":"Call Of Duty Black Ops 6 Arabic By Haider Kiara"},
+  {"name":"Call of Duty: Black Ops Cold War","size":187,"originalName":"Cod Bo Cold War"},
+  {"name":"Call of Duty: Modern Warfare (2019)","size":194,"originalName":"Call Of Duty® Modern Warfare® + Campaign 1 + Campaign 2 + Multiplayer Pack + Special Ops Pack 2 + Survival Pack + Campaign And Special Ops Pack + Multiplayer And Special Ops Pack"},
+  {"name":"Call of Duty: Modern Warfare II","size":127,"originalName":"Content 0–5 Licenses + Campaign Pack 1 + Campaign Pack 2 + Co-Op Pack + Multiplayer Pack + Content Pac 5 + Core Gam + Core Game 1 + Call Of Duty® ꞉ Modern Warfare Ii [Cusa23827]"},
+  {"name":"Capcom Arcade Stadium","size":2},
+  {"name":"Chiral Gold Color For The “Ludens Mask“ Sunglasses [Cusa11260]","size":2},
+  {"name":"Chiral Gold Color For The “Sam“ Sunglasses [Cusa11260]","size":2},
+  {"name":"Chiral Gold Color For The Bridges Hat [Cusa11260]","size":2},
+  {"name":"Cloudpunk Ps4-Unlimited","size":10},
+  {"name":"Cobra Kai 2 Dojos Rising","size":6},
+  {"name":"Cobra Kai The Karate Kid Saga Continues","size":7},
+  {"name":"Cod Aw","size":63},
+  {"name":"Cod Bo4-Ps4-Duplex-Cusa12443","size":95},
+  {"name":"Cod Ghost","size":31},
+  {"name":"Cod Infinite Warfare","size":70},
+  {"name":"Cod Vanguard","size":94},
+  {"name":"Cod Ww2","size":74},
+  {"name":"Contra Anniversary Collection","size":4},
+  {"name":"Control","size":31},
+  {"name":"Crash Bandicoot N Sane Trilogy","size":24},
+  {"name":"Crash Bandicoot™ 4 It'S About Time Cusa23470","size":24},
+  {"name":"Crash Team Racing Nitro-Fueled","size":39},
+  {"name":"Creaks","size":6},
+  {"name":"Cricket 24","size":40},
+  {"name":"Cricket22","size":49},
+  {"name":"Crysis 2 Remastered-A0100-Arczi","size":19},
+  {"name":"Crysis Remastered Ps4-Duplex","size":14},
+  {"name":"Cup Head Ep8254-Cusa20469 A0101-V0100-Cyb1K","size":2},
+  {"name":"Cuphead","size":7},
+  {"name":"Cusa23827 Dumping","size":2},
+  {"name":"Cusa27373 Callisto Protocol Season Pass-Arczi","size":2},
+  {"name":"Cyberpunk 2077 [Cusa16579]","size":67},
+  {"name":"Danger Zone Ps4-Unlimited","size":2},
+  {"name":"Dark Alliance","size":46},
+  {"name":"Dark Souls Iii Game Of The Year","size":26},
+  {"name":"Dark Wood","size":6},
+  {"name":"Darksiders Iii","size":21},
+  {"name":"Darkwood","size":6},
+  {"name":"Deadpool Ps4","size":7},
+  {"name":"Death By Degrees","size":7},
+  {"name":"Death Stranding [Cusa11260]","size":49},
+  {"name":"Death Stranding Digital Deluxe Edition [Cusa11260]","size":2},
+  {"name":"Destroy All Humans","size":29},
+  {"name":"Detroit Become Human","size":44},
+  {"name":"Deus Ex Mankind Divided","size":53},
+  {"name":"Devil May Cry 5 Ps4-Caf","size":33},
+  {"name":"Diablo II Resurrected","size":23},
+  {"name":"Diablo Iii Ultimate Evil","size":45},
+  {"name":"Dirt 4","size":41},
+  {"name":"Dirt 5™","size":28},
+  {"name":"Dirt Rally 2 0","size":28},
+  {"name":"Dishonored Death of the Outsider","size":31},
+  {"name":"Dmc Devil May Cry","size":19},
+  {"name":"Don Bradman Cricket 17 Ps4","size":11},
+  {"name":"Doom 3","size":17},
+  {"name":"Dragon Ball Fighterz","size":5},
+  {"name":"Dragon Ball Xenoverse 2 - Future Trunks","size":2},
+  {"name":"Dragon Ball Xenoverse 2 - Goku Black And Tao Pai Pai Stick","size":2},
+  {"name":"Dragon Ball Xenoverse 2 - Legend Patrol","size":4},
+  {"name":"Dragon Ball Z Kakarot","size":61},
+  {"name":"Dustwind The Last Resort","size":4},
+  {"name":"Dying Light","size":17},
+  {"name":"Dying Light 2 Stay Human","size":24},
+  {"name":"Dying Light The Following Enhanced Edition Cusa03977","size":16},
+  {"name":"EA Sports FC 25","size":6},
+  {"name":"Elden Ring","size":10},
+  {"name":"Eldenring","size":33},
+  {"name":"Elex 2 Cusa28134","size":36},
+  {"name":"Ep4133-Cusa37321 00-Atohatomicpassy0-A0000-V0100-Cyb1K","size":2},
+  {"name":"Ep4133-Cusa37321 00-Atohswedeelectro-A0000-V0100-Cyb1K","size":2},
+  {"name":"Ep4133-Cusa37321 00-Atohzvezdochkaak-A0000-V0100-Cyb1K","size":2},
+  {"name":"Everspace","size":6},
+  {"name":"Evil Genius 2","size":13},
+  {"name":"Evil West [Cusa25569]","size":28},
+  {"name":"F1 24","size":40},
+  {"name":"Fallout 4 - Game Of The Year Edition","size":37},
+  {"name":"Fallout 4 Fullgame-Cusa02557 - A0136-V0100","size":12},
+  {"name":"Far Cry 3 Classic Edition Ps4-Duplex","size":9},
+  {"name":"Far Cry 4","size":26},
+  {"name":"Far Cry 5","size":40},
+  {"name":"Far Cry 6","size":69},
+  {"name":"Far Cry New Dawn","size":26},
+  {"name":"Farcry Primal","size":13},
+  {"name":"Farming Simulat 22-A0100-V0101","size":14},
+  {"name":"Farming Simulator 22","size":22},
+  {"name":"Fast And Furious Crossroads Cusa11445","size":42},
+  {"name":"Fast And Furious Spy Racers Rise Of","size":7},
+  {"name":"Fifa 19","size":42},
+  {"name":"Fifa 24","size":48},
+  {"name":"Fighting EX Layer","size":6},
+  {"name":"Flatout 4 Total","size":9},
+  {"name":"Fracked Vr Ps4-Duplex","size":7},
+  {"name":"Freedom-Chronichles-Episode-One","size":5},
+  {"name":"Freedom-Chronichles-Episode-Zero","size":2},
+  {"name":"Fury Unleashed","size":2},
+  {"name":"Gear Club Unlimited 2 Ultimate Edition","size":21},
+  {"name":"Ghost of Tsushima","size":35},
+  {"name":"Ghost Runner","size":13},
+  {"name":"Gi Joe Blackout","size":14},
+  {"name":"God of War","size":49},
+  {"name":"God Of War 3 Remastered","size":43},
+  {"name":"God Of War Iii - Fall Of Olympus - Dynamic 1","size":2},
+  {"name":"God Of War Iii - Fall Of Olympus - Dynamic 2","size":2},
+  {"name":"God of War Ragnarok","size":92},
+  {"name":"Gran Turismo Sport Ps4-Blaze","size":44},
+  {"name":"Grand Theft Auto Iii–The Definitive Edition Cusa26613","size":6},
+  {"name":"Grand Theft Auto San Andreas–The Definitive Edition","size":24},
+  {"name":"Grand Theft Auto V","size":48},
+  {"name":"Grid 0307","size":18},
+  {"name":"Grid Legends","size":13},
+  {"name":"Gta 3","size":6},
+  {"name":"Guilty Gear Strive","size":13},
+  {"name":"Gun Dam Breaker 3 Pm","size":14},
+  {"name":"Gunjack Vr Ps4-Duplex","size":2},
+  {"name":"Guns Gore And Cannoli 2","size":2},
+  {"name":"Hades","size":11},
+  {"name":"Heavy Rain Ps4","size":30},
+  {"name":"Hellblade Senua'S Sacrifice","size":15},
+  {"name":"Hello Neighbor 2","size":6},
+  {"name":"Herodefense Ps4-Duplex","size":2},
+  {"name":"Hitman","size":45},
+  {"name":"Hitman ꞉ Blood Money Hd [Cusa13612]","size":7},
+  {"name":"Hitman 2","size":32},
+  {"name":"Hitman 3 - Berlin [Cusa18210]","size":2},
+  {"name":"Hitman 3 Ps4-Duplex","size":47},
+  {"name":"Hogwarts Legacy","size":40},
+  {"name":"Horizon Forbidden West","size":86},
+  {"name":"Horizon Zero Dawn - Complete Edition V1","size":51},
+  {"name":"Hotshot Racing","size":11},
+  {"name":"Hungry Shark® World","size":4},
+  {"name":"Huntdown","size":6},
+  {"name":"Inertial Drift Ps4-Unlimited Cusa17431","size":3},
+  {"name":"Infamous First Light (Rus) [Ps4]","size":11},
+  {"name":"Infamouse Second Sons","size":25},
+  {"name":"Infliction","size":5},
+  {"name":"Injustice 2 Legendary Edition","size":34},
+  {"name":"Install Steps Txt","size":2},
+  {"name":"Insurgency Sandstorm Ps4-Duplex","size":10},
+  {"name":"It Takes Two","size":36},
+  {"name":"John Wick Hex Ps4-Unlimited","size":4},
+  {"name":"Jump Force","size":27},
+  {"name":"Just Cuse 4","size":44},
+  {"name":"Just In Time Incorporated","size":2},
+  {"name":"Kena Bridge Of Spirits","size":11},
+  {"name":"Kena Bridge Of Spirits Celebration Hats For Rot","size":2},
+  {"name":"Kena Bridge Of Spirits Digital Deluxe-Arczi","size":2},
+  {"name":"Killzone Shadow Fall","size":44},
+  {"name":"King Of Fighters 15","size":59},
+  {"name":"Last Guardiane","size":14},
+  {"name":"Lego Star Wars The Force Awakens","size":16},
+  {"name":"Lego Star Wars The Skywalker Saga","size":38},
+  {"name":"Lego® City Undercover","size":21},
+  {"name":"Little Nightmares Ii Cusa12779","size":5},
+  {"name":"Little Nightmares Ii Cusa12779 Up","size":2},
+  {"name":"Lode Runner Legacy","size":4},
+  {"name":"Madmax The Game Ps4","size":34},
+  {"name":"Mafia Definative Edition One","size":46},
+  {"name":"Mafia III","size":64},
+  {"name":"Maid Of Sker Ps4-Duplex","size":10},
+  {"name":"Mark Of The Ninja Remastered","size":13},
+  {"name":"Martha Is Dead","size":11},
+  {"name":"Marvel Ultt Wo2015-A0100-V0100","size":9},
+  {"name":"Marvel'S Avengers Cusa14026","size":69},
+  {"name":"Marvel'S Guardians Of The Galaxy","size":62},
+  {"name":"Marvel'S Spider-Man Cusa02299","size":45},
+  {"name":"Marvels Spider Man Miles Morales","size":52},
+  {"name":"Marvels Spider Man Miles Morales Bp","size":2},
+  {"name":"Mass Effect™ Legendary Edition","size":69},
+  {"name":"Medievil","size":21},
+  {"name":"Metal Gear Solid V The Phantom Pain","size":28},
+  {"name":"Metal Gear Solid V The Phantom Pain Ps4 Eur Multi Cusa01154 - Ind","size":28},
+  {"name":"Metal Gear Solid V The Phantom Pain Up","size":2},
+  {"name":"Metal Gear Survive","size":17},
+  {"name":"Metal Slug Xx","size":2},
+  {"name":"Metro Exodus Ps4-Duplex","size":49},
+  {"name":"Metro Redux","size":13},
+  {"name":"Middle Earth Shadow Of War","size":52},
+  {"name":"Mirror'S Edge Catalyst","size":17},
+  {"name":"Monster Energy Supercross 5","size":38},
+  {"name":"Monster Hunter World","size":17},
+  {"name":"Monster Of The Deep Final Fantasy Xv","size":13},
+  {"name":"Monster Truck Championship Ps4-Duplex","size":5},
+  {"name":"Mortal Kombat 11","size":69},
+  {"name":"Mortal Kombat 11 - Community Art 1","size":2},
+  {"name":"Mortal Kombat 11 - Community Art 2","size":2},
+  {"name":"Mortal Kombat Xl","size":41},
+  {"name":"Moto Gp 17","size":12},
+  {"name":"Moto Gp 21 Dlc01000-A0000-V0100","size":2},
+  {"name":"Moto Gp 21 Dlc02B00-A0000-V0100","size":2},
+  {"name":"Moto Gp 21 Fullgame-A0100-V0113","size":25},
+  {"name":"Motogp™25 [Cusa53165]","size":20},
+  {"name":"Narcos Rise Of The Cartels","size":12},
+  {"name":"Naruto","size":35},
+  {"name":"Nascar Arcade Rush [Cusa40791]","size":6},
+  {"name":"Naught","size":2},
+  {"name":"Naught Edahi & Dohai-Arczi","size":2},
+  {"name":"Naught-A0100-Arczi","size":2},
+  {"name":"Nba 2K14","size":42},
+  {"name":"Nba 2K23-Cusa33075-Eur-Game-Ps4-Cyb1K","size":48},
+  {"name":"Nba 2K26 [Cusa54085]","size":80},
+  {"name":"Need For Speed Heat","size":27},
+  {"name":"Nerf Legends","size":10},
+  {"name":"New Super Lucky'S Tale","size":6},
+  {"name":"Nfs Payback","size":18},
+  {"name":"Nfs Rivals","size":15},
+  {"name":"Nier Automata","size":36},
+  {"name":"Ninja Gaiden ꞉ Ragebound [Cusa54473]","size":2},
+  {"name":"Ninja Gaiden 3 Razor'S Edge","size":7},
+  {"name":"Ninja Gaiden Σ 1","size":9},
+  {"name":"Ninja Gaiden Σ 2","size":9},
+  {"name":"Ninja Legends","size":4},
+  {"name":"Nioheu","size":40},
+  {"name":"Observer","size":14},
+  {"name":"Oddworld Soulstorm Ps4-Duplex","size":10},
+  {"name":"Outlast","size":5},
+  {"name":"Panzer Dragoon Remake Ps4-Duplex","size":7},
+  {"name":"Pes2021","size":33},
+  {"name":"Pes2021 Up","size":5},
+  {"name":"Phoenix Point Ps4-Duplex","size":21},
+  {"name":"Plague Road Ps4-Unlimited","size":2},
+  {"name":"Power Skeleton ꞉ Gold (Lv 1) [Cusa11260]","size":2},
+  {"name":"Predator Hunting Grounds Ps4-Duplex","size":13},
+  {"name":"Prey [Cusa06559]","size":42},
+  {"name":"Project Cars 2 Ps4-Duplex","size":39},
+  {"name":"Project Cars 3 Ps4-Duplex","size":37},
+  {"name":"Project Cars Cusa01338","size":28},
+  {"name":"Project Warlock","size":4},
+  {"name":"Ps4 Pkg Tool Exe","size":2},
+  {"name":"Pumpkin Jack","size":4},
+  {"name":"Rad Rodgers","size":9},
+  {"name":"Ratchet & Clank","size":30},
+  {"name":"Raw Data","size":9},
+  {"name":"Re8 Bikini Ladies Cusa18017","size":2},
+  {"name":"Re8 She-Ra And Yorha Daughters And Magneto And Bikini Miranda Cusa18017","size":2},
+  {"name":"Re8 Tifa Dimitrescu And Yorha Daughters White And Dante And John Mcclane And Ghostface Cusa18017","size":2},
+  {"name":"Red Dead Redemption 2","size":105},
+  {"name":"Remnant From The Ashes","size":33},
+  {"name":"Remothered Broken Porcelain","size":12},
+  {"name":"Resident Evil 2 Cusa09193","size":50},
+  {"name":"Resident Evil 3","size":23},
+  {"name":"Resident Evil 4 Re","size":31},
+  {"name":"Resident Evil 5 Hd Ps4","size":18},
+  {"name":"Resident Evil 7 Biohazard Gold Edition","size":31},
+  {"name":"Resident Evil Origins Collection","size":27},
+  {"name":"Resident Evil Revelations 1","size":18},
+  {"name":"Resident Evil Revelations 2","size":25},
+  {"name":"Resident Evil Village","size":31},
+  {"name":"Ride 4 Ps4-Duplex","size":24},
+  {"name":"Riders Republic Ps4-Unlimited","size":17},
+  {"name":"Rims Racing Ps4-Cusa23641","size":9},
+  {"name":"Riptide Gp ꞉ Renegade [Cusa04565]","size":2},
+  {"name":"Riptide Gp2 [Cusa02365]","size":2},
+  {"name":"Rise Of Tomb Raider","size":19},
+  {"name":"Risen","size":7},
+  {"name":"Rive Ps4-Unlimited","size":2},
+  {"name":"Road Redemption","size":7},
+  {"name":"Rocket League","size":4},
+  {"name":"Sackboy A Big Adventure Cusa18886","size":36},
+  {"name":"Saints Row 00Ps4Eu-A0100-V0100-Cyb1K","size":40},
+  {"name":"Samurai Jack ꞉ Battle Through Time","size":5},
+  {"name":"Samurai Warriors 5 Ps4-Duplex","size":14},
+  {"name":"Sekiro","size":18},
+  {"name":"Serious Sam Collection Cusa08218","size":10},
+  {"name":"Shadow Man Remastered","size":8},
+  {"name":"Shadow Of The Tomb Raider Ps4 Fpkg [Cusa10872]","size":30},
+  {"name":"Sherlock Holmes Crimes & Punishments","size":10},
+  {"name":"Sifu","size":18},
+  {"name":"Silent Hills","size":2},
+  {"name":"Skully","size":5},
+  {"name":"Sky Rim","size":33},
+  {"name":"Sles25536 Complete","size":2},
+  {"name":"Smack Down Here Comes The Pain","size":4},
+  {"name":"Sniper 3 Ghost Warrior","size":41},
+  {"name":"Sniper Elite 4","size":33},
+  {"name":"Sniper Elite 5","size":41},
+  {"name":"Song Of Horror Ps4-Duplex","size":8},
+  {"name":"Sonic Frontiers - Cusa28194","size":2},
+  {"name":"Sonic Racing ꞉ Crossworlds [Cusa35016]","size":14},
+  {"name":"Speed Skeleton ꞉ Gold (Lv 1) [Cusa11260]","size":2},
+  {"name":"Spelunky 2","size":4},
+  {"name":"Star Wars - Squadrons [Cusa15080]","size":23},
+  {"name":"Star Wars Jedi Fallen Order Ps4-Duplex","size":49},
+  {"name":"Star Wars-Battlefront Ii-Wdr","size":66},
+  {"name":"State Of Mind","size":8},
+  {"name":"Stranger Of Paradise Final Fantasy Origin","size":33},
+  {"name":"Stray","size":8},
+  {"name":"Stray Fxdv1","size":16},
+  {"name":"Street Fighte 5 Main","size":7},
+  {"name":"Street Fighter 30Th Ac","size":6},
+  {"name":"Street Fighter 5","size":20},
+  {"name":"Street Fighter 6","size":36},
+  {"name":"Subnautica Below Zero","size":9},
+  {"name":"Syberia 3","size":16},
+  {"name":"Taxi Chaos","size":4},
+  {"name":"Teenage Mutant Ninja Turtles ꞉ Splintered Fate [Cusa50828]","size":3},
+  {"name":"Tekken 3","size":2},
+  {"name":"Tekken 7","size":110},
+  {"name":"Tekken Dark Resurrection [Psptops4]","size":3},
+  {"name":"The Amazing Spider Man 2","size":12},
+  {"name":"The Caligula Effect 2","size":8},
+  {"name":"The Callisto Protocol-Cusa27373","size":64},
+  {"name":"The Crew 2","size":38},
+  {"name":"The Dark Pictures Anthology House Of Ashes","size":32},
+  {"name":"The Dark Pictures Anthology Little Hope Ps4-Duplex","size":36},
+  {"name":"The Evil Within 2","size":30},
+  {"name":"The Evil Withineng","size":42},
+  {"name":"The House Of The Dead Remake","size":6},
+  {"name":"The King Of Fighters Collection The Orochi Saga","size":2},
+  {"name":"The King Of Fighters Xiv","size":24},
+  {"name":"The King Of Fighters Xv (U) - Team Awakened Orochi","size":2},
+  {"name":"The King Of Fighters Xv (U) - Team Garou","size":2},
+  {"name":"The King Of Fighters Xv (U) - Team South Town","size":2},
+  {"name":"The King Of Fihter 1995","size":2},
+  {"name":"The Last of Us 2","size":75},
+  {"name":"The Last of Us Remastered","size":50},
+  {"name":"The Order 1886","size":36},
+  {"name":"The Pathless","size":5},
+  {"name":"The Surge 2 Cusa12564","size":10},
+  {"name":"The Walking Dead - Saints & Sinners","size":23},
+  {"name":"The Witcher 3 Wild Hunt","size":43},
+  {"name":"The Witcher 3 Wild Hunt Complete Edition Ps4-Duplex","size":41},
+  {"name":"Thief","size":22},
+  {"name":"This Is The Police 2 Ps4-Duplex","size":4},
+  {"name":"Tiny Tinas Assault On Dragon Keep A Wonderlands One-Shot Adventure","size":15},
+  {"name":"Tom Clancy'S Ghost Recon - Wildlands","size":55},
+  {"name":"Tomb Raider Definitive","size":21},
+  {"name":"Toothntail00Siee","size":4},
+  {"name":"Total Overdose","size":6},
+  {"name":"Transformers Battlegrounds","size":6},
+  {"name":"Transformers Fall Of Cybertron","size":15},
+  {"name":"Transformers Rise Of The Dark Spark Ps4-Playable","size":11},
+  {"name":"Trials Rising","size":33},
+  {"name":"Ufc 3","size":20},
+  {"name":"UFC 4","size":36},
+  {"name":"Ultra Age","size":7},
+  {"name":"Uncharted 4 A Thief'S End","size":63},
+  {"name":"Uncharted 4 Lost Legacy","size":51},
+  {"name":"Uncharted Drakes Fortune Resmastered Ps4-Blaze","size":12},
+  {"name":"Underworld Ascendant","size":10},
+  {"name":"Unravel Cusa02532","size":4},
+  {"name":"Unravel Two","size":6},
+  {"name":"Until Dawn","size":39},
+  {"name":"Up0001-Cusa27237 00-Game000000000000-A0100-V0100-Cyb1K","size":6},
+  {"name":"Up1003-Cusa02557 00-Fallout4Fullgame-A0100-V0100-Cyb1K-[Dlpsgame Com]","size":32},
+  {"name":"Urban Trial Tricky [Cusa23270]","size":2},
+  {"name":"Vampyr Ps4-Duplex","size":15},
+  {"name":"Volume Usa Ps4-Cusa02943","size":2},
+  {"name":"Vroom Kaboom","size":8},
+  {"name":"Wanted Dead","size":21},
+  {"name":"War Tech Fighters","size":6},
+  {"name":"Wasteland 2 Gty","size":6},
+  {"name":"Watch Dogs® Legion","size":36},
+  {"name":"Watchdogs","size":22},
+  {"name":"Watchdogs 2","size":23},
+  {"name":"Weird West Cusa17598","size":5},
+  {"name":"White Night Ps4-Unlimited","size":2},
+  {"name":"Wolfenstein Ii - The New Colossus V1","size":4},
+  {"name":"Wolfenstein The New Order","size":51},
+  {"name":"World War Z","size":37},
+  {"name":"WRC 10","size":41},
+  {"name":"WRC 9","size":31},
+  {"name":"WRC Generations","size":44},
+  {"name":"WWE 2K Battlegrounds","size":11},
+  {"name":"WWE 2K24","size":62},
+  {"name":"WWE 2K25","size":2},
+  {"name":"Wwe Smack Pain","size":4},
+  {"name":"Wwe Smackdown Here Comes The Pain","size":4},
+  {"name":"Yakuza 0","size":25},
+  {"name":"Yakuza 6","size":38},
+  {"name":"You Suck at Parking","size":4},
+  {"name":"Your Toy","size":2},
+  {"name":"Zombi","size":22},
+  {"name":"Zombie Army 4 Dead War Ps4-Duplex","size":21},
+  {"name":"Zombie Driver Immortal Edition","size":2},
 ];
 
+  const SELECTION_STORAGE_KEY = "gamesPlanet.ps4.merged.selectedGames.v2";
   let selectedGames = [];
+
+  try {
+    const savedSelection = JSON.parse(localStorage.getItem(SELECTION_STORAGE_KEY) || "[]");
+    if (Array.isArray(savedSelection)) {
+      selectedGames = [...new Set(savedSelection)]
+        .map(Number)
+        .filter(index => Number.isInteger(index) && index >= 0 && index < games.length);
+    }
+  } catch (error) {
+    selectedGames = [];
+  }
+
+  function saveSelection() {
+    try { localStorage.setItem(SELECTION_STORAGE_KEY, JSON.stringify(selectedGames)); } catch (error) {}
+  }
+
+  function normalizeSearch(value) {
+    return String(value || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase().replace(/\.iso$/i, "").replace(/[^a-z0-9]+/g, " ").trim();
+  }
+
+  function getSizeGroup(size) {
+    if (size < 10) return "<10GB";
+    if (size < 20) return "10-20GB";
+    if (size < 40) return "20-40GB";
+    if (size < 60) return "40-60GB";
+    if (size < 100) return "60-100GB";
+    return "100GB+";
+  }
+
+  function getStorageLimit() {
+    const profile = document.getElementById("storageProfile").value;
+    if (profile === "manual") {
+      return Math.max(0, parseFloat(document.getElementById("manualStorage").value) || 0);
+    }
+    return parseFloat(profile) || 0;
+  }
+
+  function getGameCategory(game) {
+    const name = normalizeSearch(game.name);
+    const has = pattern => pattern.test(name);
+
+    if (has(/\b(grand theft auto|gta|red dead redemption|assassins creed|assassin s creed|batman arkham|far cry|watch dogs|watchdogs|saints row|sleeping dogs|just cause|infamous|prototype|mafia|skyrim|elder scrolls|metal gear solid v|phantom pain|spider man|spiderman|yakuza|ghost of tsushima|days gone|horizon|cyberpunk|hogwarts|witcher|death stranding|dying light|fallout|elden ring)\b/)) return "Open-World Action-Adventure";
+    if (has(/\b(tekken|takken|mortal kombat|street fighter|super steer fighter|king of fighters|soulcalibur|soul calibur|virtua fighter|dead or alive|naruto|wwe|smackdown|wrestl|ufc|fight night|dragon ball|dragonball|marvel vs|capcom vs|persona 4 arena|injustice|jojo|blazblue)\b/)) return "Fighting";
+    if (has(/\b(fifa|ea sports fc|efootball|pes|pro evolution|football|soccer|nba|nfl|nhl|mlb|cricket|rugby|tennis|golf|olympic|baseball|basketball|volleyball|skate|snowboard|ssx|sports?|backbreaker|wwe|ufc)\b/)) return "Sports";
+    if (has(/\b(gran turismo|need for speed|burnout|racing|racer|race|rally|motogp|formula|nascar|motorstorm|superbike|cars?|kart|drift|grid|dirt|crew 2|assetto|f1 24|wrc|ride |riders republic|mx vs atv|trials rising)\b/)) return "Racing";
+    if (has(/\b(call of duty|cod|battlefield|bioshock|borderlands|sniper|ghost recon|doom|wolfenstein|destiny|crysis|rage|aliens fireteam|world war z|insurgency|serious sam|terminator resistance|gungrave)\b/)) return "Shooter";
+    if (has(/\b(uncharted|last of us|tomb raider|resident evil|silent hill|god of war|prince of persia|ratchet|sly cooper|lego|final fantasy|castlevania|devil may cry|dark souls|darksiders|dead space|heavy rain|beyond two souls|littlebigplanet|rayman|sonic|alice madness|arcania|dragon age|mass effect|ni no kuni)\b/)) return "Adventure";
+    if (has(/\b(singstar|guitar hero|rock band|dance|karaoke|buzz|littlebigplanet karting|minecraft|angry birds|monopoly|poker|pinball|collection|trilogy)\b/)) return "Other";
+    return "Action";
+  }
+
+  function getPlayerInfo(game) {
+    const name = normalizeSearch(game.name);
+    const has = pattern => pattern.test(name);
+
+    // Exact OFFLINE/LOCAL player rules. Online multiplayer is not counted.
+    // Explicit single-player exceptions must stay above the broader series rules.
+    if (has(/\b(call of duty black ops 6|dragon ball z kakarot|unravel cusa|sonic frontiers|rims racing|burnout paradise|need for speed|most wanted)\b/)) {
+      return { mode: "single", max: 1, label: "Offline: 1 Player" };
+    }
+    if (has(/\b(call of duty black ops iii|crash team racing|sonic racing|hotshot racing|trials rising|beach buggy racing|gear club unlimited 2|dirt 5|nascar arcade rush|riptide gp|road redemption|rocket league|fifa|ea sports fc|pes2021|efootball|nba 2k|diablo iii|sackboy|gang beasts|tmnt splintered fate|teenage mutant ninja turtles|overcooked|minecraft|guns gore and cannoli 2|serious sam collection|spelunky 2|toothntail|vroom kaboom|you suck at parking|marvel ultt)\b/)) {
+      return { mode: "multi", max: 4, label: "Offline: 1–4 Players" };
+    }
+    if (has(/\b(wwe 2k battlegrounds)\b/)) {
+      return { mode: "multi", max: 4, label: "Offline: 1–4 Players" };
+    }
+    if (has(/\b(wwe|smack pain|smackdown)\b/)) {
+      return { mode: "multi", max: 4, label: "Offline: 1–4 Players" };
+    }
+    if (has(/\b(tekken|mortal kombat|street fighter|guilty gear|king of fighters|injustice|naruto|ufc|dragon ball fighterz|dragon ball xenoverse|fighting ex layer|a way out|it takes two|cuphead|biped|9 monkeys|lego|unravel two|contra|ben 10 power trip|cobra kai|fury unleashed|huntdown|jump force|metal slug|nerf legends|samurai warriors 5|star wars battlefront ii|taxi chaos|the house of the dead remake|transformers battlegrounds|fast and furious spy racers|resident evil 5|resident evil 6|call of duty|cod aw|cod bo4|cod ghost|cod infinite warfare|cod vanguard|cod ww2|ashes cricket|cricket 24|cricket22|don bradman cricket)\b/)) {
+      return { mode: "multi", max: 2, label: "Offline: 1–2 Players" };
+    }
+    return { mode: "single", max: 1, label: "Offline: 1 Player" };
+  }
+
+  function filterGames() { renderGames(); }
 
   function renderGames() {
     const list = document.getElementById("gameList");
+    const terms = normalizeSearch(document.getElementById("searchBox").value).split(/\s+/).filter(Boolean);
+    const category = document.getElementById("categoryFilter").value;
+    const sizeGroup = document.getElementById("sizeFilter").value;
+    const playerMode = document.getElementById("playerFilter").value;
     list.innerHTML = "";
+    let visibleCount = 0;
+
     games.forEach((game, index) => {
+      const searchableName = normalizeSearch(game.name + " " + (game.originalName || ""));
+      const matchesSearch = terms.every(term => searchableName.includes(term));
+      const matchesCategory = !category || getGameCategory(game) === category;
+      const matchesSize = !sizeGroup || getSizeGroup(game.size) === sizeGroup;
+      const playerInfo = getPlayerInfo(game);
+      const matchesPlayers = !playerMode || playerInfo.mode === playerMode;
+      if (!matchesSearch || !matchesCategory || !matchesSize || !matchesPlayers) return;
+
+      visibleCount++;
       const item = document.createElement("div");
-      item.className = "game-item";
-      const displayName = game.name.replace(/\.iso$/i, "").replace(/\.ISO$/i, "");
-    item.innerText = `${displayName} - ${game.size} GB`;
+      item.className = "game-item" + (selectedGames.includes(index) ? " selected" : "");
+      item.setAttribute("role", "button");
+      item.setAttribute("tabindex", "0");
+      item.setAttribute("aria-pressed", selectedGames.includes(index) ? "true" : "false");
+      const displayName = game.name.replace(/\.iso$/i, "");
+      const name = document.createElement("span");
+      name.className = "game-name";
+      name.textContent = displayName;
+      const original = document.createElement("span");
+      original.className = "game-original";
+      original.textContent = game.originalName ? `Original: ${game.originalName}` : "";
+      const size = document.createElement("span");
+      size.className = "game-size";
+      size.textContent = `${game.size} GB • ${getGameCategory(game)} • ${playerInfo.label}`;
+      item.append(name);
+      if (game.originalName) item.append(original);
+      item.append(size);
       item.onclick = () => toggleGame(index, item);
+      item.onkeydown = event => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          toggleGame(index, item);
+        }
+      };
       list.appendChild(item);
     });
+
+    if (!visibleCount) {
+      const empty = document.createElement("div");
+      empty.className = "empty-state";
+      empty.textContent = "No game found. Try another spelling or remove a filter.";
+      list.appendChild(empty);
+    }
+    document.getElementById("resultsInfo").textContent = `Showing ${visibleCount} of ${games.length} games`;
   }
 
   function toggleGame(index, element) {
@@ -901,7 +753,7 @@ function filterGames() {
 
     y += 10;
     doc.text("Send this list to Games Planet for installation.", 10, y);
-    doc.save("PC_Game_Selection.pdf");
+    doc.save("PS4_Game_Selection.pdf");
   }
 
   function sendEmail() {
@@ -939,7 +791,7 @@ function speak(text) {
 
 function toggleGame(index, element) {
   const isSelected = selectedGames.includes(index);
-  const storageLimit = (parseFloat(document.getElementById("storageSize").value) || 0) - 2;
+  const storageLimit = getStorageLimit();
   const currentSelectedSize = selectedGames.reduce((sum, i) => sum + games[i].size, 0);
   const thisGameSize = games[index].size;
 
@@ -951,17 +803,20 @@ function toggleGame(index, element) {
   if (isSelected) {
     selectedGames = selectedGames.filter(i => i !== index);
     element.classList.remove("selected");
+    element.setAttribute("aria-pressed", "false");
   } else {
     selectedGames.push(index);
     element.classList.add("selected");
+    element.setAttribute("aria-pressed", "true");
   }
 
+  saveSelection();
   updateSummary();
   updateStorageBar();
   speak(String(selectedGames.length));
 
   const used = selectedGames.reduce((sum, i) => sum + games[i].size, 0);
-  const remaining = (parseFloat(document.getElementById("storageSize").value) || 0) - used;
+  const remaining = getStorageLimit() - used;
   if (remaining <= 5 && remaining > 0) {
     if (remaining <= 1) {
       speak("Last 1 GB remaining");
@@ -970,16 +825,6 @@ function toggleGame(index, element) {
     }
   }
 }
-
-// Inject progress bar
-document.querySelector('#storageSize').insertAdjacentHTML('afterend', `
-<div style="width: 90%; margin: 10px auto;">
-  <div style="font-size: 12px; margin-bottom: 4px;" id="progressLabel">Used: 0 GB of 0 GB</div>
-  <div style="height: 10px; background: #eee; border-radius: 5px; overflow: hidden;">
-    <div id="progressBar" style="height: 100%; width: 0%; background: green;"></div>
-  </div>
-</div>
-`);
 
 const originalUpdateSummary = updateSummary;
 updateSummary = function() {
@@ -990,7 +835,7 @@ updateSummary = function() {
   document.getElementById("summaryInfo").innerText =
     `Total Games: ${totalGames} (${totalGameSize} GB) | Selected: ${selectedCount} (${selectedSize} GB)`;
 
-  const storage = parseFloat(document.getElementById("storageSize").value) || 0;
+  const storage = getStorageLimit();
   const percent = (selectedSize / storage) * 100;
   const bar = document.getElementById("progressBar");
   const label = document.getElementById("progressLabel");
@@ -1002,7 +847,6 @@ updateSummary = function() {
     bar.style.background = "red";
   } else {
     bar.style.background = "orange";
-    bar.style.background = "red";
   }
   label.innerText = `Used: ${selectedSize} GB of ${storage} GB`;
 };
@@ -1010,7 +854,7 @@ updateSummary = function() {
 
 function updateStorageBar() {
   const selectedSize = selectedGames.reduce((sum, i) => sum + games[i].size, 0);
-  const totalSize = parseFloat(document.getElementById("storageSize").value || "0");
+  const totalSize = getStorageLimit();
   const usedPercent = totalSize > 0 ? Math.min((selectedSize / totalSize) * 100, 100) : 0;
 
   document.getElementById("storageBarInfo").innerText =
@@ -1019,11 +863,63 @@ function updateStorageBar() {
 
 </script>
 <script>
-window.addEventListener('click', () => {
-  const music = document.getElementById('bgMusic');
-  music.muted = false;
-  music.play();
-}, { once: true });
+document.getElementById("searchBox").addEventListener("input", filterGames);
+document.getElementById("categoryFilter").addEventListener("change", filterGames);
+document.getElementById("sizeFilter").addEventListener("change", filterGames);
+document.getElementById("playerFilter").addEventListener("change", filterGames);
+function handleStorageChange() {
+  const isManual = document.getElementById("storageProfile").value === "manual";
+  document.getElementById("manualStorage").hidden = !isManual;
+  document.getElementById("storageControl").classList.toggle("manual-active", isManual);
+  updateSummary();
+  updateStorageBar();
+}
+document.getElementById("storageProfile").addEventListener("change", handleStorageChange);
+document.getElementById("manualStorage").addEventListener("input", handleStorageChange);
+document.getElementById("clearSearch").addEventListener("click", () => {
+  const search = document.getElementById("searchBox");
+  search.value = "";
+  search.focus();
+  filterGames();
+});
+
+document.getElementById("resetSelection").addEventListener("click", () => {
+  if (!selectedGames.length) return;
+  if (!confirm("Remove all selected games?")) return;
+  selectedGames = [];
+  saveSelection();
+  renderGames();
+  updateSummary();
+  updateStorageBar();
+});
+
+const moreMenu = document.getElementById("moreMenu");
+const moreButton = document.getElementById("moreButton");
+let moreHideTimer;
+
+function closeMoreMenu() {
+  moreMenu.hidden = true;
+  moreButton.setAttribute("aria-expanded", "false");
+  clearTimeout(moreHideTimer);
+}
+
+function scheduleMoreMenuHide() {
+  clearTimeout(moreHideTimer);
+  moreHideTimer = setTimeout(closeMoreMenu, 5000);
+}
+
+moreButton.addEventListener("click", () => {
+  const willOpen = moreMenu.hidden;
+  moreMenu.hidden = !willOpen;
+  moreButton.setAttribute("aria-expanded", String(willOpen));
+  if (willOpen) scheduleMoreMenuHide();
+  else clearTimeout(moreHideTimer);
+});
+moreMenu.addEventListener("click", closeMoreMenu);
+moreMenu.addEventListener("pointerenter", () => clearTimeout(moreHideTimer));
+moreMenu.addEventListener("pointerleave", scheduleMoreMenuHide);
+updateSummary();
+updateStorageBar();
 </script><script>
 function generateExportText() {
   const name = document.getElementById("customerName").value.trim();
@@ -1069,1790 +965,6 @@ function sendEmail() {
   const mailto = `mailto:${email}?subject=` + encodeURIComponent(subject) + "&body=" + encodeURIComponent(message);
   window.open(mailto, "_blank");
 }
-</script></body>
-<script>
-const selectedGames = [];
-const games = [
-  { name: "1", size: 2 },
-  { name: "8-Bit Armies [Cusa07710] [V01.00]", size: 5 },
-  { name: "9.Monkeys.Of.Shaolin.Ps4-Duplex", size: 5 },
-  { name: "9.Monkeys.Of.Shaolin.Update.V1.01.Ps4-Duplex", size: 5 },
-  { name: "A Plague Tale Game-Dp", size: 2 },
-  { name: "A Plague Tale Game0-A0108-V0100", size: 2 },
-  { name: "A Plague Tale Innocence Update V1.06 Ps4-Duplex", size: 2 },
-  { name: "A Plague Tale Innocence [Cusa10812]", size: 38 },
-  { name: "A Way Out", size: 18 },
-  { name: "A.O.T.Wings.Of.Freedom.Internal.Ps4-Prelude", size: 15 },
-  { name: "Ashes Cricket 17", size: 13 },
-  { name: "Assassins Creed Rogue", size: 11 },
-  { name: "A_Jugglers_Tale_Fxdv1.00_[Fw900]", size: 2 },
-  { name: "Aliens.Fireteam.Elite", size: 19 },
-  { name: "All-Terrain Skeleton ꞉ Gold (Lv. 1) [Cusa11260]", size: 2 },
-  { name: "Apsulov_End_Of_Gods", size: 5 },
-  { name: "Aragami.2", size: 13 },
-  { name: "Armor Plate ꞉ Gold (Lv. 1) [Cusa11260]", size: 2 },
-  { name: "Armor Plate ꞉ Gold (Lv. 2) [Cusa11260]", size: 2 },
-  { name: "Ary.And.The.Secret.Of", size: 14 },
-  { name: "Assassin'S Creed Origins Full", size: 51 },
-  { name: "Assassin'S Creed Syndicate", size: 40 },
-  { name: "Assassin'S Creed Unity (Usa)", size: 42 },
-  { name: "Assassin'S Creed® Mirage [Cusa33151]", size: 18 },
-  { name: "Assassin'S_Creed_Freedom Cry", size: 8 },
-  { name: "Assassins.Creed.Odyssey.Ps4-Duplex", size: 45 },
-  { name: "Assassins.Creed.Valhalla_Cusa18534", size: 43 },
-  { name: "Assassins.Creed.Valhalla_Cusa18534 Fix", size: 2 },
-  { name: "Assetto Corsa Competizione 1.0", size: 11 },
-  { name: "Assetto Corsa Competizione 1.12", size: 11 },
-  { name: "Atomic.Heart.Premium.Edition", size: 50 },
-  { name: "Attack.On.Titan.2.Ps4-Duplex", size: 23 },
-  { name: "Batman Arkham Asylum_0", size: 8 },
-  { name: "Batman Arkham City", size: 38 },
-  { name: "Batman Arkham City_2", size: 38 },
-  { name: "Battlefield 1", size: 43 },
-  { name: "Beach_Buggy_Racing_2_Island_Adventure", size: 4 },
-  { name: "Bound By Flame", size: 5 },
-  { name: "Back To School Dlc [Cusa33399]", size: 2 },
-  { name: "Baldo The Guardian Owls", size: 2 },
-  { name: "Baldo The Guardian Owls1.12", size: 2 },
-  { name: "Batman Arkham Knight", size: 50 },
-  { name: "Battlefield 4", size: 38 },
-  { name: "Battlefield V Ps4 Fpkg [Cusa08670]", size: 35 },
-  { name: "Ben 10 Power Trip", size: 4 },
-  { name: "Biohazard_Umbrella_Corps", size: 5 },
-  { name: "Biohazard_Umbrella_Corps_Ud106", size: 4 },
-  { name: "Biped [Cusa23185]", size: 5 },
-  { name: "Biped_Cusa23185_V1.00_[6.72]_Opoisso893", size: 5 },
-  { name: "Biped_Cusa23185_V1.01_[6.72]_Opoisso893", size: 2 },
-  { name: "Biped_Cusa23185_V1.10_Backport_[6.72-7.Xx-9.00]_Opoisso893", size: 3 },
-  { name: "Bloodrayne_Revamped", size: 6 },
-  { name: "Bloodborne Game Of The Year Edition", size: 32 },
-  { name: "Bloody.Zombies_Cusa08543_V1.00_[4.00]_Opoisso893", size: 4 },
-  { name: "Bramble The Mountain King", size: 7 },
-  { name: "Burnout Paradise Remastered Cusa-10866", size: 10 },
-  { name: "Burnout Revenge", size: 3 },
-  { name: "Burnout-Revenge", size: 3 },
-  { name: "Cod Aw", size: 63 },
-  { name: "Cod Bo Cold War", size: 187 },
-  { name: "Cod Bo3", size: 65 },
-  { name: "Cod Bo3 Dlc Zombies Chronicles", size: 18 },
-  { name: "Cod Bo4-Ps4-Duplex-Cusa12443", size: 95 },
-  { name: "Cod Ghost", size: 31 },
-  { name: "Cod Infinite Warfare", size: 70 },
-  { name: "Cod Vanguard", size: 94 },
-  { name: "Cod Ww2", size: 74 },
-  { name: "Crash Team Racing V1.20 Backported Update", size: 8 },
-  { name: "Crash_Team_Racing_Nitro-Fueled", size: 31 },
-  { name: "Cricket22", size: 49 },
-  { name: "Cup Head Ep8254-Cusa20469 A0101-V0100-Cyb1K", size: 2 },
-  { name: "Cusa15010-Usa-V1.41-[Fix.5.05-6.72-7.02-7.55-9.00]-Ps4-[Dlpsgame.Com]", size: 94 },
-  { name: "Cusa23827.Dumping", size: 2 },
-  { name: "Cusa27373.Callisto.Protocol.Season.Pass-Arczi", size: 2 },
-  { name: "Call Of Duty Black Ops 6 Arabic By Haider Kiara", size: 63 },
-  { name: "Call Of Duty Modern Warfare Campaign 1", size: 17 },
-  { name: "Call Of Duty Modern Warfare Campaign 2", size: 24 },
-  { name: "Call Of Duty Modern Warfare Ii Content 0 License", size: 2 },
-  { name: "Call Of Duty Modern Warfare Ii Content 1 License", size: 2 },
-  { name: "Call Of Duty Modern Warfare Ii Content 2 License", size: 2 },
-  { name: "Call Of Duty Modern Warfare Ii Content 3 License", size: 2 },
-  { name: "Call Of Duty Modern Warfare Ii Content 4 License", size: 2 },
-  { name: "Call Of Duty Modern Warfare Ii Content 5 License", size: 2 },
-  { name: "Call Of Duty Modern Warfare Multiplayer Pack", size: 10 },
-  { name: "Call Of Duty Modern Warfare Special Ops Pack 2", size: 5 },
-  { name: "Call Of Duty Modern Warfare Survival Pack", size: 4 },
-  { name: "Call Of Duty® Black Ops 6 [Cusa23827]", size: 56 },
-  { name: "Call Of Duty® Modern Warfare Ii - Campaign Pack 1", size: 21 },
-  { name: "Call Of Duty® Modern Warfare Ii - Campaign Pack 2", size: 20 },
-  { name: "Call Of Duty® Modern Warfare Ii - Co-Op Pack", size: 5 },
-  { name: "Call Of Duty® Modern Warfare Ii - Multiplayer Pack", size: 7 },
-  { name: "Call Of Duty® Modern Warfare Ii - Content Pac 5", size: 4 },
-  { name: "Call Of Duty® Modern Warfare Ii Core Gam", size: 54 },
-  { name: "Call Of Duty® Modern Warfare Ii Core Game 1", size: 2 },
-  { name: "Call Of Duty® Modern Warfare®", size: 95 },
-  { name: "Call Of Duty® Modern Warfare® - Campaign And Special Ops Pack", size: 26 },
-  { name: "Call Of Duty® Modern Warfare® - Multiplayer And Special Ops Pack", size: 13 },
-  { name: "Call Of Duty® Modern Warfare® - Multiplayer Pack", size: 10 },
-  { name: "Call Of Duty® Modern Warfare® - Multiplayer Pack 2", size: 24 },
-  { name: "Call Of Duty® Modern Warfare® - Special Ops Pack", size: 21 },
-  { name: "Call Of Duty® Modern Warfare® - Special Ops Pack 1", size: 25 },
-  { name: "Call Of Duty® Modern Warfare® 1.9", size: 71 },
-  { name: "Call Of Duty® ꞉ Black Ops Cold War [Cusa15010]", size: 15 },
-  { name: "Call Of Duty® ꞉ Modern Warfare Ii [Cusa23827]", size: 2 },
-  { name: "Call.Of.Duty.Modern.Warfare.Ps4-Duplex", size: 10 },
-  { name: "Capcom.Arcade.Stadium_", size: 2 },
-  { name: "Chiral Gold Color For The Bridges Hat [Cusa11260]", size: 2 },
-  { name: "Chiral Gold Color For The “Ludens Mask“ Sunglasses [Cusa11260]", size: 2 },
-  { name: "Chiral Gold Color For The “Sam“ Sunglasses [Cusa11260]", size: 2 },
-  { name: "Chronos-Cusa15161.Update1.01", size: 8 },
-  { name: "Chronos-Cusa15161.V1.0", size: 8 },
-  { name: "Cloudpunk.Ps4-Unlimited", size: 10 },
-  { name: "Cobra Kai The Karate Kid Saga Continues", size: 7 },
-  { name: "Cobra.Kai.2.Dojos.Rising_", size: 6 },
-  { name: "Contra_Anniversary_Collection", size: 4 },
-  { name: "Control", size: 31 },
-  { name: "Crash Bandicoot™ 4 It'S About Time Cusa23470", size: 24 },
-  { name: "Crash.Bandicoot.N.Sane.Trilogy", size: 24 },
-  { name: "Creaks", size: 6 },
-  { name: "Cricket 24 [Cusa43293]", size: 40 },
-  { name: "Cricket.24_Cusa43293_V1.00_[11.00]_Opoisso893-[Dlpsgame.Com]", size: 30 },
-  { name: "Cricket.24_Cusa43293_V1.28_Backport_[5.05-6.72-7.Xx-8.Xx-9.00]_Opoisso893", size: 39 },
-  { name: "Cricket.24_Cusa43293_V1.30_Backport_[5.05-6.72-7.Xx-9.00]_Opoisso893", size: 40 },
-  { name: "Crysis.2.Remastered-A0100-Arczi", size: 19 },
-  { name: "Crysis.Remastered.Ps4-Duplex", size: 14 },
-  { name: "Cuphead", size: 7 },
-  { name: "Cyberpunk 2077 [Cusa16579]", size: 67 },
-  { name: "Dahrpreorderus00-A0000-V0100", size: 2 },
-  { name: "Dark Wood", size: 6 },
-  { name: "Deadpool Ps4", size: 7 },
-  { name: "Death Stranding Digital Deluxe Edition [Cusa11260]", size: 2 },
-  { name: "Death Stranding [Cusa11260]", size: 49 },
-  { name: "Dirt 4", size: 41 },
-  { name: "Dirt 5™", size: 28 },
-  { name: "Dmc Devil May Cry", size: 19 },
-  { name: "Dragon Ball Xenoverse 2 - Anime Music Pack 1", size: 2 },
-  { name: "Dragon Ball Xenoverse 2 - Anime Music Pack 2", size: 2 },
-  { name: "Dragon Ball Xenoverse 2 - Conton City Vote Pack", size: 2 },
-  { name: "Dragon Ball Xenoverse 2 - Extra Dlc Pack 1", size: 2 },
-  { name: "Dragon Ball Xenoverse 2 - Extra Dlc Pack 2", size: 2 },
-  { name: "Dragon Ball Xenoverse 2 - Extra Dlc Pack 3", size: 2 },
-  { name: "Dragon Ball Xenoverse 2 - Extra Dlc Pack 4", size: 2 },
-  { name: "Dragon Ball Xenoverse 2 - Future Trunks", size: 2 },
-  { name: "Dragon Ball Xenoverse 2 - Goku Black And Tao Pai Pai Stick", size: 2 },
-  { name: "Dragon Ball Xenoverse 2 - Hero Of Justice Pack 1", size: 2 },
-  { name: "Dragon Ball Xenoverse 2 - Hero Of Justice Pack 2", size: 2 },
-  { name: "Dragon Ball Xenoverse 2 - Legend Patrol", size: 4 },
-  { name: "Dragon Ball Xenoverse 2 - Legendary Pack 1", size: 2 },
-  { name: "Dragon Ball Xenoverse 2 - Legendary Pack 2", size: 2 },
-  { name: "Dragon Ball Xenoverse 2 - Masters Pack", size: 2 },
-  { name: "Dragon Ball Xenoverse 2 - Steve Aoki Pack", size: 2 },
-  { name: "Dragon Ball Xenoverse 2 - Super Pack 1", size: 2 },
-  { name: "Dragon Ball Xenoverse 2 - Super Pack 2", size: 2 },
-  { name: "Dragon Ball Xenoverse 2 - Super Pack 3", size: 2 },
-  { name: "Dragon Ball Xenoverse 2 - Super Pack 4", size: 2 },
-  { name: "Dragon Ball Xenoverse 2 - Ultra Pack 1", size: 2 },
-  { name: "Dragon Ball Xenoverse 2 - Ultra Pack 2", size: 2 },
-  { name: "Dragon Ball Xenoverse 2 1.36", size: 9 },
-  { name: "Danger.Zone.Ps4-Unlimited", size: 2 },
-  { name: "Danger.Zone.Update.V1.04.Ps4-Unlimited", size: 4 },
-  { name: "Dark.Alliance", size: 46 },
-  { name: "Dark.Alliance.Ps4-Duplex", size: 21 },
-  { name: "Dark.Alliance_Cusa25234_V1.08_Backport_", size: 25 },
-  { name: "Dark.Souls.Iii.Game.Of.The.Year", size: 26 },
-  { name: "Darksiders_Iii", size: 21 },
-  { name: "Darkwood", size: 6 },
-  { name: "Days.Gone.V1.80.Ps4-Duplex", size: 43 },
-  { name: "Death By Degrees", size: 7 },
-  { name: "Destroy All Humans Cusa14899", size: 20 },
-  { name: "Destroy All Humans Cusa14899 Update", size: 9 },
-  { name: "Detroit Become Human Ps4 Fpkg [Cusa08308]", size: 42 },
-  { name: "Detroit Become Human Update", size: 2 },
-  { name: "Deus Ex Mankind Divided", size: 53 },
-  { name: "Devil_May_Cry_5_Ps4-Caf", size: 33 },
-  { name: "Dirt Rally 2.0", size: 28 },
-  { name: "Diablo Iii Ultimate Evil", size: 45 },
-  { name: "Diablo.Ii.Resurrected", size: 19 },
-  { name: "Diablo.Ii.Resurrected.Ps4-Duplex", size: 15 },
-  { name: "Diablo.Ii.Resurrected.Update.V1.11.Ps4-Duplex", size: 4 },
-  { name: "Diablo® Ii Resurrected™", size: 4 },
-  { name: "Dishonored.Death.Of.The.Outsider_Cusa08779_V1.00_[5.05]_Opoisso893", size: 25 },
-  { name: "Dishonored.Death.Of.The.Outsider_Cusa08779_V1.04_[5.05]_Opoisso893", size: 6 },
-  { name: "Don.Bradman.Cricket.17.Ps4", size: 11 },
-  { name: "Doom 3", size: 17 },
-  { name: "Dragon.Ball.Fighterz", size: 5 },
-  { name: "Dragon.Ball.Z.Kakarot", size: 34 },
-  { name: "Dragon.Ball.Z.Kakarot.Update.V1.91-Cusa14835", size: 27 },
-  { name: "Dustwind.The.Last.Resort.Ps4-Unlimited", size: 2 },
-  { name: "Dustwind.The.Last.Resort.Update.V1.03.Ps4-Unlimited", size: 2 },
-  { name: "Dying Light", size: 17 },
-  { name: "Dying Light 2 Stay Human", size: 24 },
-  { name: "Dying.Light.2.Stay.Human 6.72 Bac Port", size: 2 },
-  { name: "Dying.Light.The.Following.Enhanced.Edition_Cusa03977", size: 16 },
-  { name: "Ea Sports Fc 25 [Cusa46399]", size: 6 },
-  { name: "Ea.S.Fc.25_Cusa46399_Unlock_Opoisso893-[Dlpsgame.Com]", size: 2 },
-  { name: "Elden.Ring", size: 10 },
-  { name: "Eldenring", size: 33 },
-  { name: "Elex 2 Cusa28134", size: 36 },
-  { name: "Ep0001-Cusa00462_00-A0108-V0100-Shunt75-Isagi-[Dlpsgame.Com]", size: 3 },
-  { name: "Ep1004-Cusa00411_00-Gtapreorderbonus", size: 2 },
-  { name: "Ep4133-Cusa37321_00-Atohatomicpassy0-A0000-V0100-Cyb1K", size: 2 },
-  { name: "Ep4133-Cusa37321_00-Atohgloveskin000-A0000-V0100-Cyb1K", size: 2 },
-  { name: "Ep4133-Cusa37321_00-Atohswedeelectro-A0000-V0100-Cyb1K", size: 2 },
-  { name: "Ep4133-Cusa37321_00-Atohzvezdochkaak-A0000-V0100-Cyb1K", size: 2 },
-  { name: "Everspace", size: 6 },
-  { name: "Evil West [Cusa25569]", size: 28 },
-  { name: "Evil.Genius.2.Ps4-Duplex", size: 11 },
-  { name: "Evil.Genius.2.Update.V1.02.Ps4-Duplex", size: 2 },
-  { name: "Evil.West_Cusa25569_V1.06_Optionalfix_[9.00]_Opoisso893", size: 2 },
-  { name: "F1.24_Cusa44372_V1.00_[11.00]_Opoisso893", size: 40 },
-  { name: "F1.24_Cusa44372_V1.18_Backport_[5.05-6.72-7.Xx-9.00]_Opoisso893", size: 22 },
-  { name: "Fallout 4 Fullgame-Cusa02557_- A0136-V0100", size: 12 },
-  { name: "Farcry 5 Game Dlc", size: 2 },
-  { name: "Farcry 5 Game Update0", size: 9 },
-  { name: "Farcry 5 Main Game", size: 29 },
-  { name: "Farcry Primal", size: 13 },
-  { name: "Farming Simulat 22-A0100-V0101", size: 14 },
-  { name: "Far_Cry_6 Dlc400000-A0000-V0100-Cyb1K", size: 2 },
-  { name: "Far_Cry_6 Game00000-A0110-V0100-9.00-Cyb1K", size: 69 },
-  { name: "Far_Cry_6_Cusa15717_Fxdv1.00_[Fw900]", size: 37 },
-  { name: "Fifa.19", size: 42 },
-  { name: "Fifa.24", size: 48 },
-  { name: "Fighting Ex.Layer", size: 3 },
-  { name: "Fighting X.Layer Pdate.V1.19", size: 3 },
-  { name: "Fallout 4 - Game Of The Year Edition", size: 37 },
-  { name: "Far Cry® 4 Escape From Durgesh Prison [Cusa00462]", size: 2 },
-  { name: "Far Cry® 4 Hurk Deluxe Pack [Cusa00462]", size: 2 },
-  { name: "Far Cry® 4 Overrun [Cusa00462]", size: 2 },
-  { name: "Far Cry® 4 Season Pass [Cusa00462]", size: 2 },
-  { name: "Far Cry® 4 Syringe Mission [Cusa00462]", size: 2 },
-  { name: "Far Cry® 4 Valley Of The Yetis [Cusa00462]", size: 3 },
-  { name: "Far Cry® 4 [Cusa00462]", size: 26 },
-  { name: "Far.Cry.3.Classic.Edition.Ps4-Duplex", size: 9 },
-  { name: "Far.Cry.New.Dawn.Ps4-Duplex", size: 24 },
-  { name: "Far.Cry.New.Dawn.Update.V1.05.Ps4-Duplex", size: 2 },
-  { name: "Fast.And.Furious.Crossroads.Cusa11445", size: 42 },
-  { name: "Fast.And.Furious.Spy.Racers.Rise.Of", size: 7 },
-  { name: "Fifa 25_Cusa46399_Unlock_", size: 2 },
-  { name: "Fifa 25_Cusa46399_V1.00_[11.00]", size: 46 },
-  { name: "Fifa 25_Cusa46399_V1.18_[9.00+]", size: 6 },
-  { name: "Filename", size: 4 },
-  { name: "Flatout.4.Total", size: 9 },
-  { name: "Fracked.Vr.Ps4-Duplex", size: 7 },
-  { name: "Fracked.Vr.Update.V1.01.Ps4-Duplex", size: 7 },
-  { name: "Freedom-Chronichles-Episode-One", size: 5 },
-  { name: "Freedom-Chronichles-Episode-Zero", size: 2 },
-  { name: "Fury_Unleashed", size: 2 },
-  { name: "Fury_Unleashed_Upd_V1_09", size: 2 },
-  { name: "Ghost Runner", size: 13 },
-  { name: "Gi Joe Blackout", size: 14 },
-  { name: "God Of War 3 Remastered", size: 43 },
-  { name: "God_Of_War_Ragnarok", size: 92 },
-  { name: "God_Of_War_Ragnarok Deluxe_Pack_Dlc_Fxd", size: 2 },
-  { name: "God_Of_War_Ragnarok_ Preorder_Pack_Dlc_Fxd", size: 2 },
-  { name: "Grid 0307", size: 18 },
-  { name: "Grid Legends", size: 13 },
-  { name: "Gta 3", size: 6 },
-  { name: "Gta 5", size: 48 },
-  { name: "Gta 5 Update 1.38", size: 39 },
-  { name: "Gta 5 Update Cusa0041 1.53", size: 51 },
-  { name: "Gta V -Cusa00419_00--A0146-V0100-Cyb1K", size: 45 },
-  { name: "Gta V Cusa00419 Updatea0153-V0100", size: 51 },
-  { name: "Guilty Gear Strive", size: 13 },
-  { name: "Gun Dam Breaker 3 Pm", size: 14 },
-  { name: "Guns_Gore_And_Cannoli_2", size: 2 },
-  { name: "Gang.Beasts_Cusa04865_V1.18_[8.50]_Opoisso893", size: 2 },
-  { name: "Gear.Club Unlimited 2 Ultimate Edition", size: 21 },
-  { name: "Ghost Of Tsushima-Cusa16972", size: 33 },
-  { name: "Ghost Of Tsushima-Cusa16972 Fix", size: 2 },
-  { name: "Gleamlight_Cusa18500_V1.00_[7.02]_Opoisso893", size: 2 },
-  { name: "God Of War", size: 40 },
-  { name: "God Of War 1.34Up", size: 9 },
-  { name: "God Of War Iii - Fall Of Olympus - Dynamic_1", size: 2 },
-  { name: "God Of War Iii - Fall Of Olympus - Dynamic_2", size: 2 },
-  { name: "God.Of.War.Ragnarok_Cusa34386_V6.03_[9.00-11.00]_Opoisso893", size: 26 },
-  { name: "Gran.Turismo.7_Cusa24769_V1.00_[9.00]_Opoisso893", size: 86 },
-  { name: "Gran.Turismo.Sport.Ps4-Blaze", size: 44 },
-  { name: "Grand Theft Auto V [Cusa00411]", size: 46 },
-  { name: "Grand Theft Auto V [Cusa00419]", size: 46 },
-  { name: "Grand Theft Auto Vice City", size: 2 },
-  { name: "Grand.Theft.Auto.Iii–The.Definitive.Edition_Cusa26613", size: 6 },
-  { name: "Grand.Theft.Auto.Iii–The.Definitive.Edition_Cusa26613_V1.04", size: 2 },
-  { name: "Grand.Theft.Auto.San.Andreas–The.Definitive.Edition_", size: 24 },
-  { name: "Grand.Theft.Auto.San.Andreas–The.Definitive.Edition_Patch", size: 2 },
-  { name: "Grand.Theft.Auto.Vice.City–The.Definitive.Edition", size: 12 },
-  { name: "Grand.Theft.Auto.Vice.City–The.Definitive.Edition_Backport", size: 2 },
-  { name: "Grid.Legends.V1.00-Cusa28261", size: 31 },
-  { name: "Gungrave G.O.R.E Dlc", size: 36 },
-  { name: "Gunjack.Vr.Ps4-Duplex", size: 2 },
-  { name: "Hitman", size: 45 },
-  { name: "Hitman 3 - Berlin [Cusa18210]", size: 2 },
-  { name: "Hitman.3.Ps4-Duplex", size: 47 },
-  { name: "Hitman™ [Cusa06508]", size: 45 },
-  { name: "Hogwarts Legacy Main", size: 40 },
-  { name: "Hogwarts Legacy Update", size: 32 },
-  { name: "Horizon Forbidden West", size: 86 },
-  { name: "Hades.Ps4-Duplex", size: 9 },
-  { name: "Hades.Update.V1.03.Ps4-Duplex", size: 2 },
-  { name: "Heavy.Rain Ps4", size: 30 },
-  { name: "Hellblade Senua'S Sacrifice", size: 15 },
-  { name: "Hello Neighbor 2 [Cusa33399]", size: 6 },
-  { name: "Hello-Copter Dlc [Cusa33399]", size: 2 },
-  { name: "Hello.Neighbor.2_Cusa33399_V1.00_[11.00]_Opoisso893", size: 6 },
-  { name: "Hello.Neighbor.2_Cusa33399_V1.06_Backport_[5.05-6.72-7.Xx-9.00]_Opoisso893", size: 6 },
-  { name: "Herodefense.Ps4-Duplex", size: 2 },
-  { name: "Hitman ꞉ Blood Money Hd [Cusa13612]", size: 7 },
-  { name: "Hogwarts Legacy", size: 33 },
-  { name: "Hogwarts Legacy (Cusa12824) - 1.06 Update (Fix Game Info)", size: 2 },
-  { name: "Hogwarts Legacy [Cusa12824]", size: 2 },
-  { name: "Horizon Zero Dawn - Complete Edition V1", size: 51 },
-  { name: "Hotshot Racing", size: 7 },
-  { name: "Hotshot.Racing_Cusa11573_V1.00_[7.02]_Opoisso893", size: 4 },
-  { name: "Hotshot.Racing_Cusa11573_V1.06_[7.02]_Opoisso893", size: 3 },
-  { name: "Hungry Shark® World", size: 4 },
-  { name: "Huntdown", size: 6 },
-  { name: "Infamous First Light (Rus) [Ps4]", size: 11 },
-  { name: "Infamouse Second Sons", size: 25 },
-  { name: "Install Steps.Txt", size: 2 },
-  { name: "Inertial.Drift.Ps4-Unlimited Cusa17431", size: 3 },
-  { name: "Inertial.Drift.Update.V1.03.Ps4-Unlimited Cusa17431", size: 2 },
-  { name: "Infliction", size: 5 },
-  { name: "Injustice 2 Legendary Edition", size: 34 },
-  { name: "Insurgency.Sandstorm.Ps4-Duplex", size: 10 },
-  { name: "Insurgency.Sandstorm.Update.V1.07.Ps4-Duplex", size: 10 },
-  { name: "It Takes Two", size: 36 },
-  { name: "Jump Force", size: 27 },
-  { name: "John.Wick.Hex.Ps4-Unlimited", size: 4 },
-  { name: "Just In Time Incorporated", size: 2 },
-  { name: "Just Cuse 4", size: 44 },
-  { name: "King Of Fighters 15", size: 59 },
-  { name: "Kena.Bridge.Of.Spirits", size: 11 },
-  { name: "Kena.Bridge.Of.Spirits.Celebration.Hats.For.Rot", size: 2 },
-  { name: "Kena.Bridge.Of.Spirits.Digital.Deluxe-Arczi", size: 2 },
-  { name: "Killzone Shadow Fall", size: 44 },
-  { name: "Last Guardiane", size: 14 },
-  { name: "Lego Star Wars The Force Awakens", size: 16 },
-  { name: "Lego Star Wars The Skywalker Saga Cusa13794", size: 35 },
-  { name: "Lego® City Undercover", size: 21 },
-  { name: "Late Fees Dlc [Cusa33399]", size: 2 },
-  { name: "Lego Star Wars The Skywalker Saga", size: 38 },
-  { name: "Little Nightmares Ii Cusa12779 Up", size: 2 },
-  { name: "Little.Nightmares.Ii.Cusa12779", size: 5 },
-  { name: "Lode Runner Legacy", size: 4 },
-  { name: "Lost.Judgment_Cusa28183_V1.04_[5.05]_Backport893", size: 44 },
-  { name: "Madmax The Game Ps4", size: 34 },
-  { name: "Mafia Definative Edition One", size: 46 },
-  { name: "Mark_Of_The_Ninja_Remastered", size: 13 },
-  { name: "Marvel Ultt Wo2015-A0100-V0100", size: 9 },
-  { name: "Medievil", size: 21 },
-  { name: "Metal Gear Solid V The Phantom Pain", size: 28 },
-  { name: "Metal Gear Solid V The Phantom Pain Up", size: 2 },
-  { name: "Metal.Slug.Xx", size: 2 },
-  { name: "Monster Of The Deep Final Fantasy Xv", size: 13 },
-  { name: "Mortal Kombat 11", size: 69 },
-  { name: "Mortal Kombat Xl", size: 41 },
-  { name: "Moto Gp 17", size: 12 },
-  { name: "Moto Gp 21 Dlc01000-A0000-V0100", size: 2 },
-  { name: "Moto Gp 21 Dlc02B00-A0000-V0100", size: 2 },
-  { name: "Moto Gp 21 Fullgame-A0100-V0113", size: 25 },
-  { name: "Mx.Vs.Atv.Legends_Cusa25622_V1.07_Optionalfix_Opoisso893", size: 2 },
-  { name: "Mx.Vs.Atv.Legends_Cusa25622_V1.09_Optionalfix_Opoisso893", size: 2 },
-  { name: "Mx.Vs.Atv.Legends_Cusa25622_V1.09_[9.00]_Opoisso893", size: 27 },
-  { name: "Mafia.Iii.Repack.Ps4-Duplex", size: 47 },
-  { name: "Mafia.Iii._Backport", size: 17 },
-  { name: "Maid.Of.Sker.Ps4-Duplex", size: 10 },
-  { name: "Martha Is Dead", size: 11 },
-  { name: "Marvel'S Avengers Cusa14026", size: 69 },
-  { name: "Marvel'S Guardians Of The Galaxy", size: 62 },
-  { name: "Marvel'S Spider-Man Cusa02299", size: 45 },
-  { name: "Marvels Spider Man Miles Morales", size: 52 },
-  { name: "Marvels Spider Man Miles Morales Bp", size: 2 },
-  { name: "Mass Effect™ Legendary Edition", size: 69 },
-  { name: "Metal Gear Solid V The Phantom Pain Ps4 Eur Multi Cusa01154 - Ind", size: 28 },
-  { name: "Metal Gear Survive", size: 17 },
-  { name: "Metal.Gear.Survive.", size: 17 },
-  { name: "Metro Redux", size: 13 },
-  { name: "Metro.Exodus.Ps4-Duplex", size: 49 },
-  { name: "Metro.Exodus.Update.V1.08.Ps4-Duplex", size: 21 },
-  { name: "Middle Earth Shadow Of War", size: 52 },
-  { name: "Middle-Earth_ Shadow Of Mordor - Game Of The Year Edition (Cusa01940) - 1.04 Game", size: 38 },
-  { name: "Minecraft.Playstation4.Edition_Cusa00265_V1.00_[1.70]_Opoisso893", size: 2 },
-  { name: "Mirror'S Edge Catalyst", size: 17 },
-  { name: "Monster Hunter World", size: 17 },
-  { name: "Monster.Energy.Supercross-The.Official.Videogame.5_Cusa28535_V1.00_[9.00]_Opoisso893", size: 19 },
-  { name: "Monster.Energy.Supercross-The.Official.Videogame.5_Cusa28535_V1.13_[9.00]_Opoisso893", size: 19 },
-  { name: "Monster.Truck.Championship.Ps4-Duplex", size: 5 },
-  { name: "Monster.Truck.Championship.Update.V1.01.Ps4-Duplex", size: 5 },
-  { name: "Mortal Kombat 11 - Community Art_1", size: 2 },
-  { name: "Mortal Kombat 11 - Community Art_2", size: 2 },
-  { name: "Motogp25_Cusa53165_V1.10_Backport_[5 To11.00", size: 21 },
-  { name: "Motogp™25 - Iconic Liveries Pack [Cusa53165]", size: 2 },
-  { name: "Motogp™25 - Off Road Helmets Pack [Cusa53165]", size: 2 },
-  { name: "Motogp™25 [Cusa53165]", size: 20 },
-  { name: "Naruto", size: 35 },
-  { name: "Nascar Arcade Rush [Cusa40791]", size: 6 },
-  { name: "Nascar.Arcade.Rush_V1.01_5.05_Backport_Cusa40791", size: 6 },
-  { name: "Nba 2K14", size: 42 },
-  { name: "Nba 2K26 International Commentary Pack [Cusa54085]", size: 5 },
-  { name: "Nba 2K26 [Cusa54085]", size: 80 },
-  { name: "Nba.2K22_Cusa28234_V1.00_[8.50]_Opoisso893", size: 49 },
-  { name: "Nba.2K26_Cusa54085_International.Commentary.Pack.[Spanish-Chinese]_Opoisso893", size: 5 },
-  { name: "Nba.2K23-Cusa33075-Eur-Game-Ps4-Cyb1K", size: 48 },
-  { name: "Nba.2K23-Cusa33075-Eur-V1.09-[Fix.5.05-6.72-7.02-7.55-9.00]-Cyb1K", size: 79 },
-  { name: "Nfs Payback", size: 18 },
-  { name: "Nfs Rivals", size: 15 },
-  { name: "Ninja Gaiden 3 Razor'S Edge", size: 7 },
-  { name: "Ninja Gaiden Σ 1", size: 9 },
-  { name: "Ninja Gaiden Σ 2", size: 9 },
-  { name: "Ninja Gaiden ꞉ Ragebound [Cusa54473]", size: 2 },
-  { name: "Nioheu", size: 40 },
-  { name: "Narcos Rise Of The Cartels", size: 12 },
-  { name: "Naught", size: 2 },
-  { name: "Naught-A0100-Arczi", size: 2 },
-  { name: "Naught_Edahi.&.Dohai-Arczi", size: 2 },
-  { name: "Naught_Sudagi.Dlc-Arczi", size: 2 },
-  { name: "Need.For.Speed.Heat", size: 27 },
-  { name: "Nerf.Legends.Alpha.Pack.Dlc.Ps4-Duplex", size: 2 },
-  { name: "Nerf.Legends.Ps4-Duplex", size: 10 },
-  { name: "Nerf.Legends.Update.V1.01.Ps4-Duplex", size: 10 },
-  { name: "New Super Lucky'S Tale", size: 6 },
-  { name: "Nier Automata", size: 36 },
-  { name: "Nier Automata", size: 10 },
-  { name: "Ninja Legends", size: 4 },
-  { name: "Ninja Legends [Cusa20667] [V01.00]", size: 2 },
-  { name: "Ninja Legends [Cusa20667] [V01.01]", size: 2 },
-  { name: "Outlast", size: 5 },
-  { name: "Observer", size: 14 },
-  { name: "Oddworld.Soulstorm.Ps4-Duplex", size: 10 },
-  { name: "Offroad.Racing.Buggy.X.Atv.X.Moto_Cusa16627_V1.00_[6.72]_Opoisso893", size: 6 },
-  { name: "Outbreak The Nightmare Chronicles", size: 3 },
-  { name: "Overpass [Cusa15507] [V01.00]", size: 16 },
-  { name: "Payload.Bin", size: 2 },
-  { name: "Pc.Building.Simulator_Cusa14566_V1.00_[6.72]_Opoisso893", size: 3 },
-  { name: "Pes 2021 Season Update Cusa18676 Rev2", size: 30 },
-  { name: "Pes2021", size: 33 },
-  { name: "Pes2021 Up", size: 5 },
-  { name: "Project_Cars_Cusa01338", size: 28 },
-  { name: "Ps4 Pkg Tool.Exe", size: 2 },
-  { name: "Ps4_Item00001_V1.06", size: 2 },
-  { name: "Panzer.Dragoon.Remake.Ps4-Duplex", size: 7 },
-  { name: "Panzer.Dragoon.Remake.Update.V1.01.Ps4-Duplex", size: 2 },
-  { name: "Phoenix.Point.Ps4-Duplex", size: 21 },
-  { name: "Plague.Road.Ps4-Unlimited", size: 2 },
-  { name: "Plague.Road.Update.V1.01.Ps4-Unlimited", size: 2 },
-  { name: "Power Skeleton ꞉ Gold (Lv. 1) [Cusa11260]", size: 2 },
-  { name: "Predator.Hunting.Grounds.Ps4-Duplex", size: 13 },
-  { name: "Prey [Cusa06559]", size: 42 },
-  { name: "Project Warlock", size: 4 },
-  { name: "Project.Cars.2.Ps4-Duplex", size: 39 },
-  { name: "Project.Cars.3.Ps4-Duplex", size: 37 },
-  { name: "Pumpkin.Jack_Cusa23760_V1.00_[8.00]_Opoisso893", size: 2 },
-  { name: "Pumpkin.Jack_Cusa23760_V1.02_Backport_[5.05-6.72-7.Xx]_Opoisso893", size: 2 },
-  { name: "Pumpkin.Jack_Cusa23760_V1.02_[8.00]_Opoisso893", size: 2 },
-  { name: "Re8 She-Ra_And_Yorha_Daughters_And_Magneto_And_Bikini_Miranda_Cusa18017", size: 2 },
-  { name: "Re8 Tifa_Dimitrescu_And_Yorha_Daughters_White_And_Dante_And_John_Mcclane_And_Ghostface_Cusa18017", size: 2 },
-  { name: "Re8_Bikini_Ladies_Cusa18017", size: 2 },
-  { name: "Residen Evil Village Cusa18017 Dlc", size: 10 },
-  { name: "Resident Evil 7 Biohazard Gold Edition", size: 31 },
-  { name: "Resident Evil Origins Collection", size: 27 },
-  { name: "Resident_Evil_2_Cusa09193", size: 50 },
-  { name: "Resident Evil 5 Hd Ps4", size: 18 },
-  { name: "Riders.Republic.Ps4-Unlimited", size: 17 },
-  { name: "Riders.Republic.Update.V1.05.Ps4-Unlimited", size: 17 },
-  { name: "Rise Of Tomb Raider", size: 19 },
-  { name: "Rive.Ps4-Unlimited", size: 2 },
-  { name: "Rive.Update.V1.15.Ps4-Unlimited", size: 2 },
-  { name: "Rocket League", size: 4 },
-  { name: "Rad.Rodgers", size: 9 },
-  { name: "Ratchet & Clank", size: 30 },
-  { name: "Raw Data", size: 9 },
-  { name: "Red.Dead.Redemption.2", size: 86 },
-  { name: "Red.Dead.Redemption.2.Update.V1.24", size: 19 },
-  { name: "Remnant.From.The.Ashes", size: 33 },
-  { name: "Remothered.Broken.Porcelain.", size: 12 },
-  { name: "Resident Evil 3", size: 23 },
-  { name: "Resident Evil 4 Re", size: 31 },
-  { name: "Resident Evil Revelations 1", size: 18 },
-  { name: "Resident Evil Revelations 2", size: 25 },
-  { name: "Resident Evil Village", size: 31 },
-  { name: "Rims.Racing.Ps4-Cusa23641", size: 9 },
-  { name: "Rims.Racing.V1.05.Patch.Ps4-Cusa23641", size: 5 },
-  { name: "Ride.4.Ps4-Duplex", size: 24 },
-  { name: "Riptide Gp ꞉ Renegade [Cusa04565]", size: 2 },
-  { name: "Riptide Gp2 [Cusa02365]", size: 2 },
-  { name: "Risen_Cusa31481_V1.00_[9.00]_Opoisso893", size: 5 },
-  { name: "Risen_Cusa31481_V1.02_[9.00]_Opoisso893", size: 2 },
-  { name: "Road.Redemption", size: 7 },
-  { name: "Saints Row 00Ps4Eu-A0100-V0100-Cyb1K", size: 40 },
-  { name: "Samurai.Warriors.5.Ps4-Duplex", size: 14 },
-  { name: "Samurai.Warriors.5.Update.V1.03.Ps4-Duplex", size: 2 },
-  { name: "Sifu_Cusa25761_V1.00_[8.50]_Opoisso893", size: 9 },
-  { name: "Sifu_Cusa25761_V1.11_Backport_[5.05-6.72-7.Xx-8.0X]_Opoisso893", size: 9 },
-  { name: "Sky Rim", size: 33 },
-  { name: "Sles25536.Complete", size: 2 },
-  { name: "Sniper 3 Ghost Warrior", size: 41 },
-  { name: "Sniper Elite 4", size: 33 },
-  { name: "Sniper Elite 5", size: 41 },
-  { name: "Sonic Frontiers - Cusa28194", size: 2 },
-  { name: "Star Wars - Squadrons [Cusa15080]", size: 23 },
-  { name: "Star.Wars.Jedi.Fallen.Order.Ps4-Duplex", size: 49 },
-  { name: "Stray", size: 8 },
-  { name: "Stray_Fxdv1", size: 16 },
-  { name: "Stride_Fxdv1.00_[Fw900]", size: 4 },
-  { name: "Syberia 3", size: 16 },
-  { name: "Sackboy.A.Big.Adventure.Cusa18886", size: 36 },
-  { name: "Samurai Jack ꞉ Battle Through Time", size: 5 },
-  { name: "Samurai Jack ꞉ Battle Through Time V01.00", size: 5 },
-  { name: "Sekiro", size: 18 },
-  { name: "Serious Sam Collection Cusa08218", size: 10 },
-  { name: "Shadow Man Remastered", size: 8 },
-  { name: "Shadow Of The Tomb Raider Ps4 Fpkg [Cusa10872]", size: 30 },
-  { name: "Sherlock Holmes Crimes & Punishments", size: 10 },
-  { name: "Silent Hills", size: 2 },
-  { name: "Skully", size: 5 },
-  { name: "Skully [Cusa19269]", size: 5 },
-  { name: "Skully.Ps4-Duplex", size: 5 },
-  { name: "Skully.Update.V1.02.Ps4-Duplex", size: 5 },
-  { name: "Smack Down Here Comes The Pain", size: 4 },
-  { name: "Song.Of.Horror.Ps4-Duplex", size: 8 },
-  { name: "Song.Of.Horror.Update.V1.03.Ps4-Duplex", size: 9 },
-  { name: "Sonic Racing ꞉ Crossworlds [Cusa35016]", size: 14 },
-  { name: "Sonic.Racing.Crossworlds_Cusa35016_V1.00_[12.02]_Opoisso893", size: 14 },
-  { name: "Speed Skeleton ꞉ Gold (Lv. 1) [Cusa11260]", size: 2 },
-  { name: "Speed.3.Grand.Prix_Cusa20552_V1.00_[7.50]_Opoisso893", size: 3 },
-  { name: "Speed.3.Grand.Prix_Cusa20552_V1.01_[7.50]_Opoisso893", size: 2 },
-  { name: "Spelunky 2", size: 4 },
-  { name: "Star.Wars.Episode.I.Racer_Cusa18211_V1.00_[7.02]_Opoisso893", size: 2 },
-  { name: "Star.Wars.Episode.I.Racer_Cusa18211_V1.01_[7.02]_Opoisso893", size: 2 },
-  { name: "Star_Wars-Battlefront_Ii-Wdr", size: 66 },
-  { name: "State Of Mind", size: 8 },
-  { name: "Stranger Of Paradise Final Fantasy Origin", size: 33 },
-  { name: "Street Fighter 5 Update 2.02", size: 20 },
-  { name: "Street Fighte 5 Main", size: 7 },
-  { name: "Street.Fighter.6-Cusa31498-Eur-Game-Ps4-Cyb1K", size: 36 },
-  { name: "Street.Fighter.6-Cusa31498-Eur-Update-Fix-[5.05-9.00]-Ps4-Cyb1K", size: 2 },
-  { name: "Street.Fighter.6-Fighting.Ground-Cyb1K", size: 4 },
-  { name: "Street.Fighter.6-World.Tour-Cyb1K", size: 2 },
-  { name: "Subnautica Below Zero", size: 9 },
-  { name: "Tekken 3", size: 2 },
-  { name: "Tekken Dark Resurrection [Psptops4]", size: 3 },
-  { name: "Tekken.7_", size: 106 },
-  { name: "The Evil Withineng", size: 42 },
-  { name: "The King Of Fighters Xiv", size: 24 },
-  { name: "The Order 1886", size: 36 },
-  { name: "The_House_Of_The_Dead_Remake", size: 6 },
-  { name: "The_Incredible_Adventures_Of_Van_Helsing_2_Fxdv1.00 Cusa09370_", size: 10 },
-  { name: "The_Surge_2_Cusa12564", size: 10 },
-  { name: "The_Walking_Dead_Onslaught_Fxdv1.00_[Fw702]", size: 10 },
-  { name: "Thief", size: 22 },
-  { name: "Tmnt.Splintered.Fate_Cusa50828_V1.08_Backport_[5.05-6.72-7.Xx-9.00-11.00]_Opoisso893", size: 3 },
-  { name: "Toothntail00Siee", size: 4 },
-  { name: "Transformers Battlegrounds", size: 6 },
-  { name: "Transformers Fall Of Cybertron", size: 15 },
-  { name: "Taxi.Chaos.", size: 4 },
-  { name: "Taxi.Chaos_Cusa20140_V1.00_[7.50]_Opoisso893", size: 2 },
-  { name: "Teenage Mutant Ninja Turtles ꞉ Splintered Fate [Cusa50828]", size: 3 },
-  { name: "Tekken.7.05972.Dlc.Character.Armor.King", size: 2 },
-  { name: "Tekken.7.05972.Dlc.Character.Fahkumram", size: 2 },
-  { name: "Terminator.Resistance_Cusa15306_V1.02_Optionalfix_[8.00]_Opoisso893", size: 2 },
-  { name: "Terminator.Resistance_Cusa15306_V1.02_[8.00]_Opoisso893", size: 19 },
-  { name: "The Amazing Spider Man 2", size: 12 },
-  { name: "The Caligula Effect 2", size: 8 },
-  { name: "The Callisto Protocol-Cusa27373", size: 64 },
-  { name: "The Crew® 2 Cusa08600 Main", size: 27 },
-  { name: "The Crew® 2 [Cusa08600]", size: 38 },
-  { name: "The Dark Pictures Anthology House Of Ashes", size: 32 },
-  { name: "The Evil Within 2", size: 30 },
-  { name: "The King Of Fighters Xv (U) - Classic Leona Costume", size: 2 },
-  { name: "The King Of Fighters Xv (U) - Garou Terry Costume", size: 2 },
-  { name: "The King Of Fighters Xv (U) - Team Awakened Orochi", size: 2 },
-  { name: "The King Of Fighters Xv (U) - Team Garou", size: 2 },
-  { name: "The King Of Fighters Xv (U) - Team South Town", size: 2 },
-  { name: "The King Of Fihter 1995", size: 2 },
-  { name: "The Last Campfire V1.07-Cusa19445", size: 2 },
-  { name: "The Last Of Us 2", size: 73 },
-  { name: "The Last Of Us 2 Fix", size: 2 },
-  { name: "The Walking Dead - Saints & Sinners", size: 23 },
-  { name: "The Witcher 3 Wild Hunt", size: 43 },
-  { name: "The Witcher 3 Wild Hunt – Complete Edition", size: 11 },
-  { name: "The.Dark.Pictures.Anthology.Little.Hope.Ps4-Duplex", size: 36 },
-  { name: "The.King.Of.Fighters.Collection.The.Orochi.Saga", size: 2 },
-  { name: "The.Last.Of.Us.Remastered_Cusa00556_V1.00", size: 48 },
-  { name: "The.Last.Of.Us.Remastered_Cusa00556_V1.11_Opoisso893", size: 2 },
-  { name: "The.Witcher.3.Wild.Hunt.Complete.Edition.Ps4-Duplex", size: 41 },
-  { name: "The_Pathless", size: 5 },
-  { name: "This.Is.The.Police.2.Ps4-Duplex", size: 4 },
-  { name: "This.Is.The.Police.2_Cusa11626_A0101_Backport505_Opoisso893", size: 2 },
-  { name: "Tiny_Tinas_Assault_On_Dragon_Keep_A_Wonderlands_One-Shot_Adventure", size: 15 },
-  { name: "Tom Clancy'S Ghost Recon - Wildlands", size: 55 },
-  { name: "Tomb Raider Definitive", size: 21 },
-  { name: "Tormented.Souls_Cusa29199_V1.00_[8.50]_Opoisso893", size: 7 },
-  { name: "Total Overdose", size: 6 },
-  { name: "Transformers_Rise_Of_The_Dark_Spark_Ps4-Playable", size: 11 },
-  { name: "Trials.Rising.(Tm)_Cusa09435_V1.00_[6.72]_Opoisso893", size: 24 },
-  { name: "Trials.Rising.(Tm)_Cusa09435_V1.12_[6.72]_Opoisso893", size: 9 },
-  { name: "Ufc 3", size: 20 },
-  { name: "Ufc.4_Cusa14209_V1.00_[7.50]_Opoisso893", size: 26 },
-  { name: "Ufc® 4 V24.00_Backport_", size: 10 },
-  { name: "Uncharted 4 A Thief'S End", size: 63 },
-  { name: "Uncharted 4 Lost Legacy", size: 51 },
-  { name: "Until Dawn", size: 39 },
-  { name: "Up0001-Cusa27237_00-Game000000000000-A0100-V0100-Cyb1K", size: 6 },
-  { name: "Up1003-Cusa02557_00-Fallout4Fullgame-A0100-V0100-Cyb1K-[Dlpsgame.Com]", size: 32 },
-  { name: "Up6139-Cusa34689_00-5188217272288673-A0100-V0100-Notrophy-Trifecta", size: 2 },
-  { name: "Up9000-Slus20787_00-Slus207870000001-A0100-V0100", size: 6 },
-  { name: "Ultra Age", size: 7 },
-  { name: "Uncharted.Drakes.Fortune.Resmastered.Ps4-Blaze", size: 12 },
-  { name: "Underworld Ascendant", size: 10 },
-  { name: "Unravel.Cusa02532", size: 4 },
-  { name: "Unravel.Two.Ps4-Duplex", size: 4 },
-  { name: "Unravel.Two.Update.V1.01.Ps4-Duplex", size: 2 },
-  { name: "Unruly Heroes-Cusa16109.V1.0", size: 3 },
-  { name: "Urban Trial Tricky [Cusa23270]", size: 2 },
-  { name: "Vampyr.Ps4-Duplex", size: 15 },
-  { name: "Volume.Usa.Ps4-Cusa02943", size: 2 },
-  { name: "Volume.V1.08.Patch.Usa.Ps4-Cusa02943", size: 2 },
-  { name: "Vroom Kaboom", size: 8 },
-  { name: "Wasteland 2 Gty", size: 6 },
-  { name: "Watchdogs", size: 22 },
-  { name: "Wrc.10.Fia.World.Rally.Championship.Ps4-Duplex", size: 27 },
-  { name: "Wrc.10.Fia.World.Rally.Championship.Update.V1.04.Ps4-Duplex", size: 14 },
-  { name: "Wrc.9.Fia.World.Rally.Championship.Ps4-Duplex", size: 22 },
-  { name: "Wrc.9.Fia.World.Rally.Championship.Update.V1.04.Ps4-Duplex", size: 9 },
-  { name: "Wrc.Generations_Cusa33609_V1.00_[9.00]_Opoisso893", size: 31 },
-  { name: "Wrc.Generations_Cusa33609_V1.04_[9.00]_Opoisso893", size: 13 },
-  { name: "Wwe 2K24-Main", size: 62 },
-  { name: "Wwe 2K24-Update 1.05", size: 30 },
-  { name: "Wwe.2K.Battlegrounds.Ps4-Duplex", size: 7 },
-  { name: "Wwe.2K.Battlegrounds.Update.V10.50.Ps4-Duplex", size: 4 },
-  { name: "Wwe.2K25_Cusa48576_Bloodline.Edition.Bonus.Pack_Opoisso893", size: 2 },
-  { name: "Wwe.2K25_Cusa48576_Deadman.Edition.Bonus.Pack_Opoisso893", size: 2 },
-  { name: "Wwe.2K25_Cusa48576_Myrise.Megaboost_Opoisso893", size: 2 },
-  { name: "Wwe.2K25_Cusa48576_New.Wave.Pack_Opoisso893", size: 2 },
-  { name: "Wwe.2K25_Cusa48576_Season.Pass_Opoisso893", size: 2 },
-  { name: "Wwe.2K25_Cusa48576_Supercharger_Opoisso893", size: 2 },
-  { name: "Wwe.2K25_Cusa48576_The.Rock.Nation.Of.Domination.Pack_Opoisso893", size: 2 },
-  { name: "Wwe.2K25_Cusa48576_Wyatt.Sicks.Pack_Opoisso893", size: 2 },
-  { name: "Wwe.2K25_Cusa48576_V1.00_[12.00]", size: 42 },
-  { name: "Wwe.2K25_Cusa48576_V1.00_[12.00]_Opoisso893", size: 42 },
-  { name: "Wwe.2K25_Cusa48576_V1.07_Backport-9.00-11.00", size: 50 },
-  { name: "Wwe.2K25_Cusa48576_V1.11_Backport_[5.05-6.72-7.Xx-9.00-11.00]_Opoisso893", size: 51 },
-  { name: "Wwe2K24-A0108-V0100-Cyb1K-[Dlpsgame.Com]", size: 31 },
-  { name: "Wanted Dead", size: 21 },
-  { name: "Watch Dogs® Legion", size: 36 },
-  { name: "Watchdogs 2", size: 23 },
-  { name: "Weird West Cusa17598", size: 5 },
-  { name: "White.Night.Ps4-Unlimited", size: 2 },
-  { name: "Wolfenstein Ii - The New Colossus V1", size: 4 },
-  { name: "Wolfenstein The New Order", size: 51 },
-  { name: "World War Z", size: 37 },
-  { name: "Yakuza 0", size: 25 },
-  { name: "Yakuza 6", size: 38 },
-  { name: "You.Suck.At.Parking_Cusa35113_V1.00_[11.00]_Opoisso893", size: 2 },
-  { name: "You.Suck.At.Parking_Cusa35113_V1.10_Backport_[5.05-6.72-7.Xx-9.00]_Opoisso893", size: 2 },
-  { name: "You.Suck.At.Parking_Cusa35113_V1.10_[11.00]_Opoisso893", size: 2 },
-  { name: "Your Toy", size: 2 },
-  { name: "Zombi", size: 22 },
-  { name: "Zombie Driver Immortal Edition", size: 2 },
-  { name: "Zombie.Army.4.Dead.War.Ps4-Duplex", size: 21 },
-  { name: "Blz-Awou", size: 18 },
-  { name: "Efootball.2022_Cusa26997_V1.06_Optionalfix_[8.50]_Opoisso893", size: 2 },
-  { name: "Efootball.2022_Cusa26997_V1.06_[8.50]_Opoisso893", size: 42 },
-  { name: "Farming Simulator 22", size: 22 },
-  { name: "Goldhen.Bin", size: 2 },
-  { name: "Goldhen.Zip", size: 2 },
-  { name: "Hitman 2", size: 32 },
-  { name: "Payload.Bin", size: 2 },
-  { name: "Ps2 Elf Loader", size: 4 },
-  { name: "Street Fighter 30Th Ac", size: 6 },
-  { name: "War Tech Fighters", size: 6 },
-  { name: "Wwe Smackdown Here Comes The Pain", size: 4 },
-  { name: "Wwe Smack Pain", size: 4 },
-];
-
-// Newly merged functions
-function guessCategory(name) {
-  name = name.toLowerCase();
-  if (name.includes("dragon ball") || name.includes("tekken") || name.includes("wwe")) return "Fighting";
-  if (name.includes("need for speed") || name.includes("racing") || name.includes("burnout")) return "Racing";
-  if (name.includes("call of duty") || name.includes("black") || name.includes("medal of honor")) return "Shooting";
-  if (name.includes("fifa") || name.includes("cricket") || name.includes("nba")) return "Sports";
-  if (name.includes("final fantasy") || name.includes("devil may cry") || name.includes("god of war")) return "Action";
-  return "Adventure";
-}
-
-function applyFilters() {
-  const category = document.getElementById('categoryFilter').value;
-  const sizeLimit = parseFloat(document.getElementById('sizeFilter').value || '100');
-  const gameList = document.getElementById('gameList');
-  gameList.innerHTML = '';
-
-  games.forEach((game, i) => {
-    const gameCategory = guessCategory(game.name);
-    if ((category === '' || gameCategory === category) && game.size <= sizeLimit) {
-      const div = document.createElement('div');
-      div.className = 'game-item';
-      div.textContent = game.name;
-      div.onclick = () => {
-        div.classList.toggle('selected');
-        const index = selectedGames.indexOf(i);
-        if (index >= 0) selectedGames.splice(index, 1);
-        else selectedGames.push(i);
-        updateStorageBar();
-        updateSummary();
-      }
-
-function updateSummary() {
-  const totalGames = selectedGames.length;
-  const totalSize = selectedGames.reduce((sum, i) => sum + games[i].size, 0);
-  document.getElementById("summaryInfo").innerText = `7983624797 | ${totalGames}
-
-function updateStorageBar() {
-  const selectedSize = selectedGames.reduce((sum, i) => sum + games[i].size, 0);
-  const totalSize = parseFloat(document.getElementById("storageSize").value || "0");
-  const usedPercent = totalSize > 0 ? Math.min((selectedSize / totalSize) * 100, 100) : 0;
-
-  document.getElementById("storageBarInfo").innerText =
-    `Used: ${selectedSize.toFixed(2)}
-
-function selectAllGames() {
-  selectedGames.length = 0;
-  const items = document.querySelectorAll('.game-item');
-  items.forEach((div) => {
-    div.classList.add('selected');
-    const gameIndex = games.findIndex(g => g.name === div.textContent);
-    if (gameIndex !== -1 && !selectedGames.includes(gameIndex)) {
-      selectedGames.push(gameIndex);
-    }
-
-function updateSummary() {
-    const totalGames = games.length;
-    const totalGameSize = games.reduce((sum, g) => sum + g.size, 0).toFixed(2);
-    const selectedCount = selectedGames.length;
-    const selectedSize = selectedGames.reduce((sum, i) => sum + games[i].size, 0).toFixed(2);
-    document.getElementById("summaryInfo").innerText =
-      `Total Games: ${totalGames}
-
-function guessCategory(name) {
-  name = name.toLowerCase();
-  if (name.includes("dragon ball") || name.includes("tekken") || name.includes("wwe")) return "Fighting";
-  if (name.includes("need for speed") || name.includes("racing") || name.includes("burnout")) return "Racing";
-  if (name.includes("call of duty") || name.includes("black") || name.includes("medal of honor")) return "Shooting";
-  if (name.includes("fifa") || name.includes("cricket") || name.includes("nba")) return "Sports";
-  if (name.includes("final fantasy") || name.includes("devil may cry") || name.includes("god of war")) return "Action";
-  return "Adventure";
-}
-
-function applyFilters() {
-  const category = document.getElementById('categoryFilter').value;
-  const sizeLimit = parseFloat(document.getElementById('sizeFilter').value || '100');
-  const gameList = document.getElementById('gameList');
-  gameList.innerHTML = '';
-
-  games.forEach((game, i) => {
-    const gameCategory = guessCategory(game.name);
-    if ((category === '' || gameCategory === category) && game.size <= sizeLimit) {
-      const div = document.createElement('div');
-      div.className = 'game-item';
-      div.textContent = game.name;
-      div.onclick = () => {
-        div.classList.toggle('selected');
-        const index = selectedGames.indexOf(i);
-        if (index >= 0) selectedGames.splice(index, 1);
-        else selectedGames.push(i);
-        updateStorageBar();
-        updateSummary();
-      }
-
-function updateSummary() {
-  const totalGames = selectedGames.length;
-  const totalSize = selectedGames.reduce((sum, i) => sum + games[i].size, 0);
-  document.getElementById("summaryInfo").innerText = `7983624797 | ${totalGames}
-
-function updateStorageBar() {
-  const selectedSize = selectedGames.reduce((sum, i) => sum + games[i].size, 0);
-  const totalSize = parseFloat(document.getElementById("storageSize").value || "0");
-  const usedPercent = totalSize > 0 ? Math.min((selectedSize / totalSize) * 100, 100) : 0;
-
-  document.getElementById("storageBarInfo").innerText =
-    `Used: ${selectedSize.toFixed(2)}
-
-function selectAllGames() {
-  selectedGames.length = 0;
-  const items = document.querySelectorAll('.game-item');
-  items.forEach((div) => {
-    div.classList.add('selected');
-    const gameIndex = games.findIndex(g => g.name === div.textContent);
-    if (gameIndex !== -1 && !selectedGames.includes(gameIndex)) {
-      selectedGames.push(gameIndex);
-    }
-
-function selectAllGames() {
-  selectedGames.length = 0;
-  const items = document.querySelectorAll('.game-item');
-  items.forEach((div) => {
-    div.classList.add('selected');
-    const gameIndex = games.findIndex(g => g.name === div.textContent);
-    if (gameIndex !== -1 && !selectedGames.includes(gameIndex)) {
-      selectedGames.push(gameIndex);
-    }
-
-function selectAllGames() {
-  selectedGames.length = 0;
-  const items = document.querySelectorAll('.game-item');
-  items.forEach((div) => {
-    div.classList.add('selected');
-    const gameIndex = games.findIndex(g => g.name === div.textContent);
-    if (gameIndex !== -1 && !selectedGames.includes(gameIndex)) {
-      selectedGames.push(gameIndex);
-    }
-
-function selectAllGames() {
-  selectedGames.length = 0;
-  const items = document.querySelectorAll('.game-item');
-  items.forEach((div) => {
-    div.classList.add('selected');
-    const gameIndex = games.findIndex(g => g.name === div.textContent);
-    if (gameIndex !== -1 && !selectedGames.includes(gameIndex)) {
-      selectedGames.push(gameIndex);
-    }
-
-// Existing logic
-
-function updateStorageBar() {
-  const selectedSize = selectedGames.reduce((sum, i) => sum + games[i].size, 0);
-  const totalSize = parseFloat(document.getElementById("storageSize").value || "0");
-  const usedPercent = totalSize > 0 ? Math.min((selectedSize / totalSize) * 100, 100) : 0;
-
-  document.getElementById("storageBarInfo").innerText =
-    `Used: ${selectedSize.toFixed(2)} GB of ${totalSize} GB (${usedPercent.toFixed(0)}%)`;
-}
-
-
-        function filterBySizeGroup(group) {
-          document.querySelectorAll(".game-item").forEach(item => {
-            const sizeGroup = item.dataset.sizeGroup;
-            item.style.display = sizeGroup === group ? "block" : "none";
-          });
-        }
-        
-function applyFilters() {
-  const search = document.getElementById("searchInput").value.toLowerCase();
-  const category = document.getElementById("categoryFilter").value;
-  document.querySelectorAll(".game-item").forEach(item => {
-    const name = item.dataset.name;
-    const cat = item.dataset.category;
-    const matchSearch = name.includes(search);
-    const matchCategory = !category || cat === category;
-    item.style.display = matchSearch && matchCategory ? "block" : "none";
-  });
-}
-function clearFilters() {
-  document.getElementById("searchInput").value = "";
-  document.getElementById("categoryFilter").value = "";
-  applyFilters();
-}
-
-
-window.onload = () => renderGames(games);
-        
-
-
-  const games = [
-  { name: "1", size: 2 },
-  { name: "8-Bit Armies [Cusa07710] [V01.00]", size: 5 },
-  { name: "9.Monkeys.Of.Shaolin.Ps4-Duplex", size: 5 },
-  { name: "9.Monkeys.Of.Shaolin.Update.V1.01.Ps4-Duplex", size: 5 },
-  { name: "A Plague Tale Game-Dp", size: 2 },
-  { name: "A Plague Tale Game0-A0108-V0100", size: 2 },
-  { name: "A Plague Tale Innocence Update V1.06 Ps4-Duplex", size: 2 },
-  { name: "A Plague Tale Innocence [Cusa10812]", size: 38 },
-  { name: "A Way Out", size: 18 },
-  { name: "A.O.T.Wings.Of.Freedom.Internal.Ps4-Prelude", size: 15 },
-  { name: "Ashes Cricket 17", size: 13 },
-  { name: "Assassins Creed Rogue", size: 11 },
-  { name: "A_Jugglers_Tale_Fxdv1.00_[Fw900]", size: 2 },
-  { name: "Aliens.Fireteam.Elite", size: 19 },
-  { name: "All-Terrain Skeleton ꞉ Gold (Lv. 1) [Cusa11260]", size: 2 },
-  { name: "Apsulov_End_Of_Gods", size: 5 },
-  { name: "Aragami.2", size: 13 },
-  { name: "Armor Plate ꞉ Gold (Lv. 1) [Cusa11260]", size: 2 },
-  { name: "Armor Plate ꞉ Gold (Lv. 2) [Cusa11260]", size: 2 },
-  { name: "Ary.And.The.Secret.Of", size: 14 },
-  { name: "Assassin'S Creed Origins Full", size: 51 },
-  { name: "Assassin'S Creed Syndicate", size: 40 },
-  { name: "Assassin'S Creed Unity (Usa)", size: 42 },
-  { name: "Assassin'S Creed® Mirage [Cusa33151]", size: 18 },
-  { name: "Assassin'S_Creed_Freedom Cry", size: 8 },
-  { name: "Assassins.Creed.Odyssey.Ps4-Duplex", size: 45 },
-  { name: "Assassins.Creed.Valhalla_Cusa18534", size: 43 },
-  { name: "Assassins.Creed.Valhalla_Cusa18534 Fix", size: 2 },
-  { name: "Assetto Corsa Competizione 1.0", size: 11 },
-  { name: "Assetto Corsa Competizione 1.12", size: 11 },
-  { name: "Atomic.Heart.Premium.Edition", size: 50 },
-  { name: "Attack.On.Titan.2.Ps4-Duplex", size: 23 },
-  { name: "Batman Arkham Asylum_0", size: 8 },
-  { name: "Batman Arkham City", size: 38 },
-  { name: "Batman Arkham City_2", size: 38 },
-  { name: "Battlefield 1", size: 43 },
-  { name: "Beach_Buggy_Racing_2_Island_Adventure", size: 4 },
-  { name: "Bound By Flame", size: 5 },
-  { name: "Back To School Dlc [Cusa33399]", size: 2 },
-  { name: "Baldo The Guardian Owls", size: 2 },
-  { name: "Baldo The Guardian Owls1.12", size: 2 },
-  { name: "Batman Arkham Knight", size: 50 },
-  { name: "Battlefield 4", size: 38 },
-  { name: "Battlefield V Ps4 Fpkg [Cusa08670]", size: 35 },
-  { name: "Ben 10 Power Trip", size: 4 },
-  { name: "Biohazard_Umbrella_Corps", size: 5 },
-  { name: "Biohazard_Umbrella_Corps_Ud106", size: 4 },
-  { name: "Biped [Cusa23185]", size: 5 },
-  { name: "Biped_Cusa23185_V1.00_[6.72]_Opoisso893", size: 5 },
-  { name: "Biped_Cusa23185_V1.01_[6.72]_Opoisso893", size: 2 },
-  { name: "Biped_Cusa23185_V1.10_Backport_[6.72-7.Xx-9.00]_Opoisso893", size: 3 },
-  { name: "Bloodrayne_Revamped", size: 6 },
-  { name: "Bloodborne Game Of The Year Edition", size: 32 },
-  { name: "Bloody.Zombies_Cusa08543_V1.00_[4.00]_Opoisso893", size: 4 },
-  { name: "Bramble The Mountain King", size: 7 },
-  { name: "Burnout Paradise Remastered Cusa-10866", size: 10 },
-  { name: "Burnout Revenge", size: 3 },
-  { name: "Burnout-Revenge", size: 3 },
-  { name: "Cod Aw", size: 63 },
-  { name: "Cod Bo Cold War", size: 187 },
-  { name: "Cod Bo3", size: 65 },
-  { name: "Cod Bo3 Dlc Zombies Chronicles", size: 18 },
-  { name: "Cod Bo4-Ps4-Duplex-Cusa12443", size: 95 },
-  { name: "Cod Ghost", size: 31 },
-  { name: "Cod Infinite Warfare", size: 70 },
-  { name: "Cod Vanguard", size: 94 },
-  { name: "Cod Ww2", size: 74 },
-  { name: "Crash Team Racing V1.20 Backported Update", size: 8 },
-  { name: "Crash_Team_Racing_Nitro-Fueled", size: 31 },
-  { name: "Cricket22", size: 49 },
-  { name: "Cup Head Ep8254-Cusa20469 A0101-V0100-Cyb1K", size: 2 },
-  { name: "Cusa15010-Usa-V1.41-[Fix.5.05-6.72-7.02-7.55-9.00]-Ps4-[Dlpsgame.Com]", size: 94 },
-  { name: "Cusa23827.Dumping", size: 2 },
-  { name: "Cusa27373.Callisto.Protocol.Season.Pass-Arczi", size: 2 },
-  { name: "Call Of Duty Black Ops 6 Arabic By Haider Kiara", size: 63 },
-  { name: "Call Of Duty Modern Warfare Campaign 1", size: 17 },
-  { name: "Call Of Duty Modern Warfare Campaign 2", size: 24 },
-  { name: "Call Of Duty Modern Warfare Ii Content 0 License", size: 2 },
-  { name: "Call Of Duty Modern Warfare Ii Content 1 License", size: 2 },
-  { name: "Call Of Duty Modern Warfare Ii Content 2 License", size: 2 },
-  { name: "Call Of Duty Modern Warfare Ii Content 3 License", size: 2 },
-  { name: "Call Of Duty Modern Warfare Ii Content 4 License", size: 2 },
-  { name: "Call Of Duty Modern Warfare Ii Content 5 License", size: 2 },
-  { name: "Call Of Duty Modern Warfare Multiplayer Pack", size: 10 },
-  { name: "Call Of Duty Modern Warfare Special Ops Pack 2", size: 5 },
-  { name: "Call Of Duty Modern Warfare Survival Pack", size: 4 },
-  { name: "Call Of Duty® Black Ops 6 [Cusa23827]", size: 56 },
-  { name: "Call Of Duty® Modern Warfare Ii - Campaign Pack 1", size: 21 },
-  { name: "Call Of Duty® Modern Warfare Ii - Campaign Pack 2", size: 20 },
-  { name: "Call Of Duty® Modern Warfare Ii - Co-Op Pack", size: 5 },
-  { name: "Call Of Duty® Modern Warfare Ii - Multiplayer Pack", size: 7 },
-  { name: "Call Of Duty® Modern Warfare Ii - Content Pac 5", size: 4 },
-  { name: "Call Of Duty® Modern Warfare Ii Core Gam", size: 54 },
-  { name: "Call Of Duty® Modern Warfare Ii Core Game 1", size: 2 },
-  { name: "Call Of Duty® Modern Warfare®", size: 95 },
-  { name: "Call Of Duty® Modern Warfare® - Campaign And Special Ops Pack", size: 26 },
-  { name: "Call Of Duty® Modern Warfare® - Multiplayer And Special Ops Pack", size: 13 },
-  { name: "Call Of Duty® Modern Warfare® - Multiplayer Pack", size: 10 },
-  { name: "Call Of Duty® Modern Warfare® - Multiplayer Pack 2", size: 24 },
-  { name: "Call Of Duty® Modern Warfare® - Special Ops Pack", size: 21 },
-  { name: "Call Of Duty® Modern Warfare® - Special Ops Pack 1", size: 25 },
-  { name: "Call Of Duty® Modern Warfare® 1.9", size: 71 },
-  { name: "Call Of Duty® ꞉ Black Ops Cold War [Cusa15010]", size: 15 },
-  { name: "Call Of Duty® ꞉ Modern Warfare Ii [Cusa23827]", size: 2 },
-  { name: "Call.Of.Duty.Modern.Warfare.Ps4-Duplex", size: 10 },
-  { name: "Capcom.Arcade.Stadium_", size: 2 },
-  { name: "Chiral Gold Color For The Bridges Hat [Cusa11260]", size: 2 },
-  { name: "Chiral Gold Color For The “Ludens Mask“ Sunglasses [Cusa11260]", size: 2 },
-  { name: "Chiral Gold Color For The “Sam“ Sunglasses [Cusa11260]", size: 2 },
-  { name: "Chronos-Cusa15161.Update1.01", size: 8 },
-  { name: "Chronos-Cusa15161.V1.0", size: 8 },
-  { name: "Cloudpunk.Ps4-Unlimited", size: 10 },
-  { name: "Cobra Kai The Karate Kid Saga Continues", size: 7 },
-  { name: "Cobra.Kai.2.Dojos.Rising_", size: 6 },
-  { name: "Contra_Anniversary_Collection", size: 4 },
-  { name: "Control", size: 31 },
-  { name: "Crash Bandicoot™ 4 It'S About Time Cusa23470", size: 24 },
-  { name: "Crash.Bandicoot.N.Sane.Trilogy", size: 24 },
-  { name: "Creaks", size: 6 },
-  { name: "Cricket 24 [Cusa43293]", size: 40 },
-  { name: "Cricket.24_Cusa43293_V1.00_[11.00]_Opoisso893-[Dlpsgame.Com]", size: 30 },
-  { name: "Cricket.24_Cusa43293_V1.28_Backport_[5.05-6.72-7.Xx-8.Xx-9.00]_Opoisso893", size: 39 },
-  { name: "Cricket.24_Cusa43293_V1.30_Backport_[5.05-6.72-7.Xx-9.00]_Opoisso893", size: 40 },
-  { name: "Crysis.2.Remastered-A0100-Arczi", size: 19 },
-  { name: "Crysis.Remastered.Ps4-Duplex", size: 14 },
-  { name: "Cuphead", size: 7 },
-  { name: "Cyberpunk 2077 [Cusa16579]", size: 67 },
-  { name: "Dahrpreorderus00-A0000-V0100", size: 2 },
-  { name: "Dark Wood", size: 6 },
-  { name: "Deadpool Ps4", size: 7 },
-  { name: "Death Stranding Digital Deluxe Edition [Cusa11260]", size: 2 },
-  { name: "Death Stranding [Cusa11260]", size: 49 },
-  { name: "Dirt 4", size: 41 },
-  { name: "Dirt 5™", size: 28 },
-  { name: "Dmc Devil May Cry", size: 19 },
-  { name: "Dragon Ball Xenoverse 2 - Anime Music Pack 1", size: 2 },
-  { name: "Dragon Ball Xenoverse 2 - Anime Music Pack 2", size: 2 },
-  { name: "Dragon Ball Xenoverse 2 - Conton City Vote Pack", size: 2 },
-  { name: "Dragon Ball Xenoverse 2 - Extra Dlc Pack 1", size: 2 },
-  { name: "Dragon Ball Xenoverse 2 - Extra Dlc Pack 2", size: 2 },
-  { name: "Dragon Ball Xenoverse 2 - Extra Dlc Pack 3", size: 2 },
-  { name: "Dragon Ball Xenoverse 2 - Extra Dlc Pack 4", size: 2 },
-  { name: "Dragon Ball Xenoverse 2 - Future Trunks", size: 2 },
-  { name: "Dragon Ball Xenoverse 2 - Goku Black And Tao Pai Pai Stick", size: 2 },
-  { name: "Dragon Ball Xenoverse 2 - Hero Of Justice Pack 1", size: 2 },
-  { name: "Dragon Ball Xenoverse 2 - Hero Of Justice Pack 2", size: 2 },
-  { name: "Dragon Ball Xenoverse 2 - Legend Patrol", size: 4 },
-  { name: "Dragon Ball Xenoverse 2 - Legendary Pack 1", size: 2 },
-  { name: "Dragon Ball Xenoverse 2 - Legendary Pack 2", size: 2 },
-  { name: "Dragon Ball Xenoverse 2 - Masters Pack", size: 2 },
-  { name: "Dragon Ball Xenoverse 2 - Steve Aoki Pack", size: 2 },
-  { name: "Dragon Ball Xenoverse 2 - Super Pack 1", size: 2 },
-  { name: "Dragon Ball Xenoverse 2 - Super Pack 2", size: 2 },
-  { name: "Dragon Ball Xenoverse 2 - Super Pack 3", size: 2 },
-  { name: "Dragon Ball Xenoverse 2 - Super Pack 4", size: 2 },
-  { name: "Dragon Ball Xenoverse 2 - Ultra Pack 1", size: 2 },
-  { name: "Dragon Ball Xenoverse 2 - Ultra Pack 2", size: 2 },
-  { name: "Dragon Ball Xenoverse 2 1.36", size: 9 },
-  { name: "Danger.Zone.Ps4-Unlimited", size: 2 },
-  { name: "Danger.Zone.Update.V1.04.Ps4-Unlimited", size: 4 },
-  { name: "Dark.Alliance", size: 46 },
-  { name: "Dark.Alliance.Ps4-Duplex", size: 21 },
-  { name: "Dark.Alliance_Cusa25234_V1.08_Backport_", size: 25 },
-  { name: "Dark.Souls.Iii.Game.Of.The.Year", size: 26 },
-  { name: "Darksiders_Iii", size: 21 },
-  { name: "Darkwood", size: 6 },
-  { name: "Days.Gone.V1.80.Ps4-Duplex", size: 43 },
-  { name: "Death By Degrees", size: 7 },
-  { name: "Destroy All Humans Cusa14899", size: 20 },
-  { name: "Destroy All Humans Cusa14899 Update", size: 9 },
-  { name: "Detroit Become Human Ps4 Fpkg [Cusa08308]", size: 42 },
-  { name: "Detroit Become Human Update", size: 2 },
-  { name: "Deus Ex Mankind Divided", size: 53 },
-  { name: "Devil_May_Cry_5_Ps4-Caf", size: 33 },
-  { name: "Dirt Rally 2.0", size: 28 },
-  { name: "Diablo Iii Ultimate Evil", size: 45 },
-  { name: "Diablo.Ii.Resurrected", size: 19 },
-  { name: "Diablo.Ii.Resurrected.Ps4-Duplex", size: 15 },
-  { name: "Diablo.Ii.Resurrected.Update.V1.11.Ps4-Duplex", size: 4 },
-  { name: "Diablo® Ii Resurrected™", size: 4 },
-  { name: "Dishonored.Death.Of.The.Outsider_Cusa08779_V1.00_[5.05]_Opoisso893", size: 25 },
-  { name: "Dishonored.Death.Of.The.Outsider_Cusa08779_V1.04_[5.05]_Opoisso893", size: 6 },
-  { name: "Don.Bradman.Cricket.17.Ps4", size: 11 },
-  { name: "Doom 3", size: 17 },
-  { name: "Dragon.Ball.Fighterz", size: 5 },
-  { name: "Dragon.Ball.Z.Kakarot", size: 34 },
-  { name: "Dragon.Ball.Z.Kakarot.Update.V1.91-Cusa14835", size: 27 },
-  { name: "Dustwind.The.Last.Resort.Ps4-Unlimited", size: 2 },
-  { name: "Dustwind.The.Last.Resort.Update.V1.03.Ps4-Unlimited", size: 2 },
-  { name: "Dying Light", size: 17 },
-  { name: "Dying Light 2 Stay Human", size: 24 },
-  { name: "Dying.Light.2.Stay.Human 6.72 Bac Port", size: 2 },
-  { name: "Dying.Light.The.Following.Enhanced.Edition_Cusa03977", size: 16 },
-  { name: "Ea Sports Fc 25 [Cusa46399]", size: 6 },
-  { name: "Ea.S.Fc.25_Cusa46399_Unlock_Opoisso893-[Dlpsgame.Com]", size: 2 },
-  { name: "Elden.Ring", size: 10 },
-  { name: "Eldenring", size: 33 },
-  { name: "Elex 2 Cusa28134", size: 36 },
-  { name: "Ep0001-Cusa00462_00-A0108-V0100-Shunt75-Isagi-[Dlpsgame.Com]", size: 3 },
-  { name: "Ep1004-Cusa00411_00-Gtapreorderbonus", size: 2 },
-  { name: "Ep4133-Cusa37321_00-Atohatomicpassy0-A0000-V0100-Cyb1K", size: 2 },
-  { name: "Ep4133-Cusa37321_00-Atohgloveskin000-A0000-V0100-Cyb1K", size: 2 },
-  { name: "Ep4133-Cusa37321_00-Atohswedeelectro-A0000-V0100-Cyb1K", size: 2 },
-  { name: "Ep4133-Cusa37321_00-Atohzvezdochkaak-A0000-V0100-Cyb1K", size: 2 },
-  { name: "Everspace", size: 6 },
-  { name: "Evil West [Cusa25569]", size: 28 },
-  { name: "Evil.Genius.2.Ps4-Duplex", size: 11 },
-  { name: "Evil.Genius.2.Update.V1.02.Ps4-Duplex", size: 2 },
-  { name: "Evil.West_Cusa25569_V1.06_Optionalfix_[9.00]_Opoisso893", size: 2 },
-  { name: "F1.24_Cusa44372_V1.00_[11.00]_Opoisso893", size: 40 },
-  { name: "F1.24_Cusa44372_V1.18_Backport_[5.05-6.72-7.Xx-9.00]_Opoisso893", size: 22 },
-  { name: "Fallout 4 Fullgame-Cusa02557_- A0136-V0100", size: 12 },
-  { name: "Farcry 5 Game Dlc", size: 2 },
-  { name: "Farcry 5 Game Update0", size: 9 },
-  { name: "Farcry 5 Main Game", size: 29 },
-  { name: "Farcry Primal", size: 13 },
-  { name: "Farming Simulat 22-A0100-V0101", size: 14 },
-  { name: "Far_Cry_6 Dlc400000-A0000-V0100-Cyb1K", size: 2 },
-  { name: "Far_Cry_6 Game00000-A0110-V0100-9.00-Cyb1K", size: 69 },
-  { name: "Far_Cry_6_Cusa15717_Fxdv1.00_[Fw900]", size: 37 },
-  { name: "Fifa.19", size: 42 },
-  { name: "Fifa.24", size: 48 },
-  { name: "Fighting Ex.Layer", size: 3 },
-  { name: "Fighting X.Layer Pdate.V1.19", size: 3 },
-  { name: "Fallout 4 - Game Of The Year Edition", size: 37 },
-  { name: "Far Cry® 4 Escape From Durgesh Prison [Cusa00462]", size: 2 },
-  { name: "Far Cry® 4 Hurk Deluxe Pack [Cusa00462]", size: 2 },
-  { name: "Far Cry® 4 Overrun [Cusa00462]", size: 2 },
-  { name: "Far Cry® 4 Season Pass [Cusa00462]", size: 2 },
-  { name: "Far Cry® 4 Syringe Mission [Cusa00462]", size: 2 },
-  { name: "Far Cry® 4 Valley Of The Yetis [Cusa00462]", size: 3 },
-  { name: "Far Cry® 4 [Cusa00462]", size: 26 },
-  { name: "Far.Cry.3.Classic.Edition.Ps4-Duplex", size: 9 },
-  { name: "Far.Cry.New.Dawn.Ps4-Duplex", size: 24 },
-  { name: "Far.Cry.New.Dawn.Update.V1.05.Ps4-Duplex", size: 2 },
-  { name: "Fast.And.Furious.Crossroads.Cusa11445", size: 42 },
-  { name: "Fast.And.Furious.Spy.Racers.Rise.Of", size: 7 },
-  { name: "Fifa 25_Cusa46399_Unlock_", size: 2 },
-  { name: "Fifa 25_Cusa46399_V1.00_[11.00]", size: 46 },
-  { name: "Fifa 25_Cusa46399_V1.18_[9.00+]", size: 6 },
-  { name: "Filename", size: 4 },
-  { name: "Flatout.4.Total", size: 9 },
-  { name: "Fracked.Vr.Ps4-Duplex", size: 7 },
-  { name: "Fracked.Vr.Update.V1.01.Ps4-Duplex", size: 7 },
-  { name: "Freedom-Chronichles-Episode-One", size: 5 },
-  { name: "Freedom-Chronichles-Episode-Zero", size: 2 },
-  { name: "Fury_Unleashed", size: 2 },
-  { name: "Fury_Unleashed_Upd_V1_09", size: 2 },
-  { name: "Ghost Runner", size: 13 },
-  { name: "Gi Joe Blackout", size: 14 },
-  { name: "God Of War 3 Remastered", size: 43 },
-  { name: "God_Of_War_Ragnarok", size: 92 },
-  { name: "God_Of_War_Ragnarok Deluxe_Pack_Dlc_Fxd", size: 2 },
-  { name: "God_Of_War_Ragnarok_ Preorder_Pack_Dlc_Fxd", size: 2 },
-  { name: "Grid 0307", size: 18 },
-  { name: "Grid Legends", size: 13 },
-  { name: "Gta 3", size: 6 },
-  { name: "Gta 5", size: 48 },
-  { name: "Gta 5 Update 1.38", size: 39 },
-  { name: "Gta 5 Update Cusa0041 1.53", size: 51 },
-  { name: "Gta V -Cusa00419_00--A0146-V0100-Cyb1K", size: 45 },
-  { name: "Gta V Cusa00419 Updatea0153-V0100", size: 51 },
-  { name: "Guilty Gear Strive", size: 13 },
-  { name: "Gun Dam Breaker 3 Pm", size: 14 },
-  { name: "Guns_Gore_And_Cannoli_2", size: 2 },
-  { name: "Gang.Beasts_Cusa04865_V1.18_[8.50]_Opoisso893", size: 2 },
-  { name: "Gear.Club Unlimited 2 Ultimate Edition", size: 21 },
-  { name: "Ghost Of Tsushima-Cusa16972", size: 33 },
-  { name: "Ghost Of Tsushima-Cusa16972 Fix", size: 2 },
-  { name: "Gleamlight_Cusa18500_V1.00_[7.02]_Opoisso893", size: 2 },
-  { name: "God Of War", size: 40 },
-  { name: "God Of War 1.34Up", size: 9 },
-  { name: "God Of War Iii - Fall Of Olympus - Dynamic_1", size: 2 },
-  { name: "God Of War Iii - Fall Of Olympus - Dynamic_2", size: 2 },
-  { name: "God.Of.War.Ragnarok_Cusa34386_V6.03_[9.00-11.00]_Opoisso893", size: 26 },
-  { name: "Gran.Turismo.7_Cusa24769_V1.00_[9.00]_Opoisso893", size: 86 },
-  { name: "Gran.Turismo.Sport.Ps4-Blaze", size: 44 },
-  { name: "Grand Theft Auto V [Cusa00411]", size: 46 },
-  { name: "Grand Theft Auto V [Cusa00419]", size: 46 },
-  { name: "Grand Theft Auto Vice City", size: 2 },
-  { name: "Grand.Theft.Auto.Iii–The.Definitive.Edition_Cusa26613", size: 6 },
-  { name: "Grand.Theft.Auto.Iii–The.Definitive.Edition_Cusa26613_V1.04", size: 2 },
-  { name: "Grand.Theft.Auto.San.Andreas–The.Definitive.Edition_", size: 24 },
-  { name: "Grand.Theft.Auto.San.Andreas–The.Definitive.Edition_Patch", size: 2 },
-  { name: "Grand.Theft.Auto.Vice.City–The.Definitive.Edition", size: 12 },
-  { name: "Grand.Theft.Auto.Vice.City–The.Definitive.Edition_Backport", size: 2 },
-  { name: "Grid.Legends.V1.00-Cusa28261", size: 31 },
-  { name: "Gungrave G.O.R.E Dlc", size: 36 },
-  { name: "Gunjack.Vr.Ps4-Duplex", size: 2 },
-  { name: "Hitman", size: 45 },
-  { name: "Hitman 3 - Berlin [Cusa18210]", size: 2 },
-  { name: "Hitman.3.Ps4-Duplex", size: 47 },
-  { name: "Hitman™ [Cusa06508]", size: 45 },
-  { name: "Hogwarts Legacy Main", size: 40 },
-  { name: "Hogwarts Legacy Update", size: 32 },
-  { name: "Horizon Forbidden West", size: 86 },
-  { name: "Hades.Ps4-Duplex", size: 9 },
-  { name: "Hades.Update.V1.03.Ps4-Duplex", size: 2 },
-  { name: "Heavy.Rain Ps4", size: 30 },
-  { name: "Hellblade Senua'S Sacrifice", size: 15 },
-  { name: "Hello Neighbor 2 [Cusa33399]", size: 6 },
-  { name: "Hello-Copter Dlc [Cusa33399]", size: 2 },
-  { name: "Hello.Neighbor.2_Cusa33399_V1.00_[11.00]_Opoisso893", size: 6 },
-  { name: "Hello.Neighbor.2_Cusa33399_V1.06_Backport_[5.05-6.72-7.Xx-9.00]_Opoisso893", size: 6 },
-  { name: "Herodefense.Ps4-Duplex", size: 2 },
-  { name: "Hitman ꞉ Blood Money Hd [Cusa13612]", size: 7 },
-  { name: "Hogwarts Legacy", size: 33 },
-  { name: "Hogwarts Legacy (Cusa12824) - 1.06 Update (Fix Game Info)", size: 2 },
-  { name: "Hogwarts Legacy [Cusa12824]", size: 2 },
-  { name: "Horizon Zero Dawn - Complete Edition V1", size: 51 },
-  { name: "Hotshot Racing", size: 7 },
-  { name: "Hotshot.Racing_Cusa11573_V1.00_[7.02]_Opoisso893", size: 4 },
-  { name: "Hotshot.Racing_Cusa11573_V1.06_[7.02]_Opoisso893", size: 3 },
-  { name: "Hungry Shark® World", size: 4 },
-  { name: "Huntdown", size: 6 },
-  { name: "Infamous First Light (Rus) [Ps4]", size: 11 },
-  { name: "Infamouse Second Sons", size: 25 },
-  { name: "Install Steps.Txt", size: 2 },
-  { name: "Inertial.Drift.Ps4-Unlimited Cusa17431", size: 3 },
-  { name: "Inertial.Drift.Update.V1.03.Ps4-Unlimited Cusa17431", size: 2 },
-  { name: "Infliction", size: 5 },
-  { name: "Injustice 2 Legendary Edition", size: 34 },
-  { name: "Insurgency.Sandstorm.Ps4-Duplex", size: 10 },
-  { name: "Insurgency.Sandstorm.Update.V1.07.Ps4-Duplex", size: 10 },
-  { name: "It Takes Two", size: 36 },
-  { name: "Jump Force", size: 27 },
-  { name: "John.Wick.Hex.Ps4-Unlimited", size: 4 },
-  { name: "Just In Time Incorporated", size: 2 },
-  { name: "Just Cuse 4", size: 44 },
-  { name: "King Of Fighters 15", size: 59 },
-  { name: "Kena.Bridge.Of.Spirits", size: 11 },
-  { name: "Kena.Bridge.Of.Spirits.Celebration.Hats.For.Rot", size: 2 },
-  { name: "Kena.Bridge.Of.Spirits.Digital.Deluxe-Arczi", size: 2 },
-  { name: "Killzone Shadow Fall", size: 44 },
-  { name: "Last Guardiane", size: 14 },
-  { name: "Lego Star Wars The Force Awakens", size: 16 },
-  { name: "Lego Star Wars The Skywalker Saga Cusa13794", size: 35 },
-  { name: "Lego® City Undercover", size: 21 },
-  { name: "Late Fees Dlc [Cusa33399]", size: 2 },
-  { name: "Lego Star Wars The Skywalker Saga", size: 38 },
-  { name: "Little Nightmares Ii Cusa12779 Up", size: 2 },
-  { name: "Little.Nightmares.Ii.Cusa12779", size: 5 },
-  { name: "Lode Runner Legacy", size: 4 },
-  { name: "Lost.Judgment_Cusa28183_V1.04_[5.05]_Backport893", size: 44 },
-  { name: "Madmax The Game Ps4", size: 34 },
-  { name: "Mafia Definative Edition One", size: 46 },
-  { name: "Mark_Of_The_Ninja_Remastered", size: 13 },
-  { name: "Marvel Ultt Wo2015-A0100-V0100", size: 9 },
-  { name: "Medievil", size: 21 },
-  { name: "Metal Gear Solid V The Phantom Pain", size: 28 },
-  { name: "Metal Gear Solid V The Phantom Pain Up", size: 2 },
-  { name: "Metal.Slug.Xx", size: 2 },
-  { name: "Monster Of The Deep Final Fantasy Xv", size: 13 },
-  { name: "Mortal Kombat 11", size: 69 },
-  { name: "Mortal Kombat Xl", size: 41 },
-  { name: "Moto Gp 17", size: 12 },
-  { name: "Moto Gp 21 Dlc01000-A0000-V0100", size: 2 },
-  { name: "Moto Gp 21 Dlc02B00-A0000-V0100", size: 2 },
-  { name: "Moto Gp 21 Fullgame-A0100-V0113", size: 25 },
-  { name: "Mx.Vs.Atv.Legends_Cusa25622_V1.07_Optionalfix_Opoisso893", size: 2 },
-  { name: "Mx.Vs.Atv.Legends_Cusa25622_V1.09_Optionalfix_Opoisso893", size: 2 },
-  { name: "Mx.Vs.Atv.Legends_Cusa25622_V1.09_[9.00]_Opoisso893", size: 27 },
-  { name: "Mafia.Iii.Repack.Ps4-Duplex", size: 47 },
-  { name: "Mafia.Iii._Backport", size: 17 },
-  { name: "Maid.Of.Sker.Ps4-Duplex", size: 10 },
-  { name: "Martha Is Dead", size: 11 },
-  { name: "Marvel'S Avengers Cusa14026", size: 69 },
-  { name: "Marvel'S Guardians Of The Galaxy", size: 62 },
-  { name: "Marvel'S Spider-Man Cusa02299", size: 45 },
-  { name: "Marvels Spider Man Miles Morales", size: 52 },
-  { name: "Marvels Spider Man Miles Morales Bp", size: 2 },
-  { name: "Mass Effect™ Legendary Edition", size: 69 },
-  { name: "Metal Gear Solid V The Phantom Pain Ps4 Eur Multi Cusa01154 - Ind", size: 28 },
-  { name: "Metal Gear Survive", size: 17 },
-  { name: "Metal.Gear.Survive.", size: 17 },
-  { name: "Metro Redux", size: 13 },
-  { name: "Metro.Exodus.Ps4-Duplex", size: 49 },
-  { name: "Metro.Exodus.Update.V1.08.Ps4-Duplex", size: 21 },
-  { name: "Middle Earth Shadow Of War", size: 52 },
-  { name: "Middle-Earth_ Shadow Of Mordor - Game Of The Year Edition (Cusa01940) - 1.04 Game", size: 38 },
-  { name: "Minecraft.Playstation4.Edition_Cusa00265_V1.00_[1.70]_Opoisso893", size: 2 },
-  { name: "Mirror'S Edge Catalyst", size: 17 },
-  { name: "Monster Hunter World", size: 17 },
-  { name: "Monster.Energy.Supercross-The.Official.Videogame.5_Cusa28535_V1.00_[9.00]_Opoisso893", size: 19 },
-  { name: "Monster.Energy.Supercross-The.Official.Videogame.5_Cusa28535_V1.13_[9.00]_Opoisso893", size: 19 },
-  { name: "Monster.Truck.Championship.Ps4-Duplex", size: 5 },
-  { name: "Monster.Truck.Championship.Update.V1.01.Ps4-Duplex", size: 5 },
-  { name: "Mortal Kombat 11 - Community Art_1", size: 2 },
-  { name: "Mortal Kombat 11 - Community Art_2", size: 2 },
-  { name: "Motogp25_Cusa53165_V1.10_Backport_[5 To11.00", size: 21 },
-  { name: "Motogp™25 - Iconic Liveries Pack [Cusa53165]", size: 2 },
-  { name: "Motogp™25 - Off Road Helmets Pack [Cusa53165]", size: 2 },
-  { name: "Motogp™25 [Cusa53165]", size: 20 },
-  { name: "Naruto", size: 35 },
-  { name: "Nascar Arcade Rush [Cusa40791]", size: 6 },
-  { name: "Nascar.Arcade.Rush_V1.01_5.05_Backport_Cusa40791", size: 6 },
-  { name: "Nba 2K14", size: 42 },
-  { name: "Nba 2K26 International Commentary Pack [Cusa54085]", size: 5 },
-  { name: "Nba 2K26 [Cusa54085]", size: 80 },
-  { name: "Nba.2K22_Cusa28234_V1.00_[8.50]_Opoisso893", size: 49 },
-  { name: "Nba.2K26_Cusa54085_International.Commentary.Pack.[Spanish-Chinese]_Opoisso893", size: 5 },
-  { name: "Nba.2K23-Cusa33075-Eur-Game-Ps4-Cyb1K", size: 48 },
-  { name: "Nba.2K23-Cusa33075-Eur-V1.09-[Fix.5.05-6.72-7.02-7.55-9.00]-Cyb1K", size: 79 },
-  { name: "Nfs Payback", size: 18 },
-  { name: "Nfs Rivals", size: 15 },
-  { name: "Ninja Gaiden 3 Razor'S Edge", size: 7 },
-  { name: "Ninja Gaiden Σ 1", size: 9 },
-  { name: "Ninja Gaiden Σ 2", size: 9 },
-  { name: "Ninja Gaiden ꞉ Ragebound [Cusa54473]", size: 2 },
-  { name: "Nioheu", size: 40 },
-  { name: "Narcos Rise Of The Cartels", size: 12 },
-  { name: "Naught", size: 2 },
-  { name: "Naught-A0100-Arczi", size: 2 },
-  { name: "Naught_Edahi.&.Dohai-Arczi", size: 2 },
-  { name: "Naught_Sudagi.Dlc-Arczi", size: 2 },
-  { name: "Need.For.Speed.Heat", size: 27 },
-  { name: "Nerf.Legends.Alpha.Pack.Dlc.Ps4-Duplex", size: 2 },
-  { name: "Nerf.Legends.Ps4-Duplex", size: 10 },
-  { name: "Nerf.Legends.Update.V1.01.Ps4-Duplex", size: 10 },
-  { name: "New Super Lucky'S Tale", size: 6 },
-  { name: "Nier Automata", size: 36 },
-  { name: "Nier Automata", size: 10 },
-  { name: "Ninja Legends", size: 4 },
-  { name: "Ninja Legends [Cusa20667] [V01.00]", size: 2 },
-  { name: "Ninja Legends [Cusa20667] [V01.01]", size: 2 },
-  { name: "Outlast", size: 5 },
-  { name: "Observer", size: 14 },
-  { name: "Oddworld.Soulstorm.Ps4-Duplex", size: 10 },
-  { name: "Offroad.Racing.Buggy.X.Atv.X.Moto_Cusa16627_V1.00_[6.72]_Opoisso893", size: 6 },
-  { name: "Outbreak The Nightmare Chronicles", size: 3 },
-  { name: "Overpass [Cusa15507] [V01.00]", size: 16 },
-  { name: "Payload.Bin", size: 2 },
-  { name: "Pc.Building.Simulator_Cusa14566_V1.00_[6.72]_Opoisso893", size: 3 },
-  { name: "Pes 2021 Season Update Cusa18676 Rev2", size: 30 },
-  { name: "Pes2021", size: 33 },
-  { name: "Pes2021 Up", size: 5 },
-  { name: "Project_Cars_Cusa01338", size: 28 },
-  { name: "Ps4 Pkg Tool.Exe", size: 2 },
-  { name: "Ps4_Item00001_V1.06", size: 2 },
-  { name: "Panzer.Dragoon.Remake.Ps4-Duplex", size: 7 },
-  { name: "Panzer.Dragoon.Remake.Update.V1.01.Ps4-Duplex", size: 2 },
-  { name: "Phoenix.Point.Ps4-Duplex", size: 21 },
-  { name: "Plague.Road.Ps4-Unlimited", size: 2 },
-  { name: "Plague.Road.Update.V1.01.Ps4-Unlimited", size: 2 },
-  { name: "Power Skeleton ꞉ Gold (Lv. 1) [Cusa11260]", size: 2 },
-  { name: "Predator.Hunting.Grounds.Ps4-Duplex", size: 13 },
-  { name: "Prey [Cusa06559]", size: 42 },
-  { name: "Project Warlock", size: 4 },
-  { name: "Project.Cars.2.Ps4-Duplex", size: 39 },
-  { name: "Project.Cars.3.Ps4-Duplex", size: 37 },
-  { name: "Pumpkin.Jack_Cusa23760_V1.00_[8.00]_Opoisso893", size: 2 },
-  { name: "Pumpkin.Jack_Cusa23760_V1.02_Backport_[5.05-6.72-7.Xx]_Opoisso893", size: 2 },
-  { name: "Pumpkin.Jack_Cusa23760_V1.02_[8.00]_Opoisso893", size: 2 },
-  { name: "Re8 She-Ra_And_Yorha_Daughters_And_Magneto_And_Bikini_Miranda_Cusa18017", size: 2 },
-  { name: "Re8 Tifa_Dimitrescu_And_Yorha_Daughters_White_And_Dante_And_John_Mcclane_And_Ghostface_Cusa18017", size: 2 },
-  { name: "Re8_Bikini_Ladies_Cusa18017", size: 2 },
-  { name: "Residen Evil Village Cusa18017 Dlc", size: 10 },
-  { name: "Resident Evil 7 Biohazard Gold Edition", size: 31 },
-  { name: "Resident Evil Origins Collection", size: 27 },
-  { name: "Resident_Evil_2_Cusa09193", size: 50 },
-  { name: "Resident Evil 5 Hd Ps4", size: 18 },
-  { name: "Riders.Republic.Ps4-Unlimited", size: 17 },
-  { name: "Riders.Republic.Update.V1.05.Ps4-Unlimited", size: 17 },
-  { name: "Rise Of Tomb Raider", size: 19 },
-  { name: "Rive.Ps4-Unlimited", size: 2 },
-  { name: "Rive.Update.V1.15.Ps4-Unlimited", size: 2 },
-  { name: "Rocket League", size: 4 },
-  { name: "Rad.Rodgers", size: 9 },
-  { name: "Ratchet & Clank", size: 30 },
-  { name: "Raw Data", size: 9 },
-  { name: "Red.Dead.Redemption.2", size: 86 },
-  { name: "Red.Dead.Redemption.2.Update.V1.24", size: 19 },
-  { name: "Remnant.From.The.Ashes", size: 33 },
-  { name: "Remothered.Broken.Porcelain.", size: 12 },
-  { name: "Resident Evil 3", size: 23 },
-  { name: "Resident Evil 4 Re", size: 31 },
-  { name: "Resident Evil Revelations 1", size: 18 },
-  { name: "Resident Evil Revelations 2", size: 25 },
-  { name: "Resident Evil Village", size: 31 },
-  { name: "Rims.Racing.Ps4-Cusa23641", size: 9 },
-  { name: "Rims.Racing.V1.05.Patch.Ps4-Cusa23641", size: 5 },
-  { name: "Ride.4.Ps4-Duplex", size: 24 },
-  { name: "Riptide Gp ꞉ Renegade [Cusa04565]", size: 2 },
-  { name: "Riptide Gp2 [Cusa02365]", size: 2 },
-  { name: "Risen_Cusa31481_V1.00_[9.00]_Opoisso893", size: 5 },
-  { name: "Risen_Cusa31481_V1.02_[9.00]_Opoisso893", size: 2 },
-  { name: "Road.Redemption", size: 7 },
-  { name: "Saints Row 00Ps4Eu-A0100-V0100-Cyb1K", size: 40 },
-  { name: "Samurai.Warriors.5.Ps4-Duplex", size: 14 },
-  { name: "Samurai.Warriors.5.Update.V1.03.Ps4-Duplex", size: 2 },
-  { name: "Sifu_Cusa25761_V1.00_[8.50]_Opoisso893", size: 9 },
-  { name: "Sifu_Cusa25761_V1.11_Backport_[5.05-6.72-7.Xx-8.0X]_Opoisso893", size: 9 },
-  { name: "Sky Rim", size: 33 },
-  { name: "Sles25536.Complete", size: 2 },
-  { name: "Sniper 3 Ghost Warrior", size: 41 },
-  { name: "Sniper Elite 4", size: 33 },
-  { name: "Sniper Elite 5", size: 41 },
-  { name: "Sonic Frontiers - Cusa28194", size: 2 },
-  { name: "Star Wars - Squadrons [Cusa15080]", size: 23 },
-  { name: "Star.Wars.Jedi.Fallen.Order.Ps4-Duplex", size: 49 },
-  { name: "Stray", size: 8 },
-  { name: "Stray_Fxdv1", size: 16 },
-  { name: "Stride_Fxdv1.00_[Fw900]", size: 4 },
-  { name: "Syberia 3", size: 16 },
-  { name: "Sackboy.A.Big.Adventure.Cusa18886", size: 36 },
-  { name: "Samurai Jack ꞉ Battle Through Time", size: 5 },
-  { name: "Samurai Jack ꞉ Battle Through Time V01.00", size: 5 },
-  { name: "Sekiro", size: 18 },
-  { name: "Serious Sam Collection Cusa08218", size: 10 },
-  { name: "Shadow Man Remastered", size: 8 },
-  { name: "Shadow Of The Tomb Raider Ps4 Fpkg [Cusa10872]", size: 30 },
-  { name: "Sherlock Holmes Crimes & Punishments", size: 10 },
-  { name: "Silent Hills", size: 2 },
-  { name: "Skully", size: 5 },
-  { name: "Skully [Cusa19269]", size: 5 },
-  { name: "Skully.Ps4-Duplex", size: 5 },
-  { name: "Skully.Update.V1.02.Ps4-Duplex", size: 5 },
-  { name: "Smack Down Here Comes The Pain", size: 4 },
-  { name: "Song.Of.Horror.Ps4-Duplex", size: 8 },
-  { name: "Song.Of.Horror.Update.V1.03.Ps4-Duplex", size: 9 },
-  { name: "Sonic Racing ꞉ Crossworlds [Cusa35016]", size: 14 },
-  { name: "Sonic.Racing.Crossworlds_Cusa35016_V1.00_[12.02]_Opoisso893", size: 14 },
-  { name: "Speed Skeleton ꞉ Gold (Lv. 1) [Cusa11260]", size: 2 },
-  { name: "Speed.3.Grand.Prix_Cusa20552_V1.00_[7.50]_Opoisso893", size: 3 },
-  { name: "Speed.3.Grand.Prix_Cusa20552_V1.01_[7.50]_Opoisso893", size: 2 },
-  { name: "Spelunky 2", size: 4 },
-  { name: "Star.Wars.Episode.I.Racer_Cusa18211_V1.00_[7.02]_Opoisso893", size: 2 },
-  { name: "Star.Wars.Episode.I.Racer_Cusa18211_V1.01_[7.02]_Opoisso893", size: 2 },
-  { name: "Star_Wars-Battlefront_Ii-Wdr", size: 66 },
-  { name: "State Of Mind", size: 8 },
-  { name: "Stranger Of Paradise Final Fantasy Origin", size: 33 },
-  { name: "Street Fighter 5 Update 2.02", size: 20 },
-  { name: "Street Fighte 5 Main", size: 7 },
-  { name: "Street.Fighter.6-Cusa31498-Eur-Game-Ps4-Cyb1K", size: 36 },
-  { name: "Street.Fighter.6-Cusa31498-Eur-Update-Fix-[5.05-9.00]-Ps4-Cyb1K", size: 2 },
-  { name: "Street.Fighter.6-Fighting.Ground-Cyb1K", size: 4 },
-  { name: "Street.Fighter.6-World.Tour-Cyb1K", size: 2 },
-  { name: "Subnautica Below Zero", size: 9 },
-  { name: "Tekken 3", size: 2 },
-  { name: "Tekken Dark Resurrection [Psptops4]", size: 3 },
-  { name: "Tekken.7_", size: 106 },
-  { name: "The Evil Withineng", size: 42 },
-  { name: "The King Of Fighters Xiv", size: 24 },
-  { name: "The Order 1886", size: 36 },
-  { name: "The_House_Of_The_Dead_Remake", size: 6 },
-  { name: "The_Incredible_Adventures_Of_Van_Helsing_2_Fxdv1.00 Cusa09370_", size: 10 },
-  { name: "The_Surge_2_Cusa12564", size: 10 },
-  { name: "The_Walking_Dead_Onslaught_Fxdv1.00_[Fw702]", size: 10 },
-  { name: "Thief", size: 22 },
-  { name: "Tmnt.Splintered.Fate_Cusa50828_V1.08_Backport_[5.05-6.72-7.Xx-9.00-11.00]_Opoisso893", size: 3 },
-  { name: "Toothntail00Siee", size: 4 },
-  { name: "Transformers Battlegrounds", size: 6 },
-  { name: "Transformers Fall Of Cybertron", size: 15 },
-  { name: "Taxi.Chaos.", size: 4 },
-  { name: "Taxi.Chaos_Cusa20140_V1.00_[7.50]_Opoisso893", size: 2 },
-  { name: "Teenage Mutant Ninja Turtles ꞉ Splintered Fate [Cusa50828]", size: 3 },
-  { name: "Tekken.7.05972.Dlc.Character.Armor.King", size: 2 },
-  { name: "Tekken.7.05972.Dlc.Character.Fahkumram", size: 2 },
-  { name: "Terminator.Resistance_Cusa15306_V1.02_Optionalfix_[8.00]_Opoisso893", size: 2 },
-  { name: "Terminator.Resistance_Cusa15306_V1.02_[8.00]_Opoisso893", size: 19 },
-  { name: "The Amazing Spider Man 2", size: 12 },
-  { name: "The Caligula Effect 2", size: 8 },
-  { name: "The Callisto Protocol-Cusa27373", size: 64 },
-  { name: "The Crew® 2 Cusa08600 Main", size: 27 },
-  { name: "The Crew® 2 [Cusa08600]", size: 38 },
-  { name: "The Dark Pictures Anthology House Of Ashes", size: 32 },
-  { name: "The Evil Within 2", size: 30 },
-  { name: "The King Of Fighters Xv (U) - Classic Leona Costume", size: 2 },
-  { name: "The King Of Fighters Xv (U) - Garou Terry Costume", size: 2 },
-  { name: "The King Of Fighters Xv (U) - Team Awakened Orochi", size: 2 },
-  { name: "The King Of Fighters Xv (U) - Team Garou", size: 2 },
-  { name: "The King Of Fighters Xv (U) - Team South Town", size: 2 },
-  { name: "The King Of Fihter 1995", size: 2 },
-  { name: "The Last Campfire V1.07-Cusa19445", size: 2 },
-  { name: "The Last Of Us 2", size: 73 },
-  { name: "The Last Of Us 2 Fix", size: 2 },
-  { name: "The Walking Dead - Saints & Sinners", size: 23 },
-  { name: "The Witcher 3 Wild Hunt", size: 43 },
-  { name: "The Witcher 3 Wild Hunt – Complete Edition", size: 11 },
-  { name: "The.Dark.Pictures.Anthology.Little.Hope.Ps4-Duplex", size: 36 },
-  { name: "The.King.Of.Fighters.Collection.The.Orochi.Saga", size: 2 },
-  { name: "The.Last.Of.Us.Remastered_Cusa00556_V1.00", size: 48 },
-  { name: "The.Last.Of.Us.Remastered_Cusa00556_V1.11_Opoisso893", size: 2 },
-  { name: "The.Witcher.3.Wild.Hunt.Complete.Edition.Ps4-Duplex", size: 41 },
-  { name: "The_Pathless", size: 5 },
-  { name: "This.Is.The.Police.2.Ps4-Duplex", size: 4 },
-  { name: "This.Is.The.Police.2_Cusa11626_A0101_Backport505_Opoisso893", size: 2 },
-  { name: "Tiny_Tinas_Assault_On_Dragon_Keep_A_Wonderlands_One-Shot_Adventure", size: 15 },
-  { name: "Tom Clancy'S Ghost Recon - Wildlands", size: 55 },
-  { name: "Tomb Raider Definitive", size: 21 },
-  { name: "Tormented.Souls_Cusa29199_V1.00_[8.50]_Opoisso893", size: 7 },
-  { name: "Total Overdose", size: 6 },
-  { name: "Transformers_Rise_Of_The_Dark_Spark_Ps4-Playable", size: 11 },
-  { name: "Trials.Rising.(Tm)_Cusa09435_V1.00_[6.72]_Opoisso893", size: 24 },
-  { name: "Trials.Rising.(Tm)_Cusa09435_V1.12_[6.72]_Opoisso893", size: 9 },
-  { name: "Ufc 3", size: 20 },
-  { name: "Ufc.4_Cusa14209_V1.00_[7.50]_Opoisso893", size: 26 },
-  { name: "Ufc® 4 V24.00_Backport_", size: 10 },
-  { name: "Uncharted 4 A Thief'S End", size: 63 },
-  { name: "Uncharted 4 Lost Legacy", size: 51 },
-  { name: "Until Dawn", size: 39 },
-  { name: "Up0001-Cusa27237_00-Game000000000000-A0100-V0100-Cyb1K", size: 6 },
-  { name: "Up1003-Cusa02557_00-Fallout4Fullgame-A0100-V0100-Cyb1K-[Dlpsgame.Com]", size: 32 },
-  { name: "Up6139-Cusa34689_00-5188217272288673-A0100-V0100-Notrophy-Trifecta", size: 2 },
-  { name: "Up9000-Slus20787_00-Slus207870000001-A0100-V0100", size: 6 },
-  { name: "Ultra Age", size: 7 },
-  { name: "Uncharted.Drakes.Fortune.Resmastered.Ps4-Blaze", size: 12 },
-  { name: "Underworld Ascendant", size: 10 },
-  { name: "Unravel.Cusa02532", size: 4 },
-  { name: "Unravel.Two.Ps4-Duplex", size: 4 },
-  { name: "Unravel.Two.Update.V1.01.Ps4-Duplex", size: 2 },
-  { name: "Unruly Heroes-Cusa16109.V1.0", size: 3 },
-  { name: "Urban Trial Tricky [Cusa23270]", size: 2 },
-  { name: "Vampyr.Ps4-Duplex", size: 15 },
-  { name: "Volume.Usa.Ps4-Cusa02943", size: 2 },
-  { name: "Volume.V1.08.Patch.Usa.Ps4-Cusa02943", size: 2 },
-  { name: "Vroom Kaboom", size: 8 },
-  { name: "Wasteland 2 Gty", size: 6 },
-  { name: "Watchdogs", size: 22 },
-  { name: "Wrc.10.Fia.World.Rally.Championship.Ps4-Duplex", size: 27 },
-  { name: "Wrc.10.Fia.World.Rally.Championship.Update.V1.04.Ps4-Duplex", size: 14 },
-  { name: "Wrc.9.Fia.World.Rally.Championship.Ps4-Duplex", size: 22 },
-  { name: "Wrc.9.Fia.World.Rally.Championship.Update.V1.04.Ps4-Duplex", size: 9 },
-  { name: "Wrc.Generations_Cusa33609_V1.00_[9.00]_Opoisso893", size: 31 },
-  { name: "Wrc.Generations_Cusa33609_V1.04_[9.00]_Opoisso893", size: 13 },
-  { name: "Wwe 2K24-Main", size: 62 },
-  { name: "Wwe 2K24-Update 1.05", size: 30 },
-  { name: "Wwe.2K.Battlegrounds.Ps4-Duplex", size: 7 },
-  { name: "Wwe.2K.Battlegrounds.Update.V10.50.Ps4-Duplex", size: 4 },
-  { name: "Wwe.2K25_Cusa48576_Bloodline.Edition.Bonus.Pack_Opoisso893", size: 2 },
-  { name: "Wwe.2K25_Cusa48576_Deadman.Edition.Bonus.Pack_Opoisso893", size: 2 },
-  { name: "Wwe.2K25_Cusa48576_Myrise.Megaboost_Opoisso893", size: 2 },
-  { name: "Wwe.2K25_Cusa48576_New.Wave.Pack_Opoisso893", size: 2 },
-  { name: "Wwe.2K25_Cusa48576_Season.Pass_Opoisso893", size: 2 },
-  { name: "Wwe.2K25_Cusa48576_Supercharger_Opoisso893", size: 2 },
-  { name: "Wwe.2K25_Cusa48576_The.Rock.Nation.Of.Domination.Pack_Opoisso893", size: 2 },
-  { name: "Wwe.2K25_Cusa48576_Wyatt.Sicks.Pack_Opoisso893", size: 2 },
-  { name: "Wwe.2K25_Cusa48576_V1.00_[12.00]", size: 42 },
-  { name: "Wwe.2K25_Cusa48576_V1.00_[12.00]_Opoisso893", size: 42 },
-  { name: "Wwe.2K25_Cusa48576_V1.07_Backport-9.00-11.00", size: 50 },
-  { name: "Wwe.2K25_Cusa48576_V1.11_Backport_[5.05-6.72-7.Xx-9.00-11.00]_Opoisso893", size: 51 },
-  { name: "Wwe2K24-A0108-V0100-Cyb1K-[Dlpsgame.Com]", size: 31 },
-  { name: "Wanted Dead", size: 21 },
-  { name: "Watch Dogs® Legion", size: 36 },
-  { name: "Watchdogs 2", size: 23 },
-  { name: "Weird West Cusa17598", size: 5 },
-  { name: "White.Night.Ps4-Unlimited", size: 2 },
-  { name: "Wolfenstein Ii - The New Colossus V1", size: 4 },
-  { name: "Wolfenstein The New Order", size: 51 },
-  { name: "World War Z", size: 37 },
-  { name: "Yakuza 0", size: 25 },
-  { name: "Yakuza 6", size: 38 },
-  { name: "You.Suck.At.Parking_Cusa35113_V1.00_[11.00]_Opoisso893", size: 2 },
-  { name: "You.Suck.At.Parking_Cusa35113_V1.10_Backport_[5.05-6.72-7.Xx-9.00]_Opoisso893", size: 2 },
-  { name: "You.Suck.At.Parking_Cusa35113_V1.10_[11.00]_Opoisso893", size: 2 },
-  { name: "Your Toy", size: 2 },
-  { name: "Zombi", size: 22 },
-  { name: "Zombie Driver Immortal Edition", size: 2 },
-  { name: "Zombie.Army.4.Dead.War.Ps4-Duplex", size: 21 },
-  { name: "Blz-Awou", size: 18 },
-  { name: "Efootball.2022_Cusa26997_V1.06_Optionalfix_[8.50]_Opoisso893", size: 2 },
-  { name: "Efootball.2022_Cusa26997_V1.06_[8.50]_Opoisso893", size: 42 },
-  { name: "Farming Simulator 22", size: 22 },
-  { name: "Goldhen.Bin", size: 2 },
-  { name: "Goldhen.Zip", size: 2 },
-  { name: "Hitman 2", size: 32 },
-  { name: "Payload.Bin", size: 2 },
-  { name: "Ps2 Elf Loader", size: 4 },
-  { name: "Street Fighter 30Th Ac", size: 6 },
-  { name: "War Tech Fighters", size: 6 },
-  { name: "Wwe Smackdown Here Comes The Pain", size: 4 },
-  { name: "Wwe Smack Pain", size: 4 },
-];
-
-  let selectedGames = [];
-
-  function renderGames() {
-    const list = document.getElementById("gameList");
-    list.innerHTML = "";
-    games.forEach((game, index) => {
-      const item = document.createElement("div");
-      item.className = "game-item";
-      const displayName = game.name.replace(/\.iso$/i, "").replace(/\.ISO$/i, "");
-    item.innerText = `${displayName} - ${game.size} GB`;
-      item.onclick = () => toggleGame(index, item);
-      list.appendChild(item);
-    });
-  }
-
-  function toggleGame(index, element) {
-    const isSelected = selectedGames.includes(index);
-    if (isSelected) {
-      selectedGames = selectedGames.filter(i => i !== index);
-      element.classList.remove("selected");
-    } else {
-      selectedGames.push(index);
-      element.classList.add("selected");
-    }
-    updateSummary();
-  updateStorageBar();
-  }
-
-  function updateSummary() {
-    const totalGames = games.length;
-    const totalGameSize = games.reduce((sum, g) => sum + g.size, 0).toFixed(2);
-    const selectedCount = selectedGames.length;
-    const selectedSize = selectedGames.reduce((sum, i) => sum + games[i].size, 0).toFixed(2);
-    document.getElementById("summaryInfo").innerText =
-      `Total Games: ${totalGames} (${totalGameSize} GB) | Selected: ${selectedCount} (${selectedSize} GB)`;
-  }
-
-  function printPlainText() {
-    const name = document.getElementById("customerName").value;
-    const mobile = document.getElementById("customerMobile").value;
-    const totalGames = selectedGames.length;
-    const totalSize = selectedGames.reduce((sum, i) => sum + games[i].size, 0).toFixed(2);
-    let list = selectedGames.map((i, idx) => `${idx + 1}. ${games[i].name} (${games[i].size} GB)`).join("\n");
-
-    let content = `Name: ${name}\nMobile: ${mobile}\nTotal Games: ${totalGames} | Total Size: ${totalSize} GB\n\n${list}\n\nSend this list to Games Planet for installation.`;
-
-    const win = window.open('', '', 'width=800,height=600');
-    win.document.write(`<pre style="font-size: 14px; font-family: monospace;">${content}</pre>`);
-    win.print();
-  }
-
-  function saveAsPDF() {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-    const name = document.getElementById("customerName").value;
-    const mobile = document.getElementById("customerMobile").value;
-    const totalGames = selectedGames.length;
-    const totalSize = selectedGames.reduce((sum, i) => sum + games[i].size, 0).toFixed(2);
-    let y = 10;
-
-    doc.setFontSize(12);
-    doc.text(`Name: ${name}`, 10, y); y += 7;
-    doc.text(`Mobile: ${mobile}`, 10, y); y += 7;
-    doc.text(`Total Games: ${totalGames} | Total Size: ${totalSize} GB`, 10, y); y += 10;
-
-    selectedGames.forEach((i, idx) => {
-      const gameLine = `${idx + 1}. ${games[i].name} (${games[i].size} GB)`;
-      doc.text(gameLine, 10, y);
-      y += 7;
-      if (y > 280) { doc.addPage(); y = 10; }
-    });
-
-    y += 10;
-    doc.text("Send this list to Games Planet for installation.", 10, y);
-    doc.save("PC_Game_Selection.pdf");
-  }
-
-  function sendEmail() {
-    const name = document.getElementById("customerName").value;
-    const mobile = document.getElementById("customerMobile").value;
-    let list = selectedGames.map(i => `${i + 1}. ${games[i].name}`).join("%0A");
-    const mailBody = `Name: ${name}%0AMobile: ${mobile}%0AGames Selected:%0A${list}`;
-    window.location.href = `mailto:gamesplanet.7983624797@gmail.com?subject=PS4 Game Selection&body=${mailBody}`;
-  }
-
-  function sendSMS() {
-    const name = document.getElementById("customerName").value;
-    const mobile = document.getElementById("customerMobile").value;
-    let list = selectedGames.map(i => `${i + 1}. ${games[i].name}`).join("%0A");
-    const smsBody = `Name: ${name}%0AMobile: ${mobile}%0AGames:%0A${list}`;
-    window.location.href = `sms:7983624797?body=${smsBody}`;
-  }
-
-  function sendWhatsApp() {
-    const name = document.getElementById("customerName").value;
-    const mobile = document.getElementById("customerMobile").value;
-    let list = selectedGames.map(i => `${i + 1}. ${games[i].name}`).join("%0A");
-    const message = `Name: ${name}%0AMobile: ${mobile}%0AGames Selected:%0A${list}`;
-    window.open(`https://wa.me/917983624797?text=${message}`, '_blank');
-  }
-
-  renderGames();
-
-let speechQueue = null;
-function speak(text) {
-  if (speechQueue) window.speechSynthesis.cancel();
-  speechQueue = new SpeechSynthesisUtterance(text);
-  window.speechSynthesis.speak(speechQueue);
-}
-
-function toggleGame(index, element) {
-  const isSelected = selectedGames.includes(index);
-  const storageLimit = (parseFloat(document.getElementById("storageSize").value) || 0) - 2;
-  const currentSelectedSize = selectedGames.reduce((sum, i) => sum + games[i].size, 0);
-  const thisGameSize = games[index].size;
-
-  if (!isSelected && (currentSelectedSize + thisGameSize > storageLimit)) {
-    speak("Storage limit exceeded");
-    return;
-  }
-
-  if (isSelected) {
-    selectedGames = selectedGames.filter(i => i !== index);
-    element.classList.remove("selected");
-  } else {
-    selectedGames.push(index);
-    element.classList.add("selected");
-  }
-
-  updateSummary();
-  updateStorageBar();
-  speak(String(selectedGames.length));
-
-  const used = selectedGames.reduce((sum, i) => sum + games[i].size, 0);
-  const remaining = (parseFloat(document.getElementById("storageSize").value) || 0) - used;
-  if (remaining <= 5 && remaining > 0) {
-    if (remaining <= 1) {
-      speak("Last 1 GB remaining");
-    } else {
-      speak(`Only ${remaining.toFixed(1)} GB left`);
-    }
-  }
-}
-
-// Inject progress bar
-document.querySelector('#storageSize').insertAdjacentHTML('afterend', `
-<div style="width: 90%; margin: 10px auto;">
-  <div style="font-size: 12px; margin-bottom: 4px;" id="progressLabel">Used: 0 GB of 0 GB</div>
-  <div style="height: 10px; background: #eee; border-radius: 5px; overflow: hidden;">
-    <div id="progressBar" style="height: 100%; width: 0%; background: green;"></div>
-  </div>
-</div>
-`);
-
-const originalUpdateSummary = updateSummary;
-updateSummary = function() {
-  const totalGames = games.length;
-  const totalGameSize = games.reduce((sum, g) => sum + g.size, 0).toFixed(2);
-  const selectedCount = selectedGames.length;
-  const selectedSize = selectedGames.reduce((sum, i) => sum + games[i].size, 0).toFixed(2);
-  document.getElementById("summaryInfo").innerText =
-    `Total Games: ${totalGames} (${totalGameSize} GB) | Selected: ${selectedCount} (${selectedSize} GB)`;
-
-  const storage = parseFloat(document.getElementById("storageSize").value) || 0;
-  const percent = (selectedSize / storage) * 100;
-  const bar = document.getElementById("progressBar");
-  const label = document.getElementById("progressLabel");
-
-  bar.style.width = `${Math.min(percent, 100)}%`;
-  if (percent < 80) {
-    bar.style.background = "green";
-  } else if (percent >= 100) {
-    bar.style.background = "red";
-  } else {
-    bar.style.background = "orange";
-    bar.style.background = "red";
-  }
-  label.innerText = `Used: ${selectedSize} GB of ${storage} GB`;
-};
-
-
-function updateStorageBar() {
-  const selectedSize = selectedGames.reduce((sum, i) => sum + games[i].size, 0);
-  const totalSize = parseFloat(document.getElementById("storageSize").value || "0");
-  const usedPercent = totalSize > 0 ? Math.min((selectedSize / totalSize) * 100, 100) : 0;
-
-  document.getElementById("storageBarInfo").innerText =
-    `Used: ${selectedSize.toFixed(2)} GB of ${totalSize} GB (${usedPercent.toFixed(0)}%)`;
-}
-
-
-
-window.addEventListener('click', () => {
-  const music = document.getElementById('bgMusic');
-  music.muted = false;
-  music.play();
-}, { once: true });
-
-
-function generateExportText() {
-  const name = document.getElementById("customerName").value.trim();
-  const mobile = document.getElementById("customerMobile").value.trim();
-  const selected = selectedGames.map(i => games[i]);
-
-  if (!name || !mobile || selected.length === 0) {
-    alert("Please enter Name, Mobile and select at least one game.");
-    return null;
-  }
-
-  selected.sort((a, b) => a.name.localeCompare(b.name));
-
-  let message = `Name: ${name}\nMobile: ${mobile}\nTotal Games Selected: ${selected.length}\nTotal Size: ${selected.reduce((s, g) => s + g.size, 0).toFixed(2)} GB\n\n`;
-  selected.forEach((g, i) => {
-    message += `${i + 1}. ${g.name}\n`;
-  });
-  message += "\nPlease install these games in my USB or device.";
-  return message;
-}
-
-function sendWhatsApp() {
-  const message = generateExportText();
-  if (!message) return;
-  const number = "7983624797";
-  const url = `https://wa.me/91${number}?text=` + encodeURIComponent(message);
-  window.open(url, "_blank");
-}
-
-function sendSMS() {
-  const message = generateExportText();
-  if (!message) return;
-  const number = "7983624797";
-  const smsUrl = `sms:${number}?body=` + encodeURIComponent(message);
-  window.open(smsUrl, "_blank");
-}
-
-function sendEmail() {
-  const message = generateExportText();
-  if (!message) return;
-  const subject = "My PS4 Game List";
-  const email = "Gamesplanet.7983624797@gmail.com";
-  const mailto = `mailto:${email}?subject=` + encodeURIComponent(subject) + "&body=" + encodeURIComponent(message);
-  window.open(mailto, "_blank");
-}
-
 </script>
+</body>
 </html>
