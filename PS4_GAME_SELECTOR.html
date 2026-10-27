@@ -139,426 +139,1637 @@
 </div>
 <script>
   const games = [
-  {"name":"9 Monkeys of Shaolin","size":10},
-  {"name":"A O T Wings Of Freedom Internal Ps4-Prelude","size":15},
-  {"name":"A Plague Tale Innocence","size":40},
-  {"name":"A Way Out","size":18},
-  {"name":"Aliens Fireteam Elite","size":19},
-  {"name":"All-Terrain Skeleton ꞉ Gold (Lv 1) [Cusa11260]","size":2},
-  {"name":"Apsulov End Of Gods","size":5},
-  {"name":"Aragami 2","size":13},
-  {"name":"Armor Plate ꞉ Gold (Lv 1) [Cusa11260]","size":2},
-  {"name":"Armor Plate ꞉ Gold (Lv 2) [Cusa11260]","size":2},
-  {"name":"Ary And The Secret Of","size":14},
-  {"name":"Ashes Cricket 17","size":13},
-  {"name":"Assassin'S Creed Freedom Cry","size":8},
-  {"name":"Assassin'S Creed Origins Full","size":51},
-  {"name":"Assassin'S Creed Syndicate","size":40},
-  {"name":"Assassin'S Creed Unity (Usa)","size":42},
-  {"name":"Assassin'S Creed® Mirage [Cusa33151]","size":18},
-  {"name":"Assassins Creed Odyssey Ps4-Duplex","size":45},
-  {"name":"Assassins Creed Rogue","size":11},
-  {"name":"Assassins Creed Valhalla Cusa18534","size":43},
-  {"name":"Atomic Heart Premium Edition","size":50},
-  {"name":"Attack On Titan 2 Ps4-Duplex","size":23},
-  {"name":"Baldo The Guardian Owls","size":2},
-  {"name":"Batman Arkham Asylum 0","size":8},
-  {"name":"Batman Arkham City","size":38},
-  {"name":"Batman Arkham City 2","size":38},
-  {"name":"Batman Arkham Knight","size":50},
-  {"name":"Battlefield 1","size":43},
-  {"name":"Battlefield 4","size":38},
-  {"name":"Battlefield V Ps4 Fpkg [Cusa08670]","size":35},
-  {"name":"Beach Buggy Racing 2 Island Adventure","size":4},
-  {"name":"Ben 10 Power Trip","size":4},
-  {"name":"Biohazard Umbrella Corps","size":5},
-  {"name":"Biohazard Umbrella Corps Ud106","size":4},
-  {"name":"Biped","size":10},
-  {"name":"Bloodborne Game Of The Year Edition","size":32},
-  {"name":"Bloodrayne Revamped","size":6},
-  {"name":"Blz-Awou","size":18},
-  {"name":"Bound By Flame","size":5},
-  {"name":"Bramble The Mountain King","size":7},
-  {"name":"Burnout Paradise Remastered Cusa-10866","size":10},
-  {"name":"Burnout Revenge","size":3},
-  {"name":"Call of Duty: Black Ops III","size":83,"originalName":"Cod Bo3 + Cod Bo3 Dlc Zombies Chronicles"},
-  {"name":"Call of Duty: Black Ops 6","size":63,"originalName":"Call Of Duty Black Ops 6 Arabic By Haider Kiara"},
-  {"name":"Call of Duty: Black Ops Cold War","size":187,"originalName":"Cod Bo Cold War"},
-  {"name":"Call of Duty: Modern Warfare (2019)","size":194,"originalName":"Call Of Duty® Modern Warfare® + Campaign 1 + Campaign 2 + Multiplayer Pack + Special Ops Pack 2 + Survival Pack + Campaign And Special Ops Pack + Multiplayer And Special Ops Pack"},
-  {"name":"Call of Duty: Modern Warfare II","size":127,"originalName":"Content 0–5 Licenses + Campaign Pack 1 + Campaign Pack 2 + Co-Op Pack + Multiplayer Pack + Content Pac 5 + Core Gam + Core Game 1 + Call Of Duty® ꞉ Modern Warfare Ii [Cusa23827]"},
-  {"name":"Capcom Arcade Stadium","size":2},
-  {"name":"Chiral Gold Color For The “Ludens Mask“ Sunglasses [Cusa11260]","size":2},
-  {"name":"Chiral Gold Color For The “Sam“ Sunglasses [Cusa11260]","size":2},
-  {"name":"Chiral Gold Color For The Bridges Hat [Cusa11260]","size":2},
-  {"name":"Cloudpunk Ps4-Unlimited","size":10},
-  {"name":"Cobra Kai 2 Dojos Rising","size":6},
-  {"name":"Cobra Kai The Karate Kid Saga Continues","size":7},
-  {"name":"Cod Aw","size":63},
-  {"name":"Cod Bo4-Ps4-Duplex-Cusa12443","size":95},
-  {"name":"Cod Ghost","size":31},
-  {"name":"Cod Infinite Warfare","size":70},
-  {"name":"Cod Vanguard","size":94},
-  {"name":"Cod Ww2","size":74},
-  {"name":"Contra Anniversary Collection","size":4},
-  {"name":"Control","size":31},
-  {"name":"Crash Bandicoot N Sane Trilogy","size":24},
-  {"name":"Crash Bandicoot™ 4 It'S About Time Cusa23470","size":24},
-  {"name":"Crash Team Racing Nitro-Fueled","size":39},
-  {"name":"Creaks","size":6},
-  {"name":"Cricket 24","size":40},
-  {"name":"Cricket22","size":49},
-  {"name":"Crysis 2 Remastered-A0100-Arczi","size":19},
-  {"name":"Crysis Remastered Ps4-Duplex","size":14},
-  {"name":"Cup Head Ep8254-Cusa20469 A0101-V0100-Cyb1K","size":2},
-  {"name":"Cuphead","size":7},
-  {"name":"Cusa23827 Dumping","size":2},
-  {"name":"Cusa27373 Callisto Protocol Season Pass-Arczi","size":2},
-  {"name":"Cyberpunk 2077 [Cusa16579]","size":67},
-  {"name":"Danger Zone Ps4-Unlimited","size":2},
-  {"name":"Dark Alliance","size":46},
-  {"name":"Dark Souls Iii Game Of The Year","size":26},
-  {"name":"Dark Wood","size":6},
-  {"name":"Darksiders Iii","size":21},
-  {"name":"Darkwood","size":6},
-  {"name":"Deadpool Ps4","size":7},
-  {"name":"Death By Degrees","size":7},
-  {"name":"Death Stranding [Cusa11260]","size":49},
-  {"name":"Death Stranding Digital Deluxe Edition [Cusa11260]","size":2},
-  {"name":"Destroy All Humans","size":29},
-  {"name":"Detroit Become Human","size":44},
-  {"name":"Deus Ex Mankind Divided","size":53},
-  {"name":"Devil May Cry 5 Ps4-Caf","size":33},
-  {"name":"Diablo II Resurrected","size":23},
-  {"name":"Diablo Iii Ultimate Evil","size":45},
-  {"name":"Dirt 4","size":41},
-  {"name":"Dirt 5™","size":28},
-  {"name":"Dirt Rally 2 0","size":28},
-  {"name":"Dishonored Death of the Outsider","size":31},
-  {"name":"Dmc Devil May Cry","size":19},
-  {"name":"Don Bradman Cricket 17 Ps4","size":11},
-  {"name":"Doom 3","size":17},
-  {"name":"Dragon Ball Fighterz","size":5},
-  {"name":"Dragon Ball Xenoverse 2 - Future Trunks","size":2},
-  {"name":"Dragon Ball Xenoverse 2 - Goku Black And Tao Pai Pai Stick","size":2},
-  {"name":"Dragon Ball Xenoverse 2 - Legend Patrol","size":4},
-  {"name":"Dragon Ball Z Kakarot","size":61},
-  {"name":"Dustwind The Last Resort","size":4},
-  {"name":"Dying Light","size":17},
-  {"name":"Dying Light 2 Stay Human","size":24},
-  {"name":"Dying Light The Following Enhanced Edition Cusa03977","size":16},
-  {"name":"EA Sports FC 25","size":6},
-  {"name":"Elden Ring","size":10},
-  {"name":"Eldenring","size":33},
-  {"name":"Elex 2 Cusa28134","size":36},
-  {"name":"Ep4133-Cusa37321 00-Atohatomicpassy0-A0000-V0100-Cyb1K","size":2},
-  {"name":"Ep4133-Cusa37321 00-Atohswedeelectro-A0000-V0100-Cyb1K","size":2},
-  {"name":"Ep4133-Cusa37321 00-Atohzvezdochkaak-A0000-V0100-Cyb1K","size":2},
-  {"name":"Everspace","size":6},
-  {"name":"Evil Genius 2","size":13},
-  {"name":"Evil West [Cusa25569]","size":28},
-  {"name":"F1 24","size":40},
-  {"name":"Fallout 4 - Game Of The Year Edition","size":37},
-  {"name":"Fallout 4 Fullgame-Cusa02557 - A0136-V0100","size":12},
-  {"name":"Far Cry 3 Classic Edition Ps4-Duplex","size":9},
-  {"name":"Far Cry 4","size":26},
-  {"name":"Far Cry 5","size":40},
-  {"name":"Far Cry 6","size":69},
-  {"name":"Far Cry New Dawn","size":26},
-  {"name":"Farcry Primal","size":13},
-  {"name":"Farming Simulat 22-A0100-V0101","size":14},
-  {"name":"Farming Simulator 22","size":22},
-  {"name":"Fast And Furious Crossroads Cusa11445","size":42},
-  {"name":"Fast And Furious Spy Racers Rise Of","size":7},
-  {"name":"Fifa 19","size":42},
-  {"name":"Fifa 24","size":48},
-  {"name":"Fighting EX Layer","size":6},
-  {"name":"Flatout 4 Total","size":9},
-  {"name":"Fracked Vr Ps4-Duplex","size":7},
-  {"name":"Freedom-Chronichles-Episode-One","size":5},
-  {"name":"Freedom-Chronichles-Episode-Zero","size":2},
-  {"name":"Fury Unleashed","size":2},
-  {"name":"Gear Club Unlimited 2 Ultimate Edition","size":21},
-  {"name":"Ghost of Tsushima","size":35},
-  {"name":"Ghost Runner","size":13},
-  {"name":"Gi Joe Blackout","size":14},
-  {"name":"God of War","size":49},
-  {"name":"God Of War 3 Remastered","size":43},
-  {"name":"God Of War Iii - Fall Of Olympus - Dynamic 1","size":2},
-  {"name":"God Of War Iii - Fall Of Olympus - Dynamic 2","size":2},
-  {"name":"God of War Ragnarok","size":92},
-  {"name":"Gran Turismo Sport Ps4-Blaze","size":44},
-  {"name":"Grand Theft Auto Iii–The Definitive Edition Cusa26613","size":6},
-  {"name":"Grand Theft Auto San Andreas–The Definitive Edition","size":24},
-  {"name":"Grand Theft Auto V","size":48},
-  {"name":"Grid 0307","size":18},
-  {"name":"Grid Legends","size":13},
-  {"name":"Gta 3","size":6},
-  {"name":"Guilty Gear Strive","size":13},
-  {"name":"Gun Dam Breaker 3 Pm","size":14},
-  {"name":"Gunjack Vr Ps4-Duplex","size":2},
-  {"name":"Guns Gore And Cannoli 2","size":2},
-  {"name":"Hades","size":11},
-  {"name":"Heavy Rain Ps4","size":30},
-  {"name":"Hellblade Senua'S Sacrifice","size":15},
-  {"name":"Hello Neighbor 2","size":6},
-  {"name":"Herodefense Ps4-Duplex","size":2},
-  {"name":"Hitman","size":45},
-  {"name":"Hitman ꞉ Blood Money Hd [Cusa13612]","size":7},
-  {"name":"Hitman 2","size":32},
-  {"name":"Hitman 3 - Berlin [Cusa18210]","size":2},
-  {"name":"Hitman 3 Ps4-Duplex","size":47},
-  {"name":"Hogwarts Legacy","size":40},
-  {"name":"Horizon Forbidden West","size":86},
-  {"name":"Horizon Zero Dawn - Complete Edition V1","size":51},
-  {"name":"Hotshot Racing","size":11},
-  {"name":"Hungry Shark® World","size":4},
-  {"name":"Huntdown","size":6},
-  {"name":"Inertial Drift Ps4-Unlimited Cusa17431","size":3},
-  {"name":"Infamous First Light (Rus) [Ps4]","size":11},
-  {"name":"Infamouse Second Sons","size":25},
-  {"name":"Infliction","size":5},
-  {"name":"Injustice 2 Legendary Edition","size":34},
-  {"name":"Install Steps Txt","size":2},
-  {"name":"Insurgency Sandstorm Ps4-Duplex","size":10},
-  {"name":"It Takes Two","size":36},
-  {"name":"John Wick Hex Ps4-Unlimited","size":4},
-  {"name":"Jump Force","size":27},
-  {"name":"Just Cuse 4","size":44},
-  {"name":"Just In Time Incorporated","size":2},
-  {"name":"Kena Bridge Of Spirits","size":11},
-  {"name":"Kena Bridge Of Spirits Celebration Hats For Rot","size":2},
-  {"name":"Kena Bridge Of Spirits Digital Deluxe-Arczi","size":2},
-  {"name":"Killzone Shadow Fall","size":44},
-  {"name":"King Of Fighters 15","size":59},
-  {"name":"Last Guardiane","size":14},
-  {"name":"Lego Star Wars The Force Awakens","size":16},
-  {"name":"Lego Star Wars The Skywalker Saga","size":38},
-  {"name":"Lego® City Undercover","size":21},
-  {"name":"Little Nightmares Ii Cusa12779","size":5},
-  {"name":"Little Nightmares Ii Cusa12779 Up","size":2},
-  {"name":"Lode Runner Legacy","size":4},
-  {"name":"Madmax The Game Ps4","size":34},
-  {"name":"Mafia Definative Edition One","size":46},
-  {"name":"Mafia III","size":64},
-  {"name":"Maid Of Sker Ps4-Duplex","size":10},
-  {"name":"Mark Of The Ninja Remastered","size":13},
-  {"name":"Martha Is Dead","size":11},
-  {"name":"Marvel Ultt Wo2015-A0100-V0100","size":9},
-  {"name":"Marvel'S Avengers Cusa14026","size":69},
-  {"name":"Marvel'S Guardians Of The Galaxy","size":62},
-  {"name":"Marvel'S Spider-Man Cusa02299","size":45},
-  {"name":"Marvels Spider Man Miles Morales","size":52},
-  {"name":"Marvels Spider Man Miles Morales Bp","size":2},
-  {"name":"Mass Effect™ Legendary Edition","size":69},
-  {"name":"Medievil","size":21},
-  {"name":"Metal Gear Solid V The Phantom Pain","size":28},
-  {"name":"Metal Gear Solid V The Phantom Pain Ps4 Eur Multi Cusa01154 - Ind","size":28},
-  {"name":"Metal Gear Solid V The Phantom Pain Up","size":2},
-  {"name":"Metal Gear Survive","size":17},
-  {"name":"Metal Slug Xx","size":2},
-  {"name":"Metro Exodus Ps4-Duplex","size":49},
-  {"name":"Metro Redux","size":13},
-  {"name":"Middle Earth Shadow Of War","size":52},
-  {"name":"Mirror'S Edge Catalyst","size":17},
-  {"name":"Monster Energy Supercross 5","size":38},
-  {"name":"Monster Hunter World","size":17},
-  {"name":"Monster Of The Deep Final Fantasy Xv","size":13},
-  {"name":"Monster Truck Championship Ps4-Duplex","size":5},
-  {"name":"Mortal Kombat 11","size":69},
-  {"name":"Mortal Kombat 11 - Community Art 1","size":2},
-  {"name":"Mortal Kombat 11 - Community Art 2","size":2},
-  {"name":"Mortal Kombat Xl","size":41},
-  {"name":"Moto Gp 17","size":12},
-  {"name":"Moto Gp 21 Dlc01000-A0000-V0100","size":2},
-  {"name":"Moto Gp 21 Dlc02B00-A0000-V0100","size":2},
-  {"name":"Moto Gp 21 Fullgame-A0100-V0113","size":25},
-  {"name":"Motogp™25 [Cusa53165]","size":20},
-  {"name":"Narcos Rise Of The Cartels","size":12},
-  {"name":"Naruto","size":35},
-  {"name":"Nascar Arcade Rush [Cusa40791]","size":6},
-  {"name":"Naught","size":2},
-  {"name":"Naught Edahi & Dohai-Arczi","size":2},
-  {"name":"Naught-A0100-Arczi","size":2},
-  {"name":"Nba 2K14","size":42},
-  {"name":"Nba 2K23-Cusa33075-Eur-Game-Ps4-Cyb1K","size":48},
-  {"name":"Nba 2K26 [Cusa54085]","size":80},
-  {"name":"Need For Speed Heat","size":27},
-  {"name":"Nerf Legends","size":10},
-  {"name":"New Super Lucky'S Tale","size":6},
-  {"name":"Nfs Payback","size":18},
-  {"name":"Nfs Rivals","size":15},
-  {"name":"Nier Automata","size":36},
-  {"name":"Ninja Gaiden ꞉ Ragebound [Cusa54473]","size":2},
-  {"name":"Ninja Gaiden 3 Razor'S Edge","size":7},
-  {"name":"Ninja Gaiden Σ 1","size":9},
-  {"name":"Ninja Gaiden Σ 2","size":9},
-  {"name":"Ninja Legends","size":4},
-  {"name":"Nioheu","size":40},
-  {"name":"Observer","size":14},
-  {"name":"Oddworld Soulstorm Ps4-Duplex","size":10},
-  {"name":"Outlast","size":5},
-  {"name":"Panzer Dragoon Remake Ps4-Duplex","size":7},
-  {"name":"Pes2021","size":33},
-  {"name":"Pes2021 Up","size":5},
-  {"name":"Phoenix Point Ps4-Duplex","size":21},
-  {"name":"Plague Road Ps4-Unlimited","size":2},
-  {"name":"Power Skeleton ꞉ Gold (Lv 1) [Cusa11260]","size":2},
-  {"name":"Predator Hunting Grounds Ps4-Duplex","size":13},
-  {"name":"Prey [Cusa06559]","size":42},
-  {"name":"Project Cars 2 Ps4-Duplex","size":39},
-  {"name":"Project Cars 3 Ps4-Duplex","size":37},
-  {"name":"Project Cars Cusa01338","size":28},
-  {"name":"Project Warlock","size":4},
-  {"name":"Ps4 Pkg Tool Exe","size":2},
-  {"name":"Pumpkin Jack","size":4},
-  {"name":"Rad Rodgers","size":9},
-  {"name":"Ratchet & Clank","size":30},
-  {"name":"Raw Data","size":9},
-  {"name":"Re8 Bikini Ladies Cusa18017","size":2},
-  {"name":"Re8 She-Ra And Yorha Daughters And Magneto And Bikini Miranda Cusa18017","size":2},
-  {"name":"Re8 Tifa Dimitrescu And Yorha Daughters White And Dante And John Mcclane And Ghostface Cusa18017","size":2},
-  {"name":"Red Dead Redemption 2","size":105},
-  {"name":"Remnant From The Ashes","size":33},
-  {"name":"Remothered Broken Porcelain","size":12},
-  {"name":"Resident Evil 2 Cusa09193","size":50},
-  {"name":"Resident Evil 3","size":23},
-  {"name":"Resident Evil 4 Re","size":31},
-  {"name":"Resident Evil 5 Hd Ps4","size":18},
-  {"name":"Resident Evil 7 Biohazard Gold Edition","size":31},
-  {"name":"Resident Evil Origins Collection","size":27},
-  {"name":"Resident Evil Revelations 1","size":18},
-  {"name":"Resident Evil Revelations 2","size":25},
-  {"name":"Resident Evil Village","size":31},
-  {"name":"Ride 4 Ps4-Duplex","size":24},
-  {"name":"Riders Republic Ps4-Unlimited","size":17},
-  {"name":"Rims Racing Ps4-Cusa23641","size":9},
-  {"name":"Riptide Gp ꞉ Renegade [Cusa04565]","size":2},
-  {"name":"Riptide Gp2 [Cusa02365]","size":2},
-  {"name":"Rise Of Tomb Raider","size":19},
-  {"name":"Risen","size":7},
-  {"name":"Rive Ps4-Unlimited","size":2},
-  {"name":"Road Redemption","size":7},
-  {"name":"Rocket League","size":4},
-  {"name":"Sackboy A Big Adventure Cusa18886","size":36},
-  {"name":"Saints Row 00Ps4Eu-A0100-V0100-Cyb1K","size":40},
-  {"name":"Samurai Jack ꞉ Battle Through Time","size":5},
-  {"name":"Samurai Warriors 5 Ps4-Duplex","size":14},
-  {"name":"Sekiro","size":18},
-  {"name":"Serious Sam Collection Cusa08218","size":10},
-  {"name":"Shadow Man Remastered","size":8},
-  {"name":"Shadow Of The Tomb Raider Ps4 Fpkg [Cusa10872]","size":30},
-  {"name":"Sherlock Holmes Crimes & Punishments","size":10},
-  {"name":"Sifu","size":18},
-  {"name":"Silent Hills","size":2},
-  {"name":"Skully","size":5},
-  {"name":"Sky Rim","size":33},
-  {"name":"Sles25536 Complete","size":2},
-  {"name":"Smack Down Here Comes The Pain","size":4},
-  {"name":"Sniper 3 Ghost Warrior","size":41},
-  {"name":"Sniper Elite 4","size":33},
-  {"name":"Sniper Elite 5","size":41},
-  {"name":"Song Of Horror Ps4-Duplex","size":8},
-  {"name":"Sonic Frontiers - Cusa28194","size":2},
-  {"name":"Sonic Racing ꞉ Crossworlds [Cusa35016]","size":14},
-  {"name":"Speed Skeleton ꞉ Gold (Lv 1) [Cusa11260]","size":2},
-  {"name":"Spelunky 2","size":4},
-  {"name":"Star Wars - Squadrons [Cusa15080]","size":23},
-  {"name":"Star Wars Jedi Fallen Order Ps4-Duplex","size":49},
-  {"name":"Star Wars-Battlefront Ii-Wdr","size":66},
-  {"name":"State Of Mind","size":8},
-  {"name":"Stranger Of Paradise Final Fantasy Origin","size":33},
-  {"name":"Stray","size":8},
-  {"name":"Stray Fxdv1","size":16},
-  {"name":"Street Fighte 5 Main","size":7},
-  {"name":"Street Fighter 30Th Ac","size":6},
-  {"name":"Street Fighter 5","size":20},
-  {"name":"Street Fighter 6","size":36},
-  {"name":"Subnautica Below Zero","size":9},
-  {"name":"Syberia 3","size":16},
-  {"name":"Taxi Chaos","size":4},
-  {"name":"Teenage Mutant Ninja Turtles ꞉ Splintered Fate [Cusa50828]","size":3},
-  {"name":"Tekken 3","size":2},
-  {"name":"Tekken 7","size":110},
-  {"name":"Tekken Dark Resurrection [Psptops4]","size":3},
-  {"name":"The Amazing Spider Man 2","size":12},
-  {"name":"The Caligula Effect 2","size":8},
-  {"name":"The Callisto Protocol-Cusa27373","size":64},
-  {"name":"The Crew 2","size":38},
-  {"name":"The Dark Pictures Anthology House Of Ashes","size":32},
-  {"name":"The Dark Pictures Anthology Little Hope Ps4-Duplex","size":36},
-  {"name":"The Evil Within 2","size":30},
-  {"name":"The Evil Withineng","size":42},
-  {"name":"The House Of The Dead Remake","size":6},
-  {"name":"The King Of Fighters Collection The Orochi Saga","size":2},
-  {"name":"The King Of Fighters Xiv","size":24},
-  {"name":"The King Of Fighters Xv (U) - Team Awakened Orochi","size":2},
-  {"name":"The King Of Fighters Xv (U) - Team Garou","size":2},
-  {"name":"The King Of Fighters Xv (U) - Team South Town","size":2},
-  {"name":"The King Of Fihter 1995","size":2},
-  {"name":"The Last of Us 2","size":75},
-  {"name":"The Last of Us Remastered","size":50},
-  {"name":"The Order 1886","size":36},
-  {"name":"The Pathless","size":5},
-  {"name":"The Surge 2 Cusa12564","size":10},
-  {"name":"The Walking Dead - Saints & Sinners","size":23},
-  {"name":"The Witcher 3 Wild Hunt","size":43},
-  {"name":"The Witcher 3 Wild Hunt Complete Edition Ps4-Duplex","size":41},
-  {"name":"Thief","size":22},
-  {"name":"This Is The Police 2 Ps4-Duplex","size":4},
-  {"name":"Tiny Tinas Assault On Dragon Keep A Wonderlands One-Shot Adventure","size":15},
-  {"name":"Tom Clancy'S Ghost Recon - Wildlands","size":55},
-  {"name":"Tomb Raider Definitive","size":21},
-  {"name":"Toothntail00Siee","size":4},
-  {"name":"Total Overdose","size":6},
-  {"name":"Transformers Battlegrounds","size":6},
-  {"name":"Transformers Fall Of Cybertron","size":15},
-  {"name":"Transformers Rise Of The Dark Spark Ps4-Playable","size":11},
-  {"name":"Trials Rising","size":33},
-  {"name":"Ufc 3","size":20},
-  {"name":"UFC 4","size":36},
-  {"name":"Ultra Age","size":7},
-  {"name":"Uncharted 4 A Thief'S End","size":63},
-  {"name":"Uncharted 4 Lost Legacy","size":51},
-  {"name":"Uncharted Drakes Fortune Resmastered Ps4-Blaze","size":12},
-  {"name":"Underworld Ascendant","size":10},
-  {"name":"Unravel Cusa02532","size":4},
-  {"name":"Unravel Two","size":6},
-  {"name":"Until Dawn","size":39},
-  {"name":"Up0001-Cusa27237 00-Game000000000000-A0100-V0100-Cyb1K","size":6},
-  {"name":"Up1003-Cusa02557 00-Fallout4Fullgame-A0100-V0100-Cyb1K-[Dlpsgame Com]","size":32},
-  {"name":"Urban Trial Tricky [Cusa23270]","size":2},
-  {"name":"Vampyr Ps4-Duplex","size":15},
-  {"name":"Volume Usa Ps4-Cusa02943","size":2},
-  {"name":"Vroom Kaboom","size":8},
-  {"name":"Wanted Dead","size":21},
-  {"name":"War Tech Fighters","size":6},
-  {"name":"Wasteland 2 Gty","size":6},
-  {"name":"Watch Dogs® Legion","size":36},
-  {"name":"Watchdogs","size":22},
-  {"name":"Watchdogs 2","size":23},
-  {"name":"Weird West Cusa17598","size":5},
-  {"name":"White Night Ps4-Unlimited","size":2},
-  {"name":"Wolfenstein Ii - The New Colossus V1","size":4},
-  {"name":"Wolfenstein The New Order","size":51},
-  {"name":"World War Z","size":37},
-  {"name":"WRC 10","size":41},
-  {"name":"WRC 9","size":31},
-  {"name":"WRC Generations","size":44},
-  {"name":"WWE 2K Battlegrounds","size":11},
-  {"name":"WWE 2K24","size":62},
-  {"name":"WWE 2K25","size":2},
-  {"name":"Wwe Smack Pain","size":4},
-  {"name":"Wwe Smackdown Here Comes The Pain","size":4},
-  {"name":"Yakuza 0","size":25},
-  {"name":"Yakuza 6","size":38},
-  {"name":"You Suck at Parking","size":4},
-  {"name":"Your Toy","size":2},
-  {"name":"Zombi","size":22},
-  {"name":"Zombie Army 4 Dead War Ps4-Duplex","size":21},
-  {"name":"Zombie Driver Immortal Edition","size":2},
+  {
+    "name": "8 Bit Armies",
+    "size": 1.64
+  },
+  {
+    "name": "9 Monkeys Of Shaolin",
+    "size": 6.8
+  },
+  {
+    "name": "A Jugglers Tale",
+    "size": 1.31
+  },
+  {
+    "name": "A Plague Tale Innocence",
+    "size": 36.72
+  },
+  {
+    "name": "A Way Out",
+    "size": 15.81
+  },
+  {
+    "name": "Aliens Fireteam Elite",
+    "size": 14.73
+  },
+  {
+    "name": "Apsulov End Of Gods",
+    "size": 3.43
+  },
+  {
+    "name": "Aragami 2",
+    "size": 10.7
+  },
+  {
+    "name": "Ary And The Secret Of",
+    "size": 10.72
+  },
+  {
+    "name": "Ashes Cricket 17",
+    "size": 10.81
+  },
+  {
+    "name": "Assassin's Creed Freedom Cry",
+    "size": 6.66
+  },
+  {
+    "name": "Assassin's Creed Mirage",
+    "size": 38
+  },
+  {
+    "name": "Assassin's Creed Odyssey",
+    "size": 41.19
+  },
+  {
+    "name": "Assassin's Creed Origins",
+    "size": 46.33
+  },
+  {
+    "name": "Assassin's Creed Rogue",
+    "size": 9.17
+  },
+  {
+    "name": "Assassin's Creed Syndicate",
+    "size": 36.17
+  },
+  {
+    "name": "Assassin's Creed Unity",
+    "size": 38.03
+  },
+  {
+    "name": "Assassin's Creed Valhalla",
+    "size": 124.65
+  },
+  {
+    "name": "Assetto Corsa Competizione",
+    "size": 18.58
+  },
+  {
+    "name": "Atomic Heart Premium Edition",
+    "size": 45
+  },
+  {
+    "name": "Attack On Titan 2",
+    "size": 20.63
+  },
+  {
+    "name": "Attack On Titan Wings Of Freedom",
+    "size": 13.22
+  },
+  {
+    "name": "Baldo The Guardian Owls",
+    "size": 1.49
+  },
+  {
+    "name": "Batman Arkham Asylum",
+    "size": 6.09
+  },
+  {
+    "name": "Batman Arkham City",
+    "size": 34.82
+  },
+  {
+    "name": "Batman Arkham Knight",
+    "size": 45.61
+  },
+  {
+    "name": "Battlefield 1",
+    "size": 38.96
+  },
+  {
+    "name": "Battlefield 4",
+    "size": 33.5
+  },
+  {
+    "name": "Battlefield V",
+    "size": 31.63
+  },
+  {
+    "name": "Beach Buggy Racing 2 Island Adventure",
+    "size": 0.46
+  },
+  {
+    "name": "Ben 10 Power Trip",
+    "size": 1.76
+  },
+  {
+    "name": "Biped",
+    "size": 6.85
+  },
+  {
+    "name": "Bloodborne Game Of The Year Edition",
+    "size": 29.13
+  },
+  {
+    "name": "Bloodrayne Revamped",
+    "size": 4.57
+  },
+  {
+    "name": "Bloody Zombies",
+    "size": 2.37
+  },
+  {
+    "name": "Bound By Flame",
+    "size": 3.83
+  },
+  {
+    "name": "Bramble The Mountain King",
+    "size": 5.97
+  },
+  {
+    "name": "Burnout Paradise Remastered",
+    "size": 6.64
+  },
+  {
+    "name": "Burnout Revenge",
+    "size": 4
+  },
+  {
+    "name": "Call Of Duty Advanced Warfare",
+    "size": 55.11
+  },
+  {
+    "name": "Call Of Duty Black Ops 4",
+    "size": 87.54
+  },
+  {
+    "name": "Call Of Duty Black Ops 6",
+    "size": 292.11
+  },
+  {
+    "name": "Call Of Duty Black Ops Cold War",
+    "size": 234.96
+  },
+  {
+    "name": "Call Of Duty Black Ops III",
+    "size": 73.73
+  },
+  {
+    "name": "Call Of Duty Ghosts",
+    "size": 27.93
+  },
+  {
+    "name": "Call Of Duty Infinite Warfare",
+    "size": 62.57
+  },
+  {
+    "name": "Call Of Duty Modern Warfare II",
+    "size": 97.67
+  },
+  {
+    "name": "Call Of Duty Vanguard",
+    "size": 72.54
+  },
+  {
+    "name": "Call Of Duty WWII",
+    "size": 66.23
+  },
+  {
+    "name": "Capcom Arcade Stadium",
+    "size": 0.2
+  },
+  {
+    "name": "Chronos",
+    "size": 12.8
+  },
+  {
+    "name": "Cloudpunk",
+    "size": 7.18
+  },
+  {
+    "name": "Cobra Kai 2 Dojos Rising",
+    "size": 4.89
+  },
+  {
+    "name": "Cobra Kai The Karate Kid Saga Continues",
+    "size": 5.09
+  },
+  {
+    "name": "Contra Anniversary Collection",
+    "size": 1.19
+  },
+  {
+    "name": "Control",
+    "size": 26.43
+  },
+  {
+    "name": "Crash Bandicoot 4 It's About Time",
+    "size": 21.14
+  },
+  {
+    "name": "Crash Bandicoot N Sane Trilogy",
+    "size": 21.16
+  },
+  {
+    "name": "Crash Team Racing Nitro-fueled",
+    "size": 26.98
+  },
+  {
+    "name": "Creaks",
+    "size": 3.3
+  },
+  {
+    "name": "Cricket 07",
+    "size": 1.11
+  },
+  {
+    "name": "Cricket 22",
+    "size": 43.75
+  },
+  {
+    "name": "Cricket 24",
+    "size": 98.03
+  },
+  {
+    "name": "Crysis 2 Remastered",
+    "size": 16.73
+  },
+  {
+    "name": "Crysis Remastered",
+    "size": 11.91
+  },
+  {
+    "name": "Cuphead",
+    "size": 3.62
+  },
+  {
+    "name": "Cyberpunk 2077",
+    "size": 62.44
+  },
+  {
+    "name": "Danger Zone",
+    "size": 3.76
+  },
+  {
+    "name": "Dark Alliance",
+    "size": 40.84
+  },
+  {
+    "name": "Dark Souls III Game Of The Year",
+    "size": 22.95
+  },
+  {
+    "name": "Darksiders III",
+    "size": 18.85
+  },
+  {
+    "name": "Darkwood",
+    "size": 4.31
+  },
+  {
+    "name": "Days Gone",
+    "size": 39.45
+  },
+  {
+    "name": "Deadpool",
+    "size": 5.13
+  },
+  {
+    "name": "Death By Degrees",
+    "size": 3.92
+  },
+  {
+    "name": "Death Stranding",
+    "size": 44.82
+  },
+  {
+    "name": "Destroy All Humans",
+    "size": 24.61
+  },
+  {
+    "name": "Detroit Become Human",
+    "size": 39.33
+  },
+  {
+    "name": "Deus Ex Mankind Divided",
+    "size": 47.93
+  },
+  {
+    "name": "Devil May Cry 5",
+    "size": 29.42
+  },
+  {
+    "name": "Diablo II Resurrected",
+    "size": 17.67
+  },
+  {
+    "name": "Diablo III Ultimate Evil Edition",
+    "size": 38.26
+  },
+  {
+    "name": "DIRT 4",
+    "size": 32.67
+  },
+  {
+    "name": "DIRT 5",
+    "size": 24.86
+  },
+  {
+    "name": "Dirt Rally 2.0",
+    "size": 25.36
+  },
+  {
+    "name": "Dishonored Death Of The Outsider",
+    "size": 26.76
+  },
+  {
+    "name": "DMC Devil May Cry",
+    "size": 16.98
+  },
+  {
+    "name": "Don Bradman Cricket 17",
+    "size": 9
+  },
+  {
+    "name": "Doom 3",
+    "size": 8.48
+  },
+  {
+    "name": "Downhill Domination",
+    "size": 2.17
+  },
+  {
+    "name": "Dragon Ball Fighterz",
+    "size": 3.98
+  },
+  {
+    "name": "Dragon Ball Xenoverse 2",
+    "size": 18.91
+  },
+  {
+    "name": "Dragon Ball Z Kakarot",
+    "size": 55.2
+  },
+  {
+    "name": "Dustwind The Last Resort",
+    "size": 2.3
+  },
+  {
+    "name": "Dying Light",
+    "size": 14.94
+  },
+  {
+    "name": "Dying Light 2 Stay Human",
+    "size": 20.25
+  },
+  {
+    "name": "Dying Light The Following Enhanced Edition",
+    "size": 13.63
+  },
+  {
+    "name": "EA Sports FC 24",
+    "size": 42.78
+  },
+  {
+    "name": "EA Sports FC 25",
+    "size": 46.8
+  },
+  {
+    "name": "EA Sports FC 26",
+    "size": 78.73
+  },
+  {
+    "name": "eFootball 2022",
+    "size": 38.06
+  },
+  {
+    "name": "eFootball Pes 2021 Season Update",
+    "size": 60.6
+  },
+  {
+    "name": "Elden Ring",
+    "size": 37.68
+  },
+  {
+    "name": "Elex 2",
+    "size": 31.31
+  },
+  {
+    "name": "Everspace",
+    "size": 4.4
+  },
+  {
+    "name": "Evil Genius 2",
+    "size": 10.07
+  },
+  {
+    "name": "Evil West",
+    "size": 25.59
+  },
+  {
+    "name": "F1 24",
+    "size": 55.82
+  },
+  {
+    "name": "Fallout 4",
+    "size": 42.55
+  },
+  {
+    "name": "Far Cry 3 Classic Edition",
+    "size": 7.35
+  },
+  {
+    "name": "Far Cry 4",
+    "size": 28.62
+  },
+  {
+    "name": "Far Cry 5",
+    "size": 33.65
+  },
+  {
+    "name": "Far Cry 6",
+    "size": 96.44
+  },
+  {
+    "name": "Far Cry New Dawn",
+    "size": 21.71
+  },
+  {
+    "name": "Far Cry Primal",
+    "size": 11.26
+  },
+  {
+    "name": "Farming Simulator 22",
+    "size": 18.5
+  },
+  {
+    "name": "Fast & Furious Spy Racers Rise Of Sh1ft3r",
+    "size": 4.46
+  },
+  {
+    "name": "Fast And Furious Crossroads",
+    "size": 38.4
+  },
+  {
+    "name": "FIFA 19",
+    "size": 37.84
+  },
+  {
+    "name": "Fighting Ex Layer",
+    "size": 3.3
+  },
+  {
+    "name": "Flatout 4 Total Insanity",
+    "size": 6.63
+  },
+  {
+    "name": "Fracked VR",
+    "size": 11.11
+  },
+  {
+    "name": "Fury Unleashed",
+    "size": 1.64
+  },
+  {
+    "name": "Gang Beasts",
+    "size": 1.08
+  },
+  {
+    "name": "Gear Club Unlimited 2 Ultimate Edition",
+    "size": 17.9
+  },
+  {
+    "name": "Ghost Of Tsushima",
+    "size": 30.1
+  },
+  {
+    "name": "Ghostrunner",
+    "size": 10.23
+  },
+  {
+    "name": "GI JOE Blackout",
+    "size": 11.38
+  },
+  {
+    "name": "Gleamlight",
+    "size": 0.48
+  },
+  {
+    "name": "God Hand",
+    "size": 1.23
+  },
+  {
+    "name": "God Of War",
+    "size": 43.27
+  },
+  {
+    "name": "God Of War (2005)",
+    "size": 13.7
+  },
+  {
+    "name": "God Of War II",
+    "size": 14.61
+  },
+  {
+    "name": "God Of War III Remastered",
+    "size": 38.88
+  },
+  {
+    "name": "God Of War Ragnarok",
+    "size": 107.88
+  },
+  {
+    "name": "Gran Turismo 7",
+    "size": 79
+  },
+  {
+    "name": "Gran Turismo Sport",
+    "size": 40.04
+  },
+  {
+    "name": "Grand Theft Auto III",
+    "size": 4.72
+  },
+  {
+    "name": "Grand Theft Auto III The Definitive Edition",
+    "size": 4.84
+  },
+  {
+    "name": "Grand Theft Auto Liberty City Stories",
+    "size": 1.18
+  },
+  {
+    "name": "Grand Theft Auto San Andreas",
+    "size": 2.95
+  },
+  {
+    "name": "Grand Theft Auto San Andreas The Definitive Edition",
+    "size": 21.29
+  },
+  {
+    "name": "Grand Theft Auto V",
+    "size": 118.4
+  },
+  {
+    "name": "Grand Theft Auto Vice City",
+    "size": 2.8
+  },
+  {
+    "name": "Grand Theft Auto Vice City Stories",
+    "size": 1.41
+  },
+  {
+    "name": "Grand Theft Auto Vice City The Definitive Edition",
+    "size": 10.36
+  },
+  {
+    "name": "GRID",
+    "size": 16.05
+  },
+  {
+    "name": "GRID Legends",
+    "size": 39.11
+  },
+  {
+    "name": "Guilty Gear Strive",
+    "size": 10.92
+  },
+  {
+    "name": "Gundam Breaker 3",
+    "size": 12.08
+  },
+  {
+    "name": "Gungrave G O R E",
+    "size": 27.93
+  },
+  {
+    "name": "Gunjack VR",
+    "size": 0.76
+  },
+  {
+    "name": "Guns Gore And Cannoli 2",
+    "size": 0.99
+  },
+  {
+    "name": "Hades",
+    "size": 7.59
+  },
+  {
+    "name": "Heavy Rain",
+    "size": 26.69
+  },
+  {
+    "name": "Hellblade Senua's Sacrifice",
+    "size": 13.2
+  },
+  {
+    "name": "Hello Neighbor 2",
+    "size": 9.64
+  },
+  {
+    "name": "Hero Defense",
+    "size": 0.88
+  },
+  {
+    "name": "Hitman",
+    "size": 40.53
+  },
+  {
+    "name": "Hitman 2",
+    "size": 29.25
+  },
+  {
+    "name": "Hitman 3",
+    "size": 42.47
+  },
+  {
+    "name": "Hitman Blood Money HD",
+    "size": 5.3
+  },
+  {
+    "name": "Hogwarts Legacy",
+    "size": 95.19
+  },
+  {
+    "name": "Horizon Forbidden West",
+    "size": 73.61
+  },
+  {
+    "name": "Horizon Zero Dawn Complete Edition",
+    "size": 44.85
+  },
+  {
+    "name": "Hotshot Racing",
+    "size": 4.34
+  },
+  {
+    "name": "Hungry Shark World",
+    "size": 2.02
+  },
+  {
+    "name": "Huntdown",
+    "size": 1.06
+  },
+  {
+    "name": "Inertial Drift",
+    "size": 2.35
+  },
+  {
+    "name": "Infamous First Light",
+    "size": 9.34
+  },
+  {
+    "name": "Infamous Second Son",
+    "size": 22.17
+  },
+  {
+    "name": "Infliction",
+    "size": 3.65
+  },
+  {
+    "name": "Injustice 2 Legendary Edition",
+    "size": 30.93
+  },
+  {
+    "name": "Insurgency Sandstorm",
+    "size": 16.97
+  },
+  {
+    "name": "It Takes Two",
+    "size": 32.91
+  },
+  {
+    "name": "John Wick Hex",
+    "size": 0.87
+  },
+  {
+    "name": "Jump Force",
+    "size": 23.03
+  },
+  {
+    "name": "Just Cause 4",
+    "size": 40.04
+  },
+  {
+    "name": "Just In Time Incorporated",
+    "size": 0.43
+  },
+  {
+    "name": "Kena Bridge Of Spirits",
+    "size": 7.85
+  },
+  {
+    "name": "Killzone Shadow Fall",
+    "size": 38.53
+  },
+  {
+    "name": "LEGO City Undercover",
+    "size": 17.55
+  },
+  {
+    "name": "LEGO Star Wars The Force Awakens",
+    "size": 14.24
+  },
+  {
+    "name": "Lego Star Wars The Skywalker Saga",
+    "size": 33.39
+  },
+  {
+    "name": "Little Nightmares II",
+    "size": 3.87
+  },
+  {
+    "name": "Lode Runner Legacy",
+    "size": 0.4
+  },
+  {
+    "name": "Lost Judgment",
+    "size": 39.73
+  },
+  {
+    "name": "Mad Max",
+    "size": 31.18
+  },
+  {
+    "name": "Mafia Definitive Edition",
+    "size": 41.33
+  },
+  {
+    "name": "Mafia III",
+    "size": 57.74
+  },
+  {
+    "name": "Maid Of Sker",
+    "size": 7.13
+  },
+  {
+    "name": "Mark Of The Ninja Remastered",
+    "size": 8.98
+  },
+  {
+    "name": "Martha Is Dead",
+    "size": 9.14
+  },
+  {
+    "name": "Marvel Ultimate Alliance",
+    "size": 6.05
+  },
+  {
+    "name": "Marvel's Avengers",
+    "size": 62.38
+  },
+  {
+    "name": "Marvel's Guardians Of The Galaxy",
+    "size": 56
+  },
+  {
+    "name": "Marvel's Spider-Man",
+    "size": 40.53
+  },
+  {
+    "name": "Marvel's Spider-Man Miles Morales",
+    "size": 46.55
+  },
+  {
+    "name": "Mass Effect Legendary Edition",
+    "size": 63.28
+  },
+  {
+    "name": "Medievil",
+    "size": 19.07
+  },
+  {
+    "name": "Metal Gear Solid V The Phantom Pain",
+    "size": 26.01
+  },
+  {
+    "name": "Metal Gear Survive",
+    "size": 15.29
+  },
+  {
+    "name": "Metal Slug XX",
+    "size": 0.5
+  },
+  {
+    "name": "Metro Exodus",
+    "size": 63.25
+  },
+  {
+    "name": "Metro Redux",
+    "size": 11.56
+  },
+  {
+    "name": "Middle Earth Shadow Of War",
+    "size": 47.48
+  },
+  {
+    "name": "Middle-earth Shadow Of Mordor Game Of The Year Edition",
+    "size": 34.26
+  },
+  {
+    "name": "Minecraft Playstation4 Edition",
+    "size": 0.17
+  },
+  {
+    "name": "Mirror's Edge Catalyst",
+    "size": 14.5
+  },
+  {
+    "name": "Monster Energy Supercross The Official Videogame 5",
+    "size": 33.68
+  },
+  {
+    "name": "Monster Hunter World",
+    "size": 14.48
+  },
+  {
+    "name": "Monster Of The Deep Final Fantasy XV",
+    "size": 9.4
+  },
+  {
+    "name": "Monster Truck Championship",
+    "size": 6.57
+  },
+  {
+    "name": "Mortal Kombat 11",
+    "size": 62.27
+  },
+  {
+    "name": "Mortal Kombat Armageddon",
+    "size": 5.41
+  },
+  {
+    "name": "Mortal Kombat Deadly Alliance",
+    "size": 2.63
+  },
+  {
+    "name": "Mortal Kombat Deception",
+    "size": 2.27
+  },
+  {
+    "name": "Mortal Kombat Shaolin Monks",
+    "size": 2.66
+  },
+  {
+    "name": "Mortal Kombat Xl",
+    "size": 37.47
+  },
+  {
+    "name": "MotoGP 17",
+    "size": 10.56
+  },
+  {
+    "name": "MotoGP 21",
+    "size": 22.01
+  },
+  {
+    "name": "MotoGP 25",
+    "size": 37.04
+  },
+  {
+    "name": "MX Vs ATV Legends",
+    "size": 24.31
+  },
+  {
+    "name": "Narcos Rise Of The Cartels",
+    "size": 9.81
+  },
+  {
+    "name": "Naruto",
+    "size": 31.81
+  },
+  {
+    "name": "NASCAR Arcade Rush",
+    "size": 4.41
+  },
+  {
+    "name": "Naught",
+    "size": 0.7
+  },
+  {
+    "name": "NBA 2K14",
+    "size": 38.61
+  },
+  {
+    "name": "NBA 2K22",
+    "size": 45.12
+  },
+  {
+    "name": "NBA 2k23",
+    "size": 116.4
+  },
+  {
+    "name": "NBA 2K26",
+    "size": 77.85
+  },
+  {
+    "name": "Need For Speed Heat",
+    "size": 24.61
+  },
+  {
+    "name": "Need For Speed Payback",
+    "size": 15.83
+  },
+  {
+    "name": "Need For Speed Rivals",
+    "size": 12.98
+  },
+  {
+    "name": "Nerf Legends",
+    "size": 16.49
+  },
+  {
+    "name": "New Super Lucky's Tale",
+    "size": 5.04
+  },
+  {
+    "name": "NieR Automata",
+    "size": 38.04
+  },
+  {
+    "name": "Ninja Gaiden 3 Razor's Edge",
+    "size": 3.69
+  },
+  {
+    "name": "Ninja Gaiden Sigma",
+    "size": 4.13
+  },
+  {
+    "name": "Ninja Gaiden Sigma 2",
+    "size": 4.11
+  },
+  {
+    "name": "Ninja Legends",
+    "size": 0.55
+  },
+  {
+    "name": "Nioh",
+    "size": 36.57
+  },
+  {
+    "name": "Observer",
+    "size": 11.27
+  },
+  {
+    "name": "Oddworld Soulstorm",
+    "size": 8.5
+  },
+  {
+    "name": "Offroad Racing Buggy X ATV X Moto",
+    "size": 4.82
+  },
+  {
+    "name": "Outbreak The Nightmare Chronicles",
+    "size": 2.02
+  },
+  {
+    "name": "Outlast",
+    "size": 4.1
+  },
+  {
+    "name": "Overpass",
+    "size": 13.11
+  },
+  {
+    "name": "Panzer Dragoon Remake",
+    "size": 5.83
+  },
+  {
+    "name": "PC Building Simulator",
+    "size": 2.19
+  },
+  {
+    "name": "Phoenix Point",
+    "size": 18.31
+  },
+  {
+    "name": "Plague Road",
+    "size": 0.69
+  },
+  {
+    "name": "Predator Hunting Grounds",
+    "size": 10.72
+  },
+  {
+    "name": "Prey",
+    "size": 37.16
+  },
+  {
+    "name": "Prince Of Persia Sands Of Time",
+    "size": 2.01
+  },
+  {
+    "name": "Prince Of Persia The Two Thrones",
+    "size": 1.54
+  },
+  {
+    "name": "Prince Of Persia Warrior Within",
+    "size": 3.11
+  },
+  {
+    "name": "Project Cars",
+    "size": 24.64
+  },
+  {
+    "name": "Project Cars 2",
+    "size": 35.47
+  },
+  {
+    "name": "Project Cars 3",
+    "size": 33.15
+  },
+  {
+    "name": "Project Warlock",
+    "size": 1.29
+  },
+  {
+    "name": "Pumpkin Jack",
+    "size": 1.78
+  },
+  {
+    "name": "Rad Rodgers",
+    "size": 7.28
+  },
+  {
+    "name": "Ratchet & Clank",
+    "size": 25.71
+  },
+  {
+    "name": "Raw Data",
+    "size": 7.43
+  },
+  {
+    "name": "Re.surs",
+    "size": 0.38
+  },
+  {
+    "name": "Red Dead Redemption 2",
+    "size": 115.74
+  },
+  {
+    "name": "Remnant From The Ashes",
+    "size": 29.76
+  },
+  {
+    "name": "Remothered Broken Porcelain",
+    "size": 9.01
+  },
+  {
+    "name": "Resident Evil 2",
+    "size": 23.24
+  },
+  {
+    "name": "Resident Evil 3",
+    "size": 20.79
+  },
+  {
+    "name": "Resident Evil 4 Remake",
+    "size": 27.56
+  },
+  {
+    "name": "Resident Evil 5 HD",
+    "size": 15.39
+  },
+  {
+    "name": "Resident Evil 7 Biohazard Gold Edition",
+    "size": 28.23
+  },
+  {
+    "name": "Resident Evil Origins Collection",
+    "size": 24.03
+  },
+  {
+    "name": "Resident Evil Revelations 1",
+    "size": 16.26
+  },
+  {
+    "name": "Resident Evil Revelations 2",
+    "size": 20.32
+  },
+  {
+    "name": "Ride 4",
+    "size": 20.63
+  },
+  {
+    "name": "Riders Republic",
+    "size": 29.53
+  },
+  {
+    "name": "Rims Racing",
+    "size": 11.73
+  },
+  {
+    "name": "Riptide GP Renegade",
+    "size": 0.3
+  },
+  {
+    "name": "Riptide GP2",
+    "size": 0.1
+  },
+  {
+    "name": "Rise Of The Tomb Raider",
+    "size": 17.21
+  },
+  {
+    "name": "Risen",
+    "size": 4.13
+  },
+  {
+    "name": "Rive",
+    "size": 1.25
+  },
+  {
+    "name": "Road Redemption",
+    "size": 5.4
+  },
+  {
+    "name": "Rocket League",
+    "size": 2.48
+  },
+  {
+    "name": "Sackboy A Big Adventure",
+    "size": 32.82
+  },
+  {
+    "name": "Saints Row",
+    "size": 36.06
+  },
+  {
+    "name": "Samurai Jack Battle Through Time",
+    "size": 4.01
+  },
+  {
+    "name": "Samurai Warriors 5",
+    "size": 12.48
+  },
+  {
+    "name": "Sekiro",
+    "size": 15.38
+  },
+  {
+    "name": "Serious Sam Collection",
+    "size": 6.88
+  },
+  {
+    "name": "Shadow Man Remastered",
+    "size": 4.49
+  },
+  {
+    "name": "Shadow Of The Tomb Raider",
+    "size": 26.83
+  },
+  {
+    "name": "Sherlock Holmes Crimes & Punishments",
+    "size": 8.07
+  },
+  {
+    "name": "SIFU",
+    "size": 15.72
+  },
+  {
+    "name": "Silent Hills",
+    "size": 1.25
+  },
+  {
+    "name": "Skully",
+    "size": 12.41
+  },
+  {
+    "name": "Sniper Elite 4",
+    "size": 30.16
+  },
+  {
+    "name": "Sniper Elite 5",
+    "size": 28.98
+  },
+  {
+    "name": "Sniper Ghost Warrior 3",
+    "size": 36.81
+  },
+  {
+    "name": "Song Of Horror",
+    "size": 14.35
+  },
+  {
+    "name": "Sonic Frontiers",
+    "size": 0.81
+  },
+  {
+    "name": "Sonic Racing Crossworlds",
+    "size": 11.73
+  },
+  {
+    "name": "Speed 3 Grand Prix",
+    "size": 2.16
+  },
+  {
+    "name": "Spelunky 2",
+    "size": 0.66
+  },
+  {
+    "name": "Star Wars Battlefront II",
+    "size": 59.62
+  },
+  {
+    "name": "Star Wars Episode I Racer",
+    "size": 0.46
+  },
+  {
+    "name": "Star Wars Jedi Fallen Order",
+    "size": 44.44
+  },
+  {
+    "name": "Star Wars Squadrons",
+    "size": 19.95
+  },
+  {
+    "name": "State Of Mind",
+    "size": 6.43
+  },
+  {
+    "name": "Stranger Of Paradise Final Fantasy Origin",
+    "size": 29.46
+  },
+  {
+    "name": "Stray",
+    "size": 19.39
+  },
+  {
+    "name": "Street Fighter 6",
+    "size": 35.99
+  },
+  {
+    "name": "Street Fighter 30th Anniversary Collection",
+    "size": 4.73
+  },
+  {
+    "name": "Street Fighter V",
+    "size": 23.39
+  },
+  {
+    "name": "Stride",
+    "size": 2.73
+  },
+  {
+    "name": "Subnautica Below Zero",
+    "size": 6.38
+  },
+  {
+    "name": "Syberia 3",
+    "size": 13.56
+  },
+  {
+    "name": "Taxi Chaos",
+    "size": 2.12
+  },
+  {
+    "name": "Teenage Mutant Ninja Turtles Splintered Fate",
+    "size": 1.65
+  },
+  {
+    "name": "Tekken 3",
+    "size": 0.37
+  },
+  {
+    "name": "Tekken 4",
+    "size": 2.07
+  },
+  {
+    "name": "Tekken 5",
+    "size": 3.95
+  },
+  {
+    "name": "Tekken 7",
+    "size": 50.48
+  },
+  {
+    "name": "Tekken Dark Resurrection",
+    "size": 1.67
+  },
+  {
+    "name": "Tekken Tag Tournament",
+    "size": 0.39
+  },
+  {
+    "name": "Terminator Resistance",
+    "size": 16.34
+  },
+  {
+    "name": "The Amazing Spider-Man 2",
+    "size": 8.71
+  },
+  {
+    "name": "The Caligula Effect 2",
+    "size": 6.85
+  },
+  {
+    "name": "The Callisto Protocol",
+    "size": 53.91
+  },
+  {
+    "name": "The Crew 2",
+    "size": 59.29
+  },
+  {
+    "name": "The Dark Pictures Anthology House Of Ashes",
+    "size": 28.83
+  },
+  {
+    "name": "The Dark Pictures Anthology Little Hope",
+    "size": 32.5
+  },
+  {
+    "name": "The Elder Scrolls V Skyrim",
+    "size": 29.68
+  },
+  {
+    "name": "The Evil Within",
+    "size": 37.91
+  },
+  {
+    "name": "The Evil Within 2",
+    "size": 26.69
+  },
+  {
+    "name": "The House Of The Dead Remake",
+    "size": 3.41
+  },
+  {
+    "name": "The Incredible Adventures Of Van Helsing 2",
+    "size": 8.1
+  },
+  {
+    "name": "The King Of Fighters 95",
+    "size": 0.24
+  },
+  {
+    "name": "The King Of Fighters Collection The Orochi Saga",
+    "size": 0.8
+  },
+  {
+    "name": "The King Of Fighters XIV",
+    "size": 20.19
+  },
+  {
+    "name": "The King Of Fighters XV",
+    "size": 53.05
+  },
+  {
+    "name": "The Last Campfire",
+    "size": 1.32
+  },
+  {
+    "name": "The Last Guardian",
+    "size": 11.99
+  },
+  {
+    "name": "The Last Of Us 2",
+    "size": 86.56
+  },
+  {
+    "name": "The Last Of Us Remastered",
+    "size": 44.27
+  },
+  {
+    "name": "The Order 1886",
+    "size": 32.32
+  },
+  {
+    "name": "The Pathless",
+    "size": 4.03
+  },
+  {
+    "name": "The Surge 2",
+    "size": 7.4
+  },
+  {
+    "name": "The Walking Dead Onslaught",
+    "size": 8.11
+  },
+  {
+    "name": "The Walking Dead Saints & Sinners",
+    "size": 18.96
+  },
+  {
+    "name": "The Witcher 3 Wild Hunt",
+    "size": 84.06
+  },
+  {
+    "name": "Thief",
+    "size": 19.85
+  },
+  {
+    "name": "This Is The Police 2",
+    "size": 2.56
+  },
+  {
+    "name": "Tiny Tinas Assault On Dragon Keep A Wonderlands One Shot Adventure",
+    "size": 12.76
+  },
+  {
+    "name": "Tom Clancy's Ghost Recon Wildlands",
+    "size": 49.1
+  },
+  {
+    "name": "Tomb Raider Definitive Edition",
+    "size": 18.56
+  },
+  {
+    "name": "Tooth And Tail",
+    "size": 0.86
+  },
+  {
+    "name": "Tormented Souls",
+    "size": 5.25
+  },
+  {
+    "name": "Total Overdose",
+    "size": 6.74
+  },
+  {
+    "name": "Transformers Battlegrounds",
+    "size": 3.82
+  },
+  {
+    "name": "Transformers Fall Of Cybertron",
+    "size": 11.09
+  },
+  {
+    "name": "Transformers Rise Of The Dark Spark",
+    "size": 9.24
+  },
+  {
+    "name": "Trials Rising",
+    "size": 28.19
+  },
+  {
+    "name": "UFC 3",
+    "size": 17.6
+  },
+  {
+    "name": "UFC 4",
+    "size": 31.27
+  },
+  {
+    "name": "Ultra Age",
+    "size": 5.14
+  },
+  {
+    "name": "Umbrella Corps",
+    "size": 6.16
+  },
+  {
+    "name": "Uncharted 4 A Thief's End",
+    "size": 56.33
+  },
+  {
+    "name": "Uncharted Drake's Fortune Remastered",
+    "size": 10.4
+  },
+  {
+    "name": "Uncharted The Lost Legacy",
+    "size": 45.45
+  },
+  {
+    "name": "Underworld Ascendant",
+    "size": 7.37
+  },
+  {
+    "name": "Unravel",
+    "size": 2.66
+  },
+  {
+    "name": "Unravel Two",
+    "size": 3.21
+  },
+  {
+    "name": "Unruly Heroes",
+    "size": 1.88
+  },
+  {
+    "name": "Until Dawn",
+    "size": 35.35
+  },
+  {
+    "name": "Urban Reign",
+    "size": 1.62
+  },
+  {
+    "name": "Urban Trial Tricky",
+    "size": 1.19
+  },
+  {
+    "name": "Vampyr",
+    "size": 13.35
+  },
+  {
+    "name": "Volume",
+    "size": 1.67
+  },
+  {
+    "name": "Vroom Kaboom",
+    "size": 4.87
+  },
+  {
+    "name": "Wanted Dead",
+    "size": 19.03
+  },
+  {
+    "name": "War Tech Fighters",
+    "size": 3.6
+  },
+  {
+    "name": "Wasteland 2 Director's Cut",
+    "size": 4.46
+  },
+  {
+    "name": "Watch Dogs",
+    "size": 19.51
+  },
+  {
+    "name": "Watch Dogs 2",
+    "size": 20.39
+  },
+  {
+    "name": "Watch Dogs Legion",
+    "size": 31.02
+  },
+  {
+    "name": "Weird West",
+    "size": 3.89
+  },
+  {
+    "name": "White Night",
+    "size": 1.14
+  },
+  {
+    "name": "Wolfenstein II The New Colossus",
+    "size": 3.51
+  },
+  {
+    "name": "Wolfenstein The New Order",
+    "size": 46.01
+  },
+  {
+    "name": "World War Z",
+    "size": 32.17
+  },
+  {
+    "name": "WRC 10 Fia World Rally Championship",
+    "size": 36.14
+  },
+  {
+    "name": "WRC Generations",
+    "size": 39.67
+  },
+  {
+    "name": "WWE 2k Battlegrounds",
+    "size": 8.17
+  },
+  {
+    "name": "WWE 2K24",
+    "size": 71.31
+  },
+  {
+    "name": "WWE 2K25",
+    "size": 84.73
+  },
+  {
+    "name": "WWE Smackdown Vs Raw 2011",
+    "size": 2.93
+  },
+  {
+    "name": "WWE Smackdown! Here Comes The Pain",
+    "size": 5.13
+  },
+  {
+    "name": "Yakuza 0",
+    "size": 22.19
+  },
+  {
+    "name": "Yakuza 6",
+    "size": 34.03
+  },
+  {
+    "name": "You Suck At Parking",
+    "size": 1.95
+  },
+  {
+    "name": "Your Toy",
+    "size": 1.01
+  },
+  {
+    "name": "Zombi",
+    "size": 19.93
+  },
+  {
+    "name": "Zombie Army 4 Dead War",
+    "size": 18.29
+  }
 ];
 
-  const SELECTION_STORAGE_KEY = "gamesPlanet.ps4.merged.selectedGames.v2";
+  const SELECTION_STORAGE_KEY = "gamesPlanet.ps4.merged.catalog20261027.v3";
   let selectedGames = [];
 
   try {
