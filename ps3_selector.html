@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html data-cover-platform="ps3" lang="en">
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
@@ -1876,4 +1876,23 @@ function sendEmail() {
 }
 </script>
 <script src="https://gamesplanet13.github.io/arcade-accessories-/ps2-style-footer.js?v=20261016-ps2-view"></script></body>
+
+<!-- Local cover artwork: no external image service is used at runtime. -->
+<script src="images/cover-catalog.js?v=20261028"></script>
+<script src="cover-preview.js?v=20261028"></script>
+<script>
+(function () {
+  const selectGame = toggleGame;
+  toggleGame = function (index, element) {
+    const wasSelected = selectedGames.includes(index);
+    const result = selectGame.apply(this, arguments);
+    if (!wasSelected && selectedGames.includes(index)) {
+      window.GPCoverPreview.show(games[index].name);
+    } else {
+      window.GPCoverPreview.hide();
+    }
+    return result;
+  };
+})();
+</script>
 </html>
